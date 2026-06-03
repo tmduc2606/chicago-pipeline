@@ -64,6 +64,7 @@ dbt/user.yml
 
 # Great Expectations
 great_expectations/uncommitted/
+great_expectations/reports/
 
 # Spark
 spark-warehouse/
