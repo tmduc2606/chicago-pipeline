@@ -50,6 +50,10 @@ class Settings:
         return self._data.get("bronze", {})
 
     @property
+    def silver(self) -> dict[str, Any]:
+        return self._data.get("silver", {})
+
+    @property
     def raw_data(self) -> dict[str, Any]:
         return self._data.get("raw_data", {})
 

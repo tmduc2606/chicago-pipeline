@@ -18,6 +18,26 @@ raw_data:
   synthetic_days: 90
   synthetic_start: "2024-01-01"
 
+silver:
+  prefix: silver/chicago_crime
+  format: parquet
+  partition_by: year/month
+  dedup_columns:
+    - id
+    - case_number
+    - date
+    - primary_type
+    - latitude
+    - longitude
+  chicago_bbox:
+    min_lat: 41.644
+    max_lat: 42.023
+    min_lon: -87.940
+    max_lon: -87.524
+  date_range:
+    start: "2024-01-01"
+    end: "2026-12-31"
+
 logging:
   level: INFO
   json_format: true

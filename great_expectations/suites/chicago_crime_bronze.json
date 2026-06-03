@@ -1,0 +1,52 @@
+{
+  "name": "chicago_crime_bronze",
+  "expectation_suite_name": "chicago_crime_bronze",
+  "data_asset_type": "table",
+  "meta": {
+    "project": "chicago-pipeline",
+    "layer": "bronze",
+    "description": "Great Expectations suite for Chicago Crime Bronze layer validation"
+  },
+  "expectations": [
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {"column": "id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "date"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {"column": "date", "regex": "\\d{2}/\\d{2}/\\d{4}\\s+\\d{2}:\\d{2}:\\d{2}\\s+(AM|PM)"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "primary_type"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "latitude", "min_value": 41.644, "max_value": 42.023},
+      "meta": {"severity": "warning"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "longitude", "min_value": -87.940, "max_value": -87.524},
+      "meta": {"severity": "warning"}
+    },
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {"min_value": 1000},
+      "meta": {"severity": "critical"}
+    }
+  ]
+}

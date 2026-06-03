@@ -1,0 +1,72 @@
+{
+  "name": "chicago_crime_silver",
+  "expectation_suite_name": "chicago_crime_silver",
+  "data_asset_type": "table",
+  "meta": {
+    "project": "chicago-pipeline",
+    "layer": "silver",
+    "description": "Great Expectations suite for Chicago Crime Silver layer validation"
+  },
+  "expectations": [
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {"column": "id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "date"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {"column": "date", "type_": "date"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "primary_type"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {"column": "arrest", "type_": "boolean"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_of_type",
+      "kwargs": {"column": "domestic", "type_": "boolean"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "latitude", "min_value": 41.644, "max_value": 42.023},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "longitude", "min_value": -87.940, "max_value": -87.524},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {"column": "district", "value_set": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 24, 25]},
+      "meta": {"severity": "warning"}
+    },
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {"min_value": 1000},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {"column": "case_number", "regex": "^[A-Z]\\d{6,}$"},
+      "meta": {"severity": "warning"}
+    }
+  ]
+}
