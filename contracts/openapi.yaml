@@ -1,0 +1,477 @@
+openapi: 3.1.0
+info:
+  title: Chicago Crime API
+  version: 0.1.0
+  description: |
+    Public HTTP API exposing dbt marts for the Chicago Crime DBMS dashboard.
+
+    Contract owners:
+      - Producer: backend agent
+      - Consumers: frontend, qa, docs, architect
+
+    This file is the source of truth for HTTP shapes. The FastAPI app must be
+    kept in sync; CI runs `make contracts-validate` to detect drift.
+  contact:
+    name: backend-agent
+    url: ../agents/backend/AGENTS.md
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8000
+    description: Local dev (docker compose)
+  - url: https://api.chicago-pipeline.local
+    description: Reserved (no public deployment yet)
+tags:
+  - name: overview
+  - name: timeseries
+  - name: geo
+  - name: crime-types
+  - name: arrests
+  - name: context
+  - name: filters
+  - name: pipeline
+  - name: quality
+  - name: system
+paths:
+  /api/overview:
+    get:
+      tags: [overview]
+      summary: KPI bundle (total, arrest rate, domestic %, delta vs prev period)
+      operationId: getOverview
+      parameters:
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OverviewKpi" }
+  /api/timeseries:
+    get:
+      tags: [timeseries]
+      summary: Crimes over time at daily/weekly/monthly granularity
+      operationId: getTimeseries
+      parameters:
+        - in: query
+          name: granularity
+          schema: { type: string, enum: [daily, weekly, monthly], default: daily }
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/TimeseriesPoint" }
+  /api/timeseries/forecast:
+    get:
+      tags: [timeseries]
+      summary: Forecast band for the next N days
+      operationId: getForecast
+      parameters:
+        - in: query
+          name: horizon
+          schema: { type: integer, default: 14, minimum: 1, maximum: 60 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ForecastBundle" }
+  /api/timeseries/anomalies:
+    get:
+      tags: [timeseries]
+      summary: Days with z-score above threshold
+      operationId: getAnomalies
+      parameters:
+        - in: query
+          name: z
+          schema: { type: number, default: 3 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AnomalyPoint" }
+  /api/heatmap:
+    get:
+      tags: [timeseries]
+      summary: 7x24 heatmap (weekday x hour)
+      operationId: getHeatmap
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Heatmap" }
+  /api/geo/clusters:
+    get:
+      tags: [geo]
+      summary: H3-clustered incident points
+      operationId: getGeoClusters
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GeoCluster" }
+  /api/geo/choropleth:
+    get:
+      tags: [geo]
+      summary: Per-polygon metric for choropleth rendering
+      operationId: getChoropleth
+      parameters:
+        - in: query
+          name: level
+          schema: { type: string, enum: [district, community_area], default: district }
+        - in: query
+          name: metric
+          schema: { type: string, enum: [count, arrest_rate], default: count }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ChoroplethBucket" }
+  /api/crime-types/top:
+    get:
+      tags: [crime-types]
+      summary: Top N crime types by count
+      operationId: getCrimeTypesTop
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 10, maximum: 50 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CrimeTypeCount" }
+  /api/crime-types/trend:
+    get:
+      tags: [crime-types]
+      summary: Monthly trend for a specific primary type
+      operationId: getCrimeTypeTrend
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/TimeseriesPoint" }
+  /api/arrests/by-district:
+    get:
+      tags: [arrests]
+      summary: Arrest rate per district
+      operationId: getArrestsByDistrict
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DistrictArrest" }
+  /api/arrests/by-type:
+    get:
+      tags: [arrests]
+      summary: Arrest rate per primary type
+      operationId: getArrestsByType
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CrimeTypeArrest" }
+  /api/context/domestic:
+    get:
+      tags: [context]
+      summary: Domestic vs non-domestic split
+      operationId: getDomesticSplit
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BooleanSplit" }
+  /api/context/location:
+    get:
+      tags: [context]
+      summary: Top location_description values
+      operationId: getTopLocations
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/LocationCount" }
+  /api/filters:
+    get:
+      tags: [filters]
+      summary: Available filter values (date range, types, districts)
+      operationId: getFilters
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FilterOptions" }
+  /api/pipeline/status:
+    get:
+      tags: [pipeline]
+      summary: Last run per DAG (proxies Airflow REST)
+      operationId: getPipelineStatus
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DagStatus" }
+  /api/pipeline/runs:
+    get:
+      tags: [pipeline]
+      summary: Run history for a DAG
+      operationId: getPipelineRuns
+      parameters:
+        - in: query
+          name: dag_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 10, maximum: 100 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/DagRun" }
+  /api/quality/summary:
+    get:
+      tags: [quality]
+      summary: Latest GE + dbt results
+      operationId: getQualitySummary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QualitySummary" }
+  /api/health:
+    get:
+      tags: [system]
+      summary: Full health (all 6 dependency checks)
+      operationId: getHealth
+      responses:
+        "200": { description: All dependencies healthy }
+        "503": { description: One or more dependencies unhealthy }
+  /api/health/ready:
+    get:
+      tags: [system]
+      summary: Readiness probe (critical deps only)
+      operationId: getReadiness
+      responses:
+        "200": { description: Ready }
+        "503": { description: Not ready }
+  /api/health/live:
+    get:
+      tags: [system]
+      summary: Liveness probe (always 200 while process is up)
+      operationId: getLiveness
+      responses:
+        "200": { description: Alive }
+  /metrics:
+    get:
+      tags: [system]
+      summary: Prometheus exposition
+      operationId: getMetrics
+      responses:
+        "200":
+          description: Prometheus text format
+          content:
+            text/plain: {}
+components:
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            request_id: { type: string }
+    OverviewKpi:
+      type: object
+      required: [total, arrest_rate, domestic_pct, delta_pct]
+      properties:
+        total: { type: integer }
+        arrest_rate: { type: number, format: float }
+        domestic_pct: { type: number, format: float }
+        delta_pct: { type: number, format: float }
+    TimeseriesPoint:
+      type: object
+      required: [ts, count]
+      properties:
+        ts: { type: string, format: date-time }
+        count: { type: integer }
+        arrests: { type: integer }
+    ForecastBundle:
+      type: object
+      required: [history, forecast]
+      properties:
+        history:
+          type: array
+          items: { $ref: "#/components/schemas/TimeseriesPoint" }
+        forecast:
+          type: array
+          items: { $ref: "#/components/schemas/ForecastPoint" }
+    ForecastPoint:
+      type: object
+      required: [ts, yhat, yhat_lower, yhat_upper]
+      properties:
+        ts: { type: string, format: date-time }
+        yhat: { type: number }
+        yhat_lower: { type: number }
+        yhat_upper: { type: number }
+    AnomalyPoint:
+      type: object
+      required: [ts, z, count]
+      properties:
+        ts: { type: string, format: date-time }
+        z: { type: number }
+        count: { type: integer }
+    Heatmap:
+      type: object
+      required: [matrix]
+      properties:
+        matrix:
+          type: array
+          items:
+            type: array
+            items: { type: integer }
+          description: 7 rows (Mon..Sun) x 24 cols (0..23)
+    GeoCluster:
+      type: object
+      required: [h3, lat, lng, count]
+      properties:
+        h3: { type: string, description: "H3 cell id at resolution 8" }
+        lat: { type: number }
+        lng: { type: number }
+        count: { type: integer }
+    ChoroplethBucket:
+      type: object
+      required: [key, value]
+      properties:
+        key: { type: string, description: "district or community_area id" }
+        value: { type: number }
+    CrimeTypeCount:
+      type: object
+      required: [primary_type, count]
+      properties:
+        primary_type: { type: string }
+        count: { type: integer }
+    CrimeTypeArrest:
+      type: object
+      required: [primary_type, arrest_rate]
+      properties:
+        primary_type: { type: string }
+        arrest_rate: { type: number }
+    DistrictArrest:
+      type: object
+      required: [district, arrest_rate, total]
+      properties:
+        district: { type: integer }
+        arrest_rate: { type: number }
+        total: { type: integer }
+    BooleanSplit:
+      type: object
+      required: [true_count, false_count]
+      properties:
+        true_count: { type: integer }
+        false_count: { type: integer }
+    LocationCount:
+      type: object
+      required: [location_description, count]
+      properties:
+        location_description: { type: string }
+        count: { type: integer }
+    FilterOptions:
+      type: object
+      required: [date_min, date_max, primary_types, districts]
+      properties:
+        date_min: { type: string, format: date }
+        date_max: { type: string, format: date }
+        primary_types:
+          type: array
+          items: { type: string }
+        districts:
+          type: array
+          items: { type: integer }
+    DagStatus:
+      type: object
+      required: [dag_id, last_run, state]
+      properties:
+        dag_id: { type: string }
+        last_run: { type: string, format: date-time, nullable: true }
+        state: { type: string, enum: [success, failed, running, queued, none] }
+    DagRun:
+      type: object
+      required: [run_id, dag_id, state, start, end]
+      properties:
+        run_id: { type: string }
+        dag_id: { type: string }
+        state: { type: string, enum: [success, failed, running, queued] }
+        start: { type: string, format: date-time, nullable: true }
+        end: { type: string, format: date-time, nullable: true }
+    QualitySummary:
+      type: object
+      required: [great_expectations, dbt]
+      properties:
+        great_expectations:
+          type: object
+          properties:
+            success_pct: { type: number }
+            last_run: { type: string, format: date-time, nullable: true }
+        dbt:
+          type: object
+          properties:
+            passed: { type: integer }
+            failed: { type: integer }
+            last_run: { type: string, format: date-time, nullable: true }

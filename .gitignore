@@ -1,0 +1,114 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+*.egg-info/
+dist/
+build/
+
+# Pipeline (generated data, editable installs)
+data/*.csv
+pipeline/src/*.egg-info/
+pipeline/build/
+
+# Agent scaffolding (local LLM workflow, not for public repo)
+AGENTS.md
+agents/
+scripts/validate_agents.sh
+CODEOWNERS
+
+# Documentation (generated / agent-authored, keep locally only)
+docs/
+*.md
+lineage/
+
+# Pipeline (generated data, editable installs)
+data/*.csv
+pipeline/src/*.egg-info/
+pipeline/build/
+
+# Reference repos (local only, not for public repo)
+references/
+
+# GitHub config (agent-authored)
+.github/dependabot.yml
+
+# Node
+node_modules/
+.pnpm-store/
+.next/
+out/
+build/
+dist/
+.vite/
+*.tsbuildinfo
+
+# DBT
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/user.yml
+
+# Great Expectations
+great_expectations/uncommitted/
+
+# Spark
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Airflow
+airflow/airflow.db
+airflow/airflow.cfg
+airflow/logs/
+airflow/plugins/*.py.bak
+
+# Docker / runtime
+.env
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Coverage
+*.lcov
+coverage/
+.nyc_output/
+
+# Playwright
+web/playwright-report/
+web/test-results/
+web/blob-report/
+web/playwright/.cache/
+
+# Storybook
+web/storybook-static/
+
+# Generated / placeholder contract files we *do* want to keep are listed via ! patterns
+# (e.g. contracts/openapi.yaml is regenerated; keep it)

@@ -1,0 +1,6 @@
+storage:
+  endpoint: http://localhost:9000
+
+logging:
+  level: DEBUG
+  json_format: false

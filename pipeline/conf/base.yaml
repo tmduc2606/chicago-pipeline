@@ -1,0 +1,23 @@
+storage:
+  endpoint: http://minio:9000
+  access_key: ${MINIO_ROOT_USER}
+  secret_key: ${MINIO_ROOT_PASSWORD}
+  bucket: lake
+  path_style_access: true
+
+bronze:
+  prefix: bronze/chicago_crime
+  format: parquet
+  partition_by: ingest_date
+  ingest_ts_column: _ingest_ts
+
+raw_data:
+  download_dir: /tmp/chicago_crime
+  kaggle_dataset: chicago/chicago-crime-2024-2026
+  synthetic_seed: 42
+  synthetic_days: 90
+  synthetic_start: "2024-01-01"
+
+logging:
+  level: INFO
+  json_format: true
