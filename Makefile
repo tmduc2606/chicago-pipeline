@@ -53,19 +53,19 @@ pipeline: ## Ingest -> Silver -> Gold -> dbt (one-shot end-to-end)
 
 spark-bronze: ## Run Bronze ingestion
 	docker compose exec -T spark-master \
-	  spark-submit --master spark://spark-master:7077 \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
-	    /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py
+	    /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /tmp/chicago_synthetic.csv
 
 spark-silver: ## Run Silver transformation
 	docker compose exec -T spark-master \
-	  spark-submit --master spark://spark-master:7077 \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/pipeline/src/chicago_pipeline/silver/to_silver.py
 
 spark-gold: ## Run Gold aggregation
 	docker compose exec -T spark-master \
-	  spark-submit --master spark://spark-master:7077 \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/pipeline/src/chicago_pipeline/gold/to_gold.py
 
@@ -75,23 +75,23 @@ quality: ## Run Great Expectations + dbt tests
 
 ge-check: ## Run GE validation on Bronze and Silver
 	docker compose exec -T spark-master \
-	  spark-submit --master spark://spark-master:7077 \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/great_expectations/run_validation.py s3a://lake/bronze/chicago_crime chicago_crime_bronze bronze_checkpoint
 	docker compose exec -T spark-master \
-	  spark-submit --master spark://spark-master:7077 \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/great_expectations/run_validation.py s3a://lake/silver/chicago_crime chicago_crime_silver silver_checkpoint
 
 ge-bronze: ## Run GE validation on Bronze only
 	docker compose exec -T spark-master \
-	  spark-submit --master spark://spark-master:7077 \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/great_expectations/run_validation.py s3a://lake/bronze/chicago_crime chicago_crime_bronze bronze_checkpoint
 
 ge-silver: ## Run GE validation on Silver only
 	docker compose exec -T spark-master \
-	  spark-submit --master spark://spark-master:7077 \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/great_expectations/run_validation.py s3a://lake/silver/chicago_crime chicago_crime_silver silver_checkpoint
 

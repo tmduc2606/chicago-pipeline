@@ -74,16 +74,19 @@ services:
 
   # ---------- processing ----------
   spark-master:
-    image: bitnami/spark:3.5
+    image: apache/spark:3.5.1
     container_name: ccp-spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
     environment:
-      SPARK_MODE: master
       SPARK_MASTER_HOST: spark-master
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "8081:8080"
       - "7077:7077"
     volumes:
       - ./pipeline:/opt/pipeline
+      - ./great_expectations:/opt/great_expectations
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 15s
@@ -93,18 +96,20 @@ services:
     restart: unless-stopped
 
   spark-worker:
-    image: bitnami/spark:3.5
+    image: apache/spark:3.5.1
     container_name: ccp-spark-worker
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
     depends_on:
       spark-master:
         condition: service_healthy
     environment:
-      SPARK_MODE: worker
-      SPARK_MASTER_URL: spark://spark-master:7077
-      SPARK_WORKER_MEMORY: 2g
       SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes:
       - ./pipeline:/opt/pipeline
+      - ./great_expectations:/opt/great_expectations
     restart: unless-stopped
 
   # ---------- orchestration ----------
@@ -131,6 +136,7 @@ services:
       - ./airflow/plugins:/opt/airflow/plugins
       - ./dbt:/opt/dbt
       - ./pipeline:/opt/pipeline
+      - ./great_expectations:/opt/great_expectations
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 15s
@@ -155,6 +161,7 @@ services:
       - ./airflow/plugins:/opt/airflow/plugins
       - ./dbt:/opt/dbt
       - ./pipeline:/opt/pipeline
+      - ./great_expectations:/opt/great_expectations
     command: scheduler
     healthcheck:
       test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname"]

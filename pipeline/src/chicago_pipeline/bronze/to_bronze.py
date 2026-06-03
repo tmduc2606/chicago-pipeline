@@ -1,6 +1,13 @@
+from __future__ import annotations
+
 import sys
-from datetime import UTC, datetime
 from pathlib import Path
+
+_src = Path(__file__).resolve().parents[2]
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+
+from datetime import datetime, timezone
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit, to_date
@@ -47,7 +54,7 @@ def bronze_writer(spark: SparkSession, source_csv: str, output_root: str | None 
     ingest_ts_col = cfg.get("ingest_ts_column", "_ingest_ts")
     output_root = output_root or f"s3a://{bucket}/{prefix}"
 
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     ingest_date_str = now.strftime("%Y-%m-%d")
 
     df = (
@@ -72,10 +79,6 @@ def bronze_writer(spark: SparkSession, source_csv: str, output_root: str | None 
 
 
 if __name__ == "__main__":
-    _src = Path(__file__).resolve().parents[2]
-    if str(_src) not in sys.path:
-        sys.path.insert(0, str(_src))
-
     csv_path = sys.argv[1] if len(sys.argv) > 1 else "/tmp/chicago_crime/source.csv"
     spark = (
         SparkSession.builder

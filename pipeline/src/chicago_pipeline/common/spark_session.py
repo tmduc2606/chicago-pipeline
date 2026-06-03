@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pyspark.sql import SparkSession
 
 from .settings import settings

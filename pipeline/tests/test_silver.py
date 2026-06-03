@@ -61,7 +61,7 @@ def test_ge_validation_script_exists():
     assert script_path.exists()
     content = script_path.read_text()
     assert "run_validation" in content
-    assert "RuntimeBatchRequest" in content
+    assert "SparkSession" in content
 
 
 def test_ge_reports_dir_creatable():

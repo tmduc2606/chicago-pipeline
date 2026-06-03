@@ -3,6 +3,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+_src = Path(__file__).resolve().parents[2]
+if str(_src) not in sys.path:
+    sys.path.insert(0, str(_src))
+
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
@@ -43,7 +47,14 @@ SILVER_COLUMNS = {
 def _cast_columns(df: DataFrame) -> DataFrame:
     for col_name, dtype in SILVER_COLUMNS.items():
         if col_name == "date":
-            df = df.withColumn(col_name, F.to_date(F.col(col_name), "MM/dd/yyyy hh:mm:ss a"))
+            df = df.withColumn(
+                col_name,
+                F.coalesce(
+                    F.to_date(F.col(col_name), "MM/dd/yyyy hh:mm:ss a"),
+                    F.to_date(F.col(col_name), "yyyy-MM-dd'T'HH:mm:ss"),
+                    F.to_date(F.col(col_name)),
+                ),
+            )
         elif col_name == "arrest":
             df = df.withColumn(
                 col_name,
@@ -128,10 +139,6 @@ def silver_transform(spark: SparkSession, bronze_path: str, output_root: str | N
 
 
 if __name__ == "__main__":
-    _src = Path(__file__).resolve().parents[2]
-    if str(_src) not in sys.path:
-        sys.path.insert(0, str(_src))
-
     from chicago_pipeline.common.spark_session import get_spark
 
     bronze_path = sys.argv[1] if len(sys.argv) > 1 else "s3a://lake/bronze/chicago_crime"
