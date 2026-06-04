@@ -38,6 +38,13 @@ silver:
     start: "2024-01-01"
     end: "2026-12-31"
 
+database:
+  host: ${POSTGRES_HOST:-postgres}
+  port: ${POSTGRES_PORT:-5432}
+  name: ${POSTGRES_DB:-chicago}
+  user: ${POSTGRES_USER:-chicago}
+  password: ${POSTGRES_PASSWORD:-change_me_local}
+
 logging:
   level: INFO
   json_format: true

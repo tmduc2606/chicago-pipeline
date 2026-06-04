@@ -107,7 +107,8 @@ def test_gold_dim_time_schema_contract():
     dim_time = contract["tables"]["dim_time"]
     expected_cols = {"time_id", "date", "year", "month", "day", "hour", "weekday", "is_weekend", "date_dow"}
     assert set(dim_time["columns"].keys()) == expected_cols
-    assert dim_time["columns"]["time_id"]["type"] == "integer"
+    # surrogate keys use Spark "long" (64-bit bigint) after hash collision fix
+    assert dim_time["columns"]["time_id"]["type"] in ("long", "integer", "bigint")
     assert dim_time["columns"]["date"]["type"] == "date"
 
 

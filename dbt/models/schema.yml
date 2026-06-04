@@ -1,0 +1,151 @@
+version: 2
+
+sources:
+  - name: warehouse
+    database: chicago
+    schema: warehouse
+    tables:
+      - name: fact_crime
+      - name: dim_time
+      - name: dim_location
+      - name: dim_offense
+      - name: dim_case
+
+models:
+  - name: stg_fact_crime
+    description: Staging model for fact_crime table
+    columns:
+      - name: crime_id
+        tests: [unique, not_null]
+      - name: time_id
+        tests: [not_null]
+      - name: offense_id
+        tests: [not_null]
+      - name: case_id
+        tests: [not_null]
+      - name: location_id
+        tests: [not_null]
+
+  - name: stg_dim_time
+    description: Staging model for dim_time table
+    columns:
+      - name: time_id
+        tests: [unique, not_null]
+      - name: date
+        tests: [not_null]
+
+  - name: stg_dim_location
+    description: Staging model for dim_location table
+    columns:
+      - name: location_id
+        tests: [unique, not_null]
+
+  - name: stg_dim_offense
+    description: Staging model for dim_offense table
+    columns:
+      - name: offense_id
+        tests: [unique, not_null]
+      - name: iucr
+        tests: [not_null]
+
+  - name: stg_dim_case
+    description: Staging model for dim_case table
+    columns:
+      - name: case_id
+        tests: [unique, not_null]
+      - name: case_number
+        tests: [not_null]
+
+  - name: int_fact_with_geom
+    description: Fact crime joined with location geometry and offense type
+    columns:
+      - name: crime_id
+        tests: [unique, not_null]
+      - name: time_id
+        tests: [not_null]
+      - name: offense_id
+        tests: [not_null]
+      - name: case_id
+        tests: [not_null]
+      - name: location_id
+        tests: [not_null]
+      - name: primary_type
+        tests: [not_null]
+      - name: iucr
+        tests: [not_null]
+      - name: geom_wkt
+        tests: [not_null]
+      - name: geometry
+        tests: [not_null]
+
+  - name: int_time_enriched
+    description: Time dimension with sin/cos cyclical encoding
+    columns:
+      - name: time_id
+        tests: [unique, not_null]
+      - name: date
+        tests: [not_null]
+      - name: year
+        tests: [not_null]
+      - name: month
+        tests: [not_null]
+      - name: hour
+        tests: [not_null]
+      - name: weekday
+        tests: [not_null]
+      - name: is_weekend
+        tests: [not_null]
+      - name: month_sin
+        tests: [not_null]
+      - name: month_cos
+        tests: [not_null]
+      - name: hour_sin
+        tests: [not_null]
+      - name: hour_cos
+        tests: [not_null]
+
+  - name: mart_kpi_daily
+    description: Daily KPI bundle — total crimes, arrest rate, domestic rate
+    columns:
+      - name: date_dow
+        tests: [unique, not_null]
+      - name: total_crimes
+        tests: [not_null]
+      - name: arrest_rate_pct
+        tests: [not_null]
+
+  - name: mart_arrest_summary
+    description: Arrest rates by district and ward
+    columns:
+      - name: district
+        tests: [not_null]
+      - name: total_crimes
+        tests: [not_null]
+      - name: total_arrests
+        tests: [not_null]
+
+  - name: mart_crime_type_trend
+    description: Crime counts and arrest rates by primary type and IUCR code
+    columns:
+      - name: primary_type
+        tests: [not_null]
+      - name: total_crimes
+        tests: [not_null]
+
+  - name: mart_geo_choropleth
+    description: Geographic crime aggregates by district/ward/community
+    columns:
+      - name: district
+        tests: [not_null]
+      - name: total_crimes
+        tests: [not_null]
+      - name: arrest_rate_pct
+        tests: [not_null]
+
+  - name: mart_temporal_heatmap
+    description: Crime count by date and hour
+    columns:
+      - name: date
+        tests: [not_null]
+      - name: crime_count
+        tests: [not_null]

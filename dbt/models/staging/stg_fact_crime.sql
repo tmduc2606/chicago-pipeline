@@ -1,0 +1,21 @@
+SELECT
+    crime_id,
+    time_id,
+    offense_id,
+    case_id,
+    location_id,
+    arrest,
+    domestic,
+    beat,
+    fbi_code,
+    is_arrested,
+    is_domestic,
+    is_domestic_arrest,
+    is_unassigned_district,
+    is_unassigned_community,
+    is_unassigned_ward,
+    hours_to_update,
+    date_dow,
+    year,
+    _gold_ingest_ts
+FROM warehouse.fact_crime

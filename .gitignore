@@ -60,7 +60,8 @@ dist/
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
-dbt/user.yml
+dbt/.user.yml
+dbt/packages/
 
 # Great Expectations
 great_expectations/uncommitted/

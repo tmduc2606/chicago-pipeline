@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -38,9 +39,15 @@ class Settings:
             else:
                 base[key] = value
 
+    @staticmethod
+    def _resolve_var(match: re.Match) -> str:
+        """Expand ${VAR:-default} syntax with os.environ fallback."""
+        name, default = match.group(1), match.group(2)
+        return os.environ.get(name, default or "")
+
     def _resolve_env(self) -> None:
         raw = yaml.dump(self._data)
-        raw = os.path.expandvars(raw)
+        raw = re.sub(r"\$\{([^}:-]+)(?::-(.*?))?\}", self._resolve_var, raw)
         self._data = yaml.safe_load(raw) or {}
 
     @property
@@ -69,6 +76,10 @@ class Settings:
     @property
     def gold(self) -> dict[str, Any]:
         return self._data.get("gold", {})
+
+    @property
+    def database(self) -> dict[str, Any]:
+        return self._data.get("database", {})
 
     @property
     def validation(self) -> dict[str, Any]:

@@ -42,11 +42,12 @@ reset: ## Destroy volumes and restart fresh
 	docker volume prune -f
 
 # ---- data engineering ----------------------------------------------------
-.PHONY: pipeline spark-bronze spark-silver spark-gold quality
-pipeline: ## Ingest -> Silver -> Gold -> dbt (one-shot end-to-end)
+.PHONY: pipeline spark-bronze spark-silver spark-gold load-postgres quality
+pipeline: ## Ingest -> Silver -> Gold -> Postgres -> dbt (one-shot end-to-end)
 	@$(MAKE) spark-bronze
 	@$(MAKE) spark-silver
 	@$(MAKE) spark-gold
+	@$(MAKE) load-postgres
 	@$(MAKE) dbt-run
 	@$(MAKE) dbt-test
 	@$(MAKE) quality
@@ -105,19 +106,23 @@ ge-gold: ## Run GE validation on Gold only
 	    --py-files /opt/pipeline/src \
 	    /opt/great_expectations/run_validation.py s3a://lake/gold/chicago_crime/fact_crime chicago_crime_gold gold_checkpoint
 
+load-postgres: ## Load Gold Parquet -> Postgres (warehouse schema)
+	docker compose exec -T spark-master \
+	  bash -c "PYTHONPATH=/opt/pipeline/src ENV=local python3 /opt/pipeline/src/chicago_pipeline/warehouse/load_postgres.py"
+
 # ---- dbt -----------------------------------------------------------------
 .PHONY: dbt-deps dbt-run dbt-test dbt-docs
 dbt-deps: ## Install dbt packages
-	docker compose exec -T airflow-webserver bash -c "cd /opt/dbt && dbt deps"
+	docker compose exec -T spark-master bash -c "cd /opt/dbt && dbt deps --profiles-dir ."
 
 dbt-run: ## Run all dbt models
-	docker compose exec -T airflow-webserver bash -c "cd /opt/dbt && dbt run --profiles-dir ."
+	docker compose exec -T spark-master bash -c "cd /opt/dbt && dbt run --profiles-dir ."
 
 dbt-test: ## Run dbt tests
-	docker compose exec -T airflow-webserver bash -c "cd /opt/dbt && dbt test --profiles-dir ."
+	docker compose exec -T spark-master bash -c "cd /opt/dbt && dbt test --profiles-dir ."
 
 dbt-docs: ## Generate and serve dbt docs
-	docker compose exec -T airflow-webserver bash -c "cd /opt/dbt && dbt docs generate --profiles-dir ."
+	docker compose exec -T spark-master bash -c "cd /opt/dbt && dbt docs generate --profiles-dir ."
 	@echo "Docs generated at dbt/target/index.html"
 
 # ---- API -----------------------------------------------------------------

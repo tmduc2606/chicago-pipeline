@@ -100,8 +100,8 @@ def ingest_dag() -> None:
         conf={
             "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
             "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
-            "spark.hadoop.fs.s3a.access.key": Variable.get("MINIO_ROOT_USER", "minio"),
-            "spark.hadoop.fs.s3a.secret.key": Variable.get("MINIO_ROOT_PASSWORD", "minio123"),
+            "spark.hadoop.fs.s3a.access.key": Variable.get("MINIO_ROOT_USER"),
+            "spark.hadoop.fs.s3a.secret.key": Variable.get("MINIO_ROOT_PASSWORD"),
             "spark.hadoop.fs.s3a.path.style.access": "true",
             "spark.hadoop.fs.s3a.connection.ssl.enabled": "false",
         },
