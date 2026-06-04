@@ -67,6 +67,10 @@ class Settings:
         })()
 
     @property
+    def gold(self) -> dict[str, Any]:
+        return self._data.get("gold", {})
+
+    @property
     def validation(self) -> dict[str, Any]:
         return self._data.get("validation", {})
 

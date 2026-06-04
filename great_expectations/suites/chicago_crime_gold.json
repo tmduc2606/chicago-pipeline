@@ -1,0 +1,73 @@
+{
+  "name": "chicago_crime_gold",
+  "expectation_suite_name": "chicago_crime_gold",
+  "data_asset_type": "table",
+  "version": 1,
+  "meta": {
+    "project": "chicago-pipeline",
+    "layer": "gold",
+    "description": "Great Expectations suite for Chicago Crime Gold layer — fact_crime table"
+  },
+  "expectations": [
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "crime_id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {"column": "crime_id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "time_id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "offense_id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "case_id"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "arrest"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "domestic"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_arrested"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_domestic"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "_gold_ingest_ts"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "location_id"},
+      "meta": {"severity": "warning"}
+    },
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {"min_value": 1000},
+      "meta": {"severity": "critical"}
+    }
+  ]
+}

@@ -155,6 +155,21 @@ def _check_schema_evolution(df, suite_name: str) -> list[str]:
         if extra:
             warnings.append(f"Unexpected new columns: {sorted(extra)}")
 
+    elif suite_name == "chicago_crime_gold":
+        expected = {
+            "crime_id", "time_id", "location_id", "offense_id", "case_id",
+            "arrest", "domestic", "beat", "fbi_code",
+            "is_arrested", "is_domestic", "is_domestic_arrest",
+            "is_unassigned_district", "is_unassigned_community", "is_unassigned_ward",
+            "hours_to_update", "date_dow", "year", "_gold_ingest_ts",
+        }
+        missing = expected - schema_cols
+        extra = schema_cols - expected
+        if missing:
+            warnings.append(f"Missing expected Gold columns: {sorted(missing)}")
+        if extra:
+            warnings.append(f"Unexpected extra Gold columns: {sorted(extra)}")
+
     return warnings
 
 

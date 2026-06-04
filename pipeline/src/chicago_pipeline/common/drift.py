@@ -79,10 +79,17 @@ def _detect_district_drift(
 ) -> dict:
     from pyspark.sql.functions import col as spark_col
 
+    if "district" not in df.columns:
+        return {
+            "drift_detected": False,
+            "new_values": [],
+            "missing_values": [],
+            "note": "SKIPPED: district column not present in this dataset",
+        }
+
     allowed_raw = settings.validation.get("districts", {}).get("allowed", [])
     allowed = sorted(allowed_raw) if allowed_raw else []
 
-    from pyspark.sql.functions import col as spark_col
     actual_rows = df.select(spark_col("district")).distinct().collect()
     actual = sorted([r["district"] for r in actual_rows if r["district"] is not None])
 

@@ -73,7 +73,7 @@ quality: ## Run Great Expectations + dbt tests
 	@$(MAKE) ge-check
 	@$(MAKE) dbt-test
 
-ge-check: ## Run GE validation on Bronze and Silver
+ge-check: ## Run GE validation on Bronze, Silver, and Gold
 	docker compose exec -T spark-master \
 	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
@@ -82,6 +82,10 @@ ge-check: ## Run GE validation on Bronze and Silver
 	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/great_expectations/run_validation.py s3a://lake/silver/chicago_crime chicago_crime_silver silver_checkpoint
+	docker compose exec -T spark-master \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
+	    --py-files /opt/pipeline/src \
+	    /opt/great_expectations/run_validation.py s3a://lake/gold/chicago_crime/fact_crime chicago_crime_gold gold_checkpoint
 
 ge-bronze: ## Run GE validation on Bronze only
 	docker compose exec -T spark-master \
@@ -94,6 +98,12 @@ ge-silver: ## Run GE validation on Silver only
 	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
 	    /opt/great_expectations/run_validation.py s3a://lake/silver/chicago_crime chicago_crime_silver silver_checkpoint
+
+ge-gold: ## Run GE validation on Gold only
+	docker compose exec -T spark-master \
+	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
+	    --py-files /opt/pipeline/src \
+	    /opt/great_expectations/run_validation.py s3a://lake/gold/chicago_crime/fact_crime chicago_crime_gold gold_checkpoint
 
 # ---- dbt -----------------------------------------------------------------
 .PHONY: dbt-deps dbt-run dbt-test dbt-docs
