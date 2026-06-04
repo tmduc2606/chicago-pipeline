@@ -187,3 +187,10 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added (M3 closure)
 - Created `docs/milestones/M3-test.md` — 8-step user test instructions for M3.
 - Created `docs/milestones/M3-improvements.md` — 11 proposed enhancements (dim_time hourly join, dim_location dedup, SCD, sin/cos in dbt, GE coverage expansion, etc.).
+
+### Added (M4 agent prep — revised plan)
+- Updated `agents/data-engineer/AGENTS.md` — added M4 warehouse ownership: `load_postgres.py`, dbt project (staging/intermediate/marts), `dbt_build_dag.py`, PostGIS geometry cast, initdb schema.
+- Updated `agents/data-engineer/CONTRACTS.md` — added M4 outputs: `initdb/01-schema.sql`, `load_postgres.py`, dbt staging/intermediate/mart models, `dbt_build_dag.py`.
+- Updated `agents/backend/AGENTS.md` — added M4 inputs: 5 mart tables (`mart_kpi_daily`, `mart_arrest_summary`, `mart_crime_type_trend`, `mart_geo_choropleth`, `mart_temporal_heatmap`); M4 prerequisite gate.
+- Updated `agents/backend/CONTRACTS.md` — added M4 consume rows for all 5 dbt marts with API endpoint mapping.
+- Updated `agents/qa/AGENTS.md` — added M4 quality gates: `load-postgres` row count check, `dbt-run`/`dbt-test` model materialization, PostGIS `ST_SRID` verification, 5 mart row count > 0.
