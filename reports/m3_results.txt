@@ -1,0 +1,949 @@
+PS C:\Users\Admin\Documents\GitHub\chicago-pipeline> docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.hadoop.fs.s3a.endpoint=http://minio:9000 --conf spark.hadoop.fs.s3a.access.key=minio --conf spark.hadoop.fs.s3a.secret.key=change_me_local --conf spark.hadoop.fs.s3a.path.style.access=true --conf spark.hadoop.fs.s3a.connection.ssl.enabled=false
+ /opt/pipeline/scripts/explore/gold_explorer.py
+26/06/04 13:10:30 INFO SparkContext: Running Spark version 3.5.1
+26/06/04 13:10:30 INFO SparkContext: OS info Linux, 6.6.114.1-microsoft-standard-WSL2, amd64
+26/06/04 13:10:30 INFO SparkContext: Java version 11.0.22
+26/06/04 13:10:30 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/06/04 13:10:30 INFO ResourceUtils: ==============================================================
+26/06/04 13:10:30 INFO ResourceUtils: No custom resources configured for spark.driver.
+26/06/04 13:10:30 INFO ResourceUtils: ==============================================================
+26/06/04 13:10:30 INFO SparkContext: Submitted application: Gold-Explorer
+26/06/04 13:10:30 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/06/04 13:10:30 INFO ResourceProfile: Limiting resource is cpu
+26/06/04 13:10:30 INFO ResourceProfileManager: Added ResourceProfile id: 0
+26/06/04 13:10:31 INFO SecurityManager: Changing view acls to: spark
+26/06/04 13:10:31 INFO SecurityManager: Changing modify acls to: spark
+26/06/04 13:10:31 INFO SecurityManager: Changing view acls groups to:
+26/06/04 13:10:31 INFO SecurityManager: Changing modify acls groups to:
+26/06/04 13:10:31 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: spark; groups with view permissions: EMPTY; users with modify permissions: spark; groups with modify permissions: EMPTY
+26/06/04 13:10:31 INFO Utils: Successfully started service 'sparkDriver' on port 35095.
+26/06/04 13:10:31 INFO SparkEnv: Registering MapOutputTracker
+26/06/04 13:10:31 INFO SparkEnv: Registering BlockManagerMaster
+26/06/04 13:10:31 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/06/04 13:10:31 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+26/06/04 13:10:31 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+26/06/04 13:10:31 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-2fc10c8d-dde3-4b2f-9c4b-e7513a5b15d4
+26/06/04 13:10:31 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+26/06/04 13:10:31 INFO SparkEnv: Registering OutputCommitCoordinator
+26/06/04 13:10:32 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+26/06/04 13:10:32 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+26/06/04 13:10:32 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://spark-master:7077...
+26/06/04 13:10:32 INFO TransportClientFactory: Successfully created connection to spark-master/172.18.0.3:7077 after 104 ms (0 ms spent in bootstraps)
+26/06/04 13:10:33 INFO StandaloneSchedulerBackend: Connected to Spark cluster with app ID app-20260604131033-0001
+26/06/04 13:10:33 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20260604131033-0001/0 on worker-20260604122556-172.18.0.2-38909 (172.18.0.2:38909) with 2 core(s)
+26/06/04 13:10:33 INFO StandaloneSchedulerBackend: Granted executor ID app-20260604131033-0001/0 on hostPort 172.18.0.2:38909 with 2 core(s), 1024.0 MiB RAM
+26/06/04 13:10:33 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 43443.
+26/06/04 13:10:33 INFO NettyBlockTransferService: Server created on f4f6f4b70a54:43443
+26/06/04 13:10:33 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+26/06/04 13:10:33 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, f4f6f4b70a54, 43443, None)
+26/06/04 13:10:33 INFO BlockManagerMasterEndpoint: Registering block manager f4f6f4b70a54:43443 with 434.4 MiB RAM, BlockManagerId(driver, f4f6f4b70a54, 43443, None)
+26/06/04 13:10:33 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, f4f6f4b70a54, 43443, None)
+26/06/04 13:10:33 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, f4f6f4b70a54, 43443, None)
+26/06/04 13:10:33 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20260604131033-0001/0 is now RUNNING
+26/06/04 13:10:33 INFO StandaloneSchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0
+
+======================================================================
+ 1. GOLD TABLE OVERVIEW
+======================================================================
+26/06/04 13:10:37 WARN MetricsConfig: Cannot locate configuration: tried hadoop-metrics2-s3a-file-system.properties,hadoop-metrics2.properties
+  fact_crime           57,931 rows  19 cols
+    columns: crime_id, time_id, offense_id, case_id, location_id, arrest, domestic, beat, fbi_code, is_arrested
+              is_domestic, is_domestic_arrest, is_unassigned_district, is_unassigned_community, is_unassigned_ward, hours_to_update, date_dow, _gold_ingest_ts, year
+
+  dim_time             26,304 rows   9 cols
+    columns: time_id, date, year, month, day, hour, weekday, is_weekend, date_dow
+
+  dim_location         57,931 rows  11 cols
+    columns: location_id, block, location_description, district, ward, community_area, latitude, longitude, is_downtown, distance_to_downtown_km
+              geom_wkt
+
+  dim_offense             900 rows   5 cols
+    columns: offense_id, iucr, primary_type, description, fbi_code
+
+  dim_case             57,931 rows   3 cols
+    columns: case_id, case_number, updated_on
+
+
+======================================================================
+ 2. FACT_CRIME SCHEMA
+======================================================================
+  Columns and types:
+    crime_id                     bigint
+    time_id                      bigint
+    offense_id                   bigint
+    case_id                      bigint
+    location_id                  bigint
+    arrest                       boolean
+    domestic                     boolean
+    beat                         string
+    fbi_code                     string
+    is_arrested                  boolean
+    is_domestic                  boolean
+    is_domestic_arrest           boolean
+    is_unassigned_district       boolean
+    is_unassigned_community      boolean
+    is_unassigned_ward           boolean
+    hours_to_update              int
+    date_dow                     int
+    _gold_ingest_ts              timestamp
+    year                         int
+
+
+======================================================================
+ 3. FACT_CRIME SAMPLE (first 5 rows)
+======================================================================
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+
+|crime_id            |time_id             |offense_id          |location_id         |case_id             |arrest|domestic|year|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+
+|-8650791742043366250|-8753599460400636802|-6469990664744472412|-3269597366213326204|-231326881703878754 |false |false   |2024|
+|-6655782864129736949|-9040676045654570082|1809675321214035269 |-6587478504131225981|-2911411920888184065|false |false   |2024|
+|-4550191321129870418|-8699909183874484758|2267096913906296815 |-8589639172801848584|-651641262191893997 |true  |false   |2024|
+|-8797465361522236833|-9137951849877837072|6136165705047525695 |-8621818766845415734|8962282859791140352 |false |false   |2024|
+|-4764887358235499625|-9077249515922667286|260799596562754258  |-1654928433390390716|3638478031784057973 |false |false   |2024|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+
+only showing top 5 rows
+
+
+======================================================================
+ 4. DIM_TIME (first 10 + last 10)
+======================================================================
+  First 10 rows:
++--------------------+----------+----+-----+---+----+-------+----------+--------+
+|time_id             |date      |year|month|day|hour|weekday|is_weekend|date_dow|
++--------------------+----------+----+-----+---+----+-------+----------+--------+
+|126878563127535417  |2024-01-01|2024|1    |1  |0   |Monday |false     |1       |
+|6256920310422554950 |2024-01-01|2024|1    |1  |2   |Monday |false     |1       |
+|939309570047634440  |2024-01-01|2024|1    |1  |12  |Monday |false     |1       |
+|-1277947120359166196|2024-01-01|2024|1    |1  |7   |Monday |false     |1       |
+|982728463657164787  |2024-01-01|2024|1    |1  |5   |Monday |false     |1       |
+|-8499285176545764874|2024-01-01|2024|1    |1  |19  |Monday |false     |1       |
+|1731517937529152948 |2024-01-01|2024|1    |1  |16  |Monday |false     |1       |
+|-2362837122763764343|2024-01-01|2024|1    |1  |1   |Monday |false     |1       |
+|2435873489403597108 |2024-01-01|2024|1    |1  |14  |Monday |false     |1       |
+|-1862421596624092622|2024-01-01|2024|1    |1  |9   |Monday |false     |1       |
++--------------------+----------+----+-----+---+----+-------+----------+--------+
+only showing top 10 rows
+
+  Last 10 rows:
++--------------------+----------+----+-----+---+----+--------+----------+--------+
+|time_id             |date      |year|month|day|hour|weekday |is_weekend|date_dow|
++--------------------+----------+----+-----+---+----+--------+----------+--------+
+|-3768680097649496077|2026-12-31|2026|12   |31 |14  |Thursday|false     |4       |
+|6830318036279242118 |2026-12-31|2026|12   |31 |17  |Thursday|false     |4       |
+|-1162352692015493237|2026-12-31|2026|12   |31 |11  |Thursday|false     |4       |
+|-5908189030942609729|2026-12-31|2026|12   |31 |15  |Thursday|false     |4       |
+|-513593230483780431 |2026-12-31|2026|12   |31 |19  |Thursday|false     |4       |
+|-7907276170819480429|2026-12-31|2026|12   |31 |20  |Thursday|false     |4       |
+|-499900397612063670 |2026-12-31|2026|12   |31 |3   |Thursday|false     |4       |
+|-5546389408961237802|2026-12-31|2026|12   |31 |5   |Thursday|false     |4       |
+|336449844126056087  |2026-12-31|2026|12   |31 |16  |Thursday|false     |4       |
+|-5323379135705985666|2026-12-31|2026|12   |31 |6   |Thursday|false     |4       |
++--------------------+----------+----+-----+---+----+--------+----------+--------+
+only showing top 10 rows
+
+
+======================================================================
+ 5. DIM_OFFENSE (top 15 IUCR codes)
+======================================================================
++-------------------+-----+
+|primary_type       |count|
++-------------------+-----+
+|ASSAULT            |90   |
+|MOTOR VEHICLE THEFT|90   |
+|THEFT              |90   |
+|BATTERY            |90   |
+|ROBBERY            |90   |
+|DECEPTIVE PRACTICE |90   |
+|CRIMINAL DAMAGE    |90   |
+|NARCOTICS          |90   |
+|BURGLARY           |90   |
+|WEAPONS VIOLATION  |90   |
++-------------------+-----+
+
+
+======================================================================
+ 6. DIM_LOCATION (geographic distribution)
+======================================================================
+  District distribution:
++--------+-----+
+|district|count|
++--------+-----+
+|19      |2399 |
+|20      |2389 |
+|10      |2377 |
+|3       |2375 |
+|21      |2367 |
+|12      |2353 |
+|18      |2350 |
+|25      |2346 |
+|22      |2344 |
+|14      |2343 |
+|4       |2337 |
+|17      |2332 |
+|2       |2329 |
+|15      |2328 |
+|23      |2312 |
++--------+-----+
+only showing top 15 rows
+
+  Downtown vs non-downtown:
++-----------+-----+
+|is_downtown|count|
++-----------+-----+
+|      false|57823|
+|       true|  108|
++-----------+-----+
+
+
+======================================================================
+ 7. DIM_CASE (case number distribution)
+======================================================================
+  Total cases: 57,931
+  Unique case numbers: 57,931
++--------------------+-----------+-------------------+
+|case_id             |case_number|updated_on         |
++--------------------+-----------+-------------------+
+|-9222946617489296152|HX107124   |2024-01-12T12:33:28|
+|-9222242051933829688|HX116268   |2024-01-26T16:35:10|
+|-9222130728366054300|HX140553   |2024-03-03T09:16:32|
+|-9221935152443750757|HX150048   |2024-03-18T09:41:50|
+|-9221507594775186010|HX150062   |2024-03-18T09:50:37|
++--------------------+-----------+-------------------+
+only showing top 5 rows
+
+
+======================================================================
+ 8. CROSS-LAYER CONSISTENCY
+======================================================================
+  Silver rows:     57,931
+  Gold fact rows:  57,931
+  Match:          YES
+
+  FK integrity checks:
+    fact -> dim_time: PASS
+    fact -> dim_offense: PASS
+    fact -> dim_case: PASS
+    fact -> dim_location: PASS
+
+======================================================================
+ 9. FACT_CRIME STATISTICS
+======================================================================
+  Arrest rate:
++------+-----+
+|arrest|count|
++------+-----+
+| false|47502|
+|  true|10429|
++------+-----+
+
+  Domestic rate:
++--------+-----+
+|domestic|count|
++--------+-----+
+|   false|50444|
+|    true| 7487|
++--------+-----+
+
+  Year distribution:
++----+-----+
+|year|count|
++----+-----+
+|2024|57931|
++----+-----+
+
+  Is domestic arrest breakdown:
++------------------+-----+
+|is_domestic_arrest|count|
++------------------+-----+
+|             false|56535|
+|              true| 1396|
++------------------+-----+
+
+
+======================================================================
+ 10. GOLD LAYER CONCEPT
+======================================================================
+
+  Bronze (raw)  -->  Silver (conformed)  -->  Gold (star schema)  -->  Warehouse
+
+  Gold layer delivers the STAR SCHEMA:
+    fact_crime   : One row per crime event (57,931 rows)
+    dim_time     : Hourly calendar dimension (26,304 rows)
+    dim_location : Location with downtown flag + distance (57,931 rows)
+    dim_offense  : IUCR code + crime type lookup (900 rows)
+    dim_case     : Case metadata lookup (57,931 rows)
+
+  Surrogate keys: xxhash64 deterministic hashes
+  Partitioned: fact_crime by year
+  Gold GE suite: 12 expectations (PK not-null+unique, FK not-null, row count)
+
+  MinIO path layout:
+    s3a://lake/gold/chicago_crime/
+      fact_crime/year=2024/
+      dim_time/
+      dim_location/
+      dim_offense/
+      dim_case/
+
+
+======================================================================
+ ALL GOLD LAYER TESTS PASSED
+======================================================================
+
+
+PS C:\Users\Admin\Documents\GitHub\chicago-pipeline> docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.hadoop.fs.s3a.endpoint=http://minio:9000 --conf spark.hadoop.fs.s3a.access.key=minio --conf spark.hadoop.fs.s3a.secret.key=change_me_local --conf spark.hadoop.fs.s3a.path.style.access=true --conf spark.hadoop.fs.s3a.connection.ssl.enabled=false
+ /opt/pipeline/scripts/spike/verify_m3_gold.py
+26/06/04 13:15:15 INFO SparkContext: Running Spark version 3.5.1
+26/06/04 13:15:15 INFO SparkContext: OS info Linux, 6.6.114.1-microsoft-standard-WSL2, amd64
+26/06/04 13:15:15 INFO SparkContext: Java version 11.0.22
+26/06/04 13:15:15 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/06/04 13:15:15 INFO ResourceUtils: ==============================================================
+26/06/04 13:15:15 INFO ResourceUtils: No custom resources configured for spark.driver.
+26/06/04 13:15:15 INFO ResourceUtils: ==============================================================
+26/06/04 13:15:15 INFO SparkContext: Submitted application: VerifyM3Gold
+26/06/04 13:15:15 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/06/04 13:15:15 INFO ResourceProfile: Limiting resource is cpu
+26/06/04 13:15:15 INFO ResourceProfileManager: Added ResourceProfile id: 0
+26/06/04 13:15:15 INFO SecurityManager: Changing view acls to: spark
+26/06/04 13:15:15 INFO SecurityManager: Changing modify acls to: spark
+26/06/04 13:15:15 INFO SecurityManager: Changing view acls groups to:
+26/06/04 13:15:15 INFO SecurityManager: Changing modify acls groups to:
+26/06/04 13:15:15 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: spark; groups with view permissions: EMPTY; users with modify permissions: spark; groups with modify permissions: EMPTY
+26/06/04 13:15:16 INFO Utils: Successfully started service 'sparkDriver' on port 46523.
+26/06/04 13:15:16 INFO SparkEnv: Registering MapOutputTracker
+26/06/04 13:15:16 INFO SparkEnv: Registering BlockManagerMaster
+26/06/04 13:15:16 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/06/04 13:15:16 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+26/06/04 13:15:16 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+26/06/04 13:15:16 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-b561a779-9dd6-4c65-aaa5-ec777b3a6d8c
+26/06/04 13:15:16 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+26/06/04 13:15:16 INFO SparkEnv: Registering OutputCommitCoordinator
+26/06/04 13:15:16 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+26/06/04 13:15:17 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+26/06/04 13:15:17 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://spark-master:7077...
+26/06/04 13:15:17 INFO TransportClientFactory: Successfully created connection to spark-master/172.18.0.3:7077 after 54 ms (0 ms spent in bootstraps)
+26/06/04 13:15:17 INFO StandaloneSchedulerBackend: Connected to Spark cluster with app ID app-20260604131517-0002
+26/06/04 13:15:17 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20260604131517-0002/0 on worker-20260604122556-172.18.0.2-38909 (172.18.0.2:38909) with 2 core(s)
+26/06/04 13:15:17 INFO StandaloneSchedulerBackend: Granted executor ID app-20260604131517-0002/0 on hostPort 172.18.0.2:38909 with 2 core(s), 1024.0 MiB RAM
+26/06/04 13:15:17 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 35989.
+26/06/04 13:15:17 INFO NettyBlockTransferService: Server created on f4f6f4b70a54:35989
+26/06/04 13:15:17 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+26/06/04 13:15:17 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, f4f6f4b70a54, 35989, None)
+26/06/04 13:15:17 INFO BlockManagerMasterEndpoint: Registering block manager f4f6f4b70a54:35989 with 434.4 MiB RAM, BlockManagerId(driver, f4f6f4b70a54, 35989, None)
+26/06/04 13:15:17 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, f4f6f4b70a54, 35989, None)
+26/06/04 13:15:17 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, f4f6f4b70a54, 35989, None)
+26/06/04 13:15:17 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20260604131517-0002/0 is now RUNNING
+26/06/04 13:15:18 INFO StandaloneSchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0
+
+============================================================
+ M3 GOLD LAYER VERIFICATION
+============================================================
+
+--- 1. Table existence ---
+26/06/04 13:15:21 WARN MetricsConfig: Cannot locate configuration: tried hadoop-metrics2-s3a-file-system.properties,hadoop-metrics2.properties
+  [OK] Table fact_crime exists: PASS
+  [OK] Table dim_time exists: PASS
+  [OK] Table dim_location exists: PASS
+  [OK] Table dim_offense exists: PASS
+  [OK] Table dim_case exists: PASS
+
+--- 2. Row counts ---
+    fact_crime          57,931 rows
+    dim_time            26,304 rows
+    dim_location        57,931 rows
+    dim_offense            900 rows
+    dim_case            57,931 rows
+  [OK] fact_crime == silver: PASS (57931)
+  [OK] dim_time range 2024-2026: PASS (26304)
+  [OK] dim_offense > 500: PASS (900)
+  [OK] dim_location == fact: PASS
+  [OK] dim_case == fact: PASS
+
+--- 3. Schema checks ---
+  [OK] fact_crime has 19 columns: PASS (19)
+  [OK] fact_crime expected columns present: PASS
+  [OK] dim_time has > 0 columns: PASS (9)
+  [OK] dim_offense has > 0 columns: PASS (5)
+  [OK] dim_location has > 0 columns: PASS (11)
+  [OK] dim_case has > 0 columns: PASS (3)
+
+--- 4. PK uniqueness ---
+  [OK] fact_crime.crime_id unique: PASS
+  [OK] dim_time.time_id unique: PASS
+  [OK] dim_offense.offense_id unique: PASS
+  [OK] dim_location.location_id unique: PASS
+  [OK] dim_case.case_id unique: PASS
+
+--- 5. PK not null ---
+  [OK] fact_crime.crime_id not null: PASS
+  [OK] dim_time.time_id not null: PASS
+  [OK] dim_offense.offense_id not null: PASS
+  [OK] dim_location.location_id not null: PASS
+  [OK] dim_case.case_id not null: PASS
+
+--- 6. FK integrity (fact -> dims) ---
+  [OK] fact -> dim_time.time_id: PASS
+  [OK] fact -> dim_offense.offense_id: PASS
+  [OK] fact -> dim_case.case_id: PASS
+  [OK] fact -> dim_location.location_id: PASS
+
+--- 7. dim_offense completeness ---
+  [OK] dim_offense iucr not null: PASS
+  [OK] dim_offense primary_type not null: PASS
+  [OK] dim_offense has > 500 unique IUCR: PASS
+
+--- 8. dim_time coverage ---
+  [OK] dim_time starts 2024-01-01: PASS (2024-01-01)
+  [OK] dim_time ends 2026-12-31: PASS (2026-12-31)
+  [OK] dim_time has weekday column: PASS
+
+--- 9. dim_location geography ---
+  [OK] dim_location is_downtown column: PASS
+  [OK] dim_location distance_to_downtown_km column: PASS
+  [OK] dim_location geom_wkt column: PASS
+  [OK] dim_location latitude not null: PASS
+  [OK] dim_location longitude not null: PASS
+
+--- 10. Year partition ---
+  [OK] fact_crime has 'year' column: PASS
+  [OK] fact_crime has year column with data: PASS ([2024])
+
+--- 11. Pipeline observability ---
+  [OK] fact_crime has _gold_ingest_ts column: PASS
+  [OK] fact_crime._gold_ingest_ts not null: PASS
+
+--- 12. dim_case metadata ---
+  [OK] dim_case has case_number column: PASS
+  [OK] dim_case has updated_on column: PASS
+  [OK] dim_case case_number not null: PASS
+
+============================================================
+ VERIFICATION SUMMARY: 48/48 passed, 0 failed
+============================================================
+
+ ALL CHECKS PASSED -- Gold layer is healthy!
+
+
+
+PS C:\Users\Admin\Documents\GitHub\chicago-pipeline> docker compose cp scripts/test_gold_query_batch.py spark-master:/opt/pipeline/scripts/test_gold_query_batch.py
+>> docker compose exec spark-master /opt/spark/bin/spark-submit --master "local[2]" --conf spark.hadoop.fs.s3a.endpoint=http://minio:9000 --conf spark.hadoop.fs.s3a.access.key=minio --conf spark.hadoop.fs.s3a.secret.key=change_me_local --conf spark.hadoop.fs.s3a.path.style.access=true --conf spark.hadoop.fs.s3a.connection.ssl.enabled=false /opt/pipeline/scripts/test_gold_query_batch.py
+[+] copy 1/1
+ ✔ ccp-spark-master Copied scripts/test_gold_query_batch.py to ccp-spark-master:/opt/pipeline/scripts/test_gold_query_batch.py                                                                         0.0s
+26/06/04 13:23:08 INFO SparkContext: Running Spark version 3.5.1
+26/06/04 13:23:08 INFO SparkContext: OS info Linux, 6.6.114.1-microsoft-standard-WSL2, amd64
+26/06/04 13:23:08 INFO SparkContext: Java version 11.0.22
+26/06/04 13:23:08 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+26/06/04 13:23:08 INFO ResourceUtils: ==============================================================
+26/06/04 13:23:08 INFO ResourceUtils: No custom resources configured for spark.driver.
+26/06/04 13:23:08 INFO ResourceUtils: ==============================================================
+26/06/04 13:23:08 INFO SparkContext: Submitted application: Gold-Query-Batch
+26/06/04 13:23:09 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/06/04 13:23:09 INFO ResourceProfile: Limiting resource is cpu
+26/06/04 13:23:09 INFO ResourceProfileManager: Added ResourceProfile id: 0
+26/06/04 13:23:09 INFO SecurityManager: Changing view acls to: spark
+26/06/04 13:23:09 INFO SecurityManager: Changing modify acls to: spark
+26/06/04 13:23:09 INFO SecurityManager: Changing view acls groups to: 
+26/06/04 13:23:09 INFO SecurityManager: Changing modify acls groups to:
+26/06/04 13:23:09 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: spark; groups with view permissions: EMPTY; users with modify permissions: spark; groups with modify permissions: EMPTY
+26/06/04 13:23:09 INFO Utils: Successfully started service 'sparkDriver' on port 37305.
+26/06/04 13:23:10 INFO SparkEnv: Registering MapOutputTracker
+26/06/04 13:23:10 INFO SparkEnv: Registering BlockManagerMaster
+26/06/04 13:23:10 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/06/04 13:23:10 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+26/06/04 13:23:10 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+26/06/04 13:23:10 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-03ff2547-6b00-4346-a3c3-19e24811ae73
+26/06/04 13:23:10 INFO MemoryStore: MemoryStore started with capacity 434.4 MiB
+26/06/04 13:23:10 INFO SparkEnv: Registering OutputCommitCoordinator
+26/06/04 13:23:10 INFO JettyUtils: Start Jetty 0.0.0.0:4040 for SparkUI
+26/06/04 13:23:10 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+26/06/04 13:23:11 INFO Executor: Starting executor ID driver on host f4f6f4b70a54
+26/06/04 13:23:11 INFO Executor: OS info Linux, 6.6.114.1-microsoft-standard-WSL2, amd64
+26/06/04 13:23:11 INFO Executor: Java version 11.0.22
+26/06/04 13:23:11 INFO Executor: Starting executor with user classpath (userClassPathFirst = false): ''
+26/06/04 13:23:11 INFO Executor: Created or updated repl class loader org.apache.spark.util.MutableURLClassLoader@74e94b6f for default.
+26/06/04 13:23:11 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 45535.
+26/06/04 13:23:11 INFO NettyBlockTransferService: Server created on f4f6f4b70a54:45535
+26/06/04 13:23:11 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+26/06/04 13:23:11 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, f4f6f4b70a54, 45535, None)
+26/06/04 13:23:11 INFO BlockManagerMasterEndpoint: Registering block manager f4f6f4b70a54:45535 with 434.4 MiB RAM, BlockManagerId(driver, f4f6f4b70a54, 45535, None)
+26/06/04 13:23:11 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, f4f6f4b70a54, 45535, None)
+26/06/04 13:23:11 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, f4f6f4b70a54, 45535, None)
+Gold Query Batch Test — 38 commands
+
+
+============================================================
+ help
+============================================================
+  [OK] help command structure verified (commands defined)
+
+============================================================
+ tables
+============================================================
+  Table                    Rows  Cols
+  -----------------------------------
+26/06/04 13:23:14 WARN MetricsConfig: Cannot locate configuration: tried hadoop-metrics2-s3a-file-system.properties,hadoop-metrics2.properties
+  fact_crime             57,931    19
+  dim_time               26,304     9
+  dim_location           57,931    11
+  dim_offense               900     5
+  dim_case               57,931     3
+
+============================================================
+ schema fact
+============================================================
+    crime_id                       bigint
+    time_id                        bigint
+    offense_id                     bigint
+    case_id                        bigint
+    location_id                    bigint
+    arrest                         boolean
+    domestic                       boolean
+    beat                           string
+    fbi_code                       string
+    is_arrested                    boolean
+    is_domestic                    boolean
+    is_domestic_arrest             boolean
+    is_unassigned_district         boolean
+    is_unassigned_community        boolean
+    is_unassigned_ward             boolean
+    hours_to_update                int
+    date_dow                       int
+    _gold_ingest_ts                timestamp
+    year                           int
+
+============================================================
+ schema time
+============================================================
+    time_id                        bigint
+    date                           date
+    year                           int
+    month                          int
+    day                            int
+    hour                           int
+    weekday                        string
+    is_weekend                     boolean
+    date_dow                       int
+
+============================================================
+ schema offense
+============================================================
+    offense_id                     bigint
+    iucr                           string
+    primary_type                   string
+    description                    string
+    fbi_code                       string
+
+============================================================
+ schema location
+============================================================
+    location_id                    bigint
+    block                          string
+    location_description           string
+    district                       int
+    ward                           int
+    community_area                 int
+    latitude                       float
+    longitude                      float
+    is_downtown                    boolean
+    distance_to_downtown_km        float
+    geom_wkt                       string
+
+============================================================
+ schema case
+============================================================
+    case_id                        bigint
+    case_number                    string
+    updated_on                     string
+
+============================================================
+ head fact 3
+============================================================
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|crime_id            |time_id             |offense_id          |case_id             |location_id         |arrest|domestic|beat|fbi_code|is_arrested|is_domestic|is_domestic_arrest|is_unassigned_district|is_unassigned_community|is_unassigned_ward|hours_to_update|date_dow|_gold_ingest_ts    |year|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|-8650791742043366250|-8753599460400636802|-6469990664744472412|-231326881703878754 |-3269597366213326204|false |false   |5178|08B     |false      |false      |false             |false                 |false                  |false             |10             |2       |2026-06-04 10:20:30|2024|
+|-6655782864129736949|-9040676045654570082|1809675321214035269 |-2911411920888184065|-6587478504131225981|false |false   |4798|08B     |false      |false      |false             |false                 |false                  |false             |21             |6       |2026-06-04 10:20:30|2024|
+|-4550191321129870418|-8699909183874484758|2267096913906296815 |-651641262191893997 |-8589639172801848584|true  |false   |8878|08B     |true       |false      |false             |false                 |false                  |false             |13             |1       |2026-06-04 10:20:30|2024|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+only showing top 3 rows
+
+
+============================================================
+ head time 3
+============================================================
++--------------------+----------+----+-----+---+----+---------+----------+--------+
+|time_id             |date      |year|month|day|hour|weekday  |is_weekend|date_dow|
++--------------------+----------+----+-----+---+----+---------+----------+--------+
+|-9223042517306039523|2026-07-08|2026|7    |8  |10  |Wednesday|false     |3       |
+|-9222064341731155517|2026-01-20|2026|1    |20 |15  |Tuesday  |false     |2       |
+|-9221269060808411209|2024-06-23|2024|6    |23 |23  |Sunday   |true      |0       |
++--------------------+----------+----+-----+---+----+---------+----------+--------+
+only showing top 3 rows
+
+
+============================================================
+ head offense 3
+============================================================
++--------------------+----+------------+----------------------------+--------+
+|offense_id          |iucr|primary_type|description                 |fbi_code|
++--------------------+----+------------+----------------------------+--------+
+|-9185508654631094145|1898|NARCOTICS   |Possess cannabis 30g or less|18      |
+|-9183838396222628888|0690|BURGLARY    |Forcible entry              |06      |
+|-9148514079784625947|0378|ROBBERY     |Strongarm - no weapon       |03      |
++--------------------+----+------------+----------------------------+--------+
+only showing top 3 rows
+
+
+============================================================
+ head location 3
+============================================================
++-------------------+-----------------+--------------------+--------+----+--------------+---------+----------+-----------+-----------------------+----------------------------+
+|location_id        |block            |location_description|district|ward|community_area|latitude |longitude |is_downtown|distance_to_downtown_km|geom_wkt                    |
++-------------------+-----------------+--------------------+--------+----+--------------+---------+----------+-----------+-----------------------+----------------------------+
+|-134579386814568608|8313 N EXAMPLE ST|STREET              |3       |17  |32            |41.988297|-87.931885|false      |27.796682              |POINT (-87.931885 41.988297)|
+|-134252835647646411|8185 N EXAMPLE ST|STREET              |10      |9   |48            |41.689285|-87.78287 |false      |24.980413              |POINT (-87.78287 41.689285) |
+|-134251125939189074|6324 N EXAMPLE ST|BAR OR TAVERN       |20      |8   |50            |41.935116|-87.54838 |false      |8.843696               |POINT (-87.54838 41.935116) |
++-------------------+-----------------+--------------------+--------+----+--------------+---------+----------+-----------+-----------------------+----------------------------+
+only showing top 3 rows
+
+
+============================================================
+ head case 3
+============================================================
++--------------------+-----------+-------------------+
+|case_id             |case_number|updated_on         |
++--------------------+-----------+-------------------+
+|-9222946617489296152|HX107124   |2024-01-12T12:33:28|
+|-9222242051933829688|HX116268   |2024-01-26T16:35:10|
+|-9222130728366054300|HX140553   |2024-03-03T09:16:32|
++--------------------+-----------+-------------------+
+only showing top 3 rows
+
+
+============================================================
+ count fact
+============================================================
+  fact_crime: 57,931 rows
+
+============================================================
+ count fact year
+============================================================
++----+-----+
+|year|count|
++----+-----+
+|2024|57931|
++----+-----+
+
+
+============================================================
+ count fact arrest
+============================================================
++------+-----+
+|arrest|count|
++------+-----+
+|false |47502|
+|true  |10429|
++------+-----+
+
+
+============================================================
+ count fact domestic
+============================================================
++--------+-----+
+|domestic|count|
++--------+-----+
+|false   |50444|
+|true    |7487 |
++--------+-----+
+
+
+============================================================
+ count offense primary_type
+============================================================
++-------------------+-----+
+|primary_type       |count|
++-------------------+-----+
+|ASSAULT            |90   |
+|MOTOR VEHICLE THEFT|90   |
+|THEFT              |90   |
+|BATTERY            |90   |
+|ROBBERY            |90   |
+|DECEPTIVE PRACTICE |90   |
+|CRIMINAL DAMAGE    |90   |
+|NARCOTICS          |90   |
+|BURGLARY           |90   |
+|WEAPONS VIOLATION  |90   |
++-------------------+-----+
+
+
+============================================================
+ count offense fbi_code
+============================================================
++--------+-----+
+|fbi_code|count|
++--------+-----+
+|07      |90   |
+|15      |90   |
+|11      |90   |
+|08B     |90   |
+|18      |90   |
+|09      |90   |
+|03      |90   |
+|06      |90   |
+|14      |90   |
+|08A     |90   |
++--------+-----+
+
+
+============================================================
+ count location district
+============================================================
++--------+-----+
+|district|count|
++--------+-----+
+|19      |2399 |
+|20      |2389 |
+|10      |2377 |
+|3       |2375 |
+|21      |2367 |
+|12      |2353 |
+|18      |2350 |
+|25      |2346 |
+|22      |2344 |
+|14      |2343 |
+|4       |2337 |
+|17      |2332 |
+|2       |2329 |
+|15      |2328 |
+|23      |2312 |
+|16      |2311 |
+|5       |2311 |
+|6       |2292 |
+|7       |2274 |
+|24      |2267 |
++--------+-----+
+only showing top 20 rows
+
+
+============================================================
+ count location is_downtown
+============================================================
++-----------+-----+
+|is_downtown|count|
++-----------+-----+
+|false      |57823|
+|true       |108  |
++-----------+-----+
+
+
+============================================================
+ filter fact arrest True
+============================================================
+  fact_crime: arrest=True -> 10,429 rows
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|crime_id            |time_id             |offense_id          |case_id             |location_id         |arrest|domestic|beat|fbi_code|is_arrested|is_domestic|is_domestic_arrest|is_unassigned_district|is_unassigned_community|is_unassigned_ward|hours_to_update|date_dow|_gold_ingest_ts    |year|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|-4550191321129870418|-8699909183874484758|2267096913906296815 |-651641262191893997 |-8589639172801848584|true  |false   |8878|08B     |true       |false      |false             |false                 |false                  |false             |13             |1       |2026-06-04 10:20:30|2024|
+|-184859151616766602 |-8857452463227067068|-1821499588857629416|-2288540823797415162|4229856213597138926 |true  |false   |7982|18      |true       |false      |false             |false                 |false                  |false             |18             |3       |2026-06-04 10:20:30|2024|
+|-8327443729123407865|-8487893373295650556|2629063582235213236 |478663572340507460  |-2743625979849163678|true  |false   |7952|06      |true       |false      |false             |false                 |false                  |false             |21             |7       |2026-06-04 10:20:30|2024|
+|-3988429183261885291|-9077249515922667286|1190643272646488302 |-5479864727201873411|836464376452636019  |true  |false   |5148|14      |true       |false      |false             |false                 |false                  |false             |13             |3       |2026-06-04 10:20:30|2024|
+|-1344010743058658398|-7502690236038861302|5369451855644751430 |-7450310275757873241|7146973467696501636 |true  |true    |8239|03      |true       |true       |true              |false                 |false                  |false             |23             |7       |2026-06-04 10:20:30|2024|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+only showing top 5 rows
+
+
+============================================================
+ filter fact arrest False
+============================================================
+  fact_crime: arrest=False -> 47,502 rows
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|crime_id            |time_id             |offense_id          |case_id             |location_id         |arrest|domestic|beat|fbi_code|is_arrested|is_domestic|is_domestic_arrest|is_unassigned_district|is_unassigned_community|is_unassigned_ward|hours_to_update|date_dow|_gold_ingest_ts    |year|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|-8650791742043366250|-8753599460400636802|-6469990664744472412|-231326881703878754 |-3269597366213326204|false |false   |5178|08B     |false      |false      |false             |false                 |false                  |false             |10             |2       |2026-06-04 10:20:30|2024|
+|-6655782864129736949|-9040676045654570082|1809675321214035269 |-2911411920888184065|-6587478504131225981|false |false   |4798|08B     |false      |false      |false             |false                 |false                  |false             |21             |6       |2026-06-04 10:20:30|2024|
+|-8797465361522236833|-9137951849877837072|6136165705047525695 |8962282859791140352 |-8621818766845415734|false |false   |4404|08B     |false      |false      |false             |false                 |false                  |false             |22             |2       |2026-06-04 10:20:30|2024|
+|-4764887358235499625|-9077249515922667286|260799596562754258  |3638478031784057973 |-1654928433390390716|false |false   |5274|15      |false      |false      |false             |false                 |false                  |false             |18             |3       |2026-06-04 10:20:30|2024|
+|7628124359536310275 |-8991461861038099574|5683481955517287437 |-3317625746706281466|7621158509370895597 |false |false   |8267|15      |false      |false      |false             |false                 |false                  |false             |16             |4       |2026-06-04 10:20:30|2024|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+only showing top 5 rows
+
+
+============================================================
+ filter fact domestic True
+============================================================
+  fact_crime: domestic=True -> 7,487 rows
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|crime_id            |time_id             |offense_id          |case_id             |location_id         |arrest|domestic|beat|fbi_code|is_arrested|is_domestic|is_domestic_arrest|is_unassigned_district|is_unassigned_community|is_unassigned_ward|hours_to_update|date_dow|_gold_ingest_ts    |year|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|-1344010743058658398|-7502690236038861302|5369451855644751430 |-7450310275757873241|7146973467696501636 |true  |true    |8239|03      |true       |true       |true              |false                 |false                  |false             |23             |7       |2026-06-04 10:20:30|2024|
+|836459700972286878  |-8907475837256292762|7445684521934204770 |4728153838287145866 |3391227897304707627 |false |true    |6391|09      |false      |true       |false             |false                 |false                  |false             |20             |3       |2026-06-04 10:20:30|2024|
+|-3962673097825844424|-9138819426348321494|1626260205089473388 |-4427433616629447643|-2575455122751313115|false |true    |2918|06      |false      |true       |false             |false                 |false                  |false             |17             |5       |2026-06-04 10:20:30|2024|
+|-7762048643288923109|-9038823301184592977|-6556659249106565314|1286410440306250908 |-9024288684159047366|false |true    |2437|07      |false      |true       |false             |false                 |false                  |false             |21             |6       |2026-06-04 10:20:30|2024|
+|-4084865030841792573|-6366886406320703309|-1021954429563377829|1188217805480447456 |-5883716337056545621|false |true    |4991|14      |false      |true       |false             |false                 |false                  |false             |14             |4       |2026-06-04 10:20:30|2024|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+only showing top 5 rows
+
+
+============================================================
+ filter fact year 2024
+============================================================
+  fact_crime: year=2024 -> 57,931 rows
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|crime_id            |time_id             |offense_id          |case_id             |location_id         |arrest|domestic|beat|fbi_code|is_arrested|is_domestic|is_domestic_arrest|is_unassigned_district|is_unassigned_community|is_unassigned_ward|hours_to_update|date_dow|_gold_ingest_ts    |year|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+|-8650791742043366250|-8753599460400636802|-6469990664744472412|-231326881703878754 |-3269597366213326204|false |false   |5178|08B     |false      |false      |false             |false                 |false                  |false             |10             |2       |2026-06-04 10:20:30|2024|
+|-6655782864129736949|-9040676045654570082|1809675321214035269 |-2911411920888184065|-6587478504131225981|false |false   |4798|08B     |false      |false      |false             |false                 |false                  |false             |21             |6       |2026-06-04 10:20:30|2024|
+|-4550191321129870418|-8699909183874484758|2267096913906296815 |-651641262191893997 |-8589639172801848584|true  |false   |8878|08B     |true       |false      |false             |false                 |false                  |false             |13             |1       |2026-06-04 10:20:30|2024|
+|-8797465361522236833|-9137951849877837072|6136165705047525695 |8962282859791140352 |-8621818766845415734|false |false   |4404|08B     |false      |false      |false             |false                 |false                  |false             |22             |2       |2026-06-04 10:20:30|2024|
+|-4764887358235499625|-9077249515922667286|260799596562754258  |3638478031784057973 |-1654928433390390716|false |false   |5274|15      |false      |false      |false             |false                 |false                  |false             |18             |3       |2026-06-04 10:20:30|2024|
++--------------------+--------------------+--------------------+--------------------+--------------------+------+--------+----+--------+-----------+-----------+------------------+----------------------+-----------------------+------------------+---------------+--------+-------------------+----+
+only showing top 5 rows
+
+
+============================================================
+ agg fact hours_to_update mean
+============================================================
++--------------------+
+|mean_hours_to_update|
++--------------------+
+|13.89503029466089   |
++--------------------+
+
+
+============================================================
+ agg fact hours_to_update max
+============================================================
++-------------------+
+|max_hours_to_update|
++-------------------+
+|23                 |
++-------------------+
+
+
+============================================================
+ agg fact hours_to_update min
+============================================================
++-------------------+
+|min_hours_to_update|
++-------------------+
+|0                  |
++-------------------+
+
+
+============================================================
+ agg offense offense_id count
+============================================================
++----------------+
+|count_offense_id|
++----------------+
+|900             |
++----------------+
+
+
+============================================================
+ agg location distance_to_downtown_km mean
+============================================================
++----------------------------+
+|mean_distance_to_downtown_km|
++----------------------------+
+|17.136110382670605          |
++----------------------------+
+
+
+============================================================
+ join
+============================================================
+         time_id -> dim_time: PASS
+      offense_id -> dim_offense: PASS
+         case_id -> dim_case: PASS
+     location_id -> dim_location: PASS
+
+============================================================
+ search offense primary_type 'THEFT'
+============================================================
+  dim_offense.primary_type LIKE '%THEFT%' -> 180 rows
++--------------------+----+-------------------+--------------+--------+
+|offense_id          |iucr|primary_type       |description   |fbi_code|
++--------------------+----+-------------------+--------------+--------+
+|-9125968307246147383|0725|THEFT              |Pocket-picking|07      |
+|-9108246037200866208|0993|MOTOR VEHICLE THEFT|Auto theft    |09      |
+|-8864886382628948000|0976|MOTOR VEHICLE THEFT|Auto theft    |09      |
+|-8823261922165626380|0728|THEFT              |Pocket-picking|07      |
+|-8808325219483687176|0766|THEFT              |Pocket-picking|07      |
++--------------------+----+-------------------+--------------+--------+
+only showing top 5 rows
+
+
+============================================================
+ search offense primary_type 'BATTERY'
+============================================================
+  dim_offense.primary_type LIKE '%BATTERY%' -> 90 rows
++--------------------+-----+------------+-----------------------+--------+
+|offense_id          |iucr |primary_type|description            |fbi_code|
++--------------------+-----+------------+-----------------------+--------+
+|-9043740447907983864|08B80|BATTERY     |Domestic battery simple|08B     |
+|-8621334269360983557|08B11|BATTERY     |Domestic battery simple|08B     |
+|-8278706804487859290|08B39|BATTERY     |Domestic battery simple|08B     |
+|-7948558650926436955|08B12|BATTERY     |Domestic battery simple|08B     |
+|-7815921895082752665|08B17|BATTERY     |Domestic battery simple|08B     |
++--------------------+-----+------------+-----------------------+--------+
+only showing top 5 rows
+
+
+============================================================
+ search offense primary_type 'ASSAULT'
+============================================================
+  dim_offense.primary_type LIKE '%ASSAULT%' -> 90 rows
++--------------------+-----+------------+-----------+--------+
+|offense_id          |iucr |primary_type|description|fbi_code|
++--------------------+-----+------------+-----------+--------+
+|-9001820194216637720|08A10|ASSAULT     |Simple     |08A     |
+|-8941854117307475458|08A30|ASSAULT     |Simple     |08A     |
+|-8768425447785848553|08A61|ASSAULT     |Simple     |08A     |
+|-8670910081691009344|08A98|ASSAULT     |Simple     |08A     |
+|-8566726560359092763|08A84|ASSAULT     |Simple     |08A     |
++--------------------+-----+------------+-----------+--------+
+only showing top 5 rows
+
+
+============================================================
+ search location block 'W 79TH'
+============================================================
+  dim_location.block LIKE '%W 79TH%' -> 0 rows
++-----------+-----+--------------------+--------+----+--------------+--------+---------+-----------+-----------------------+--------+
+|location_id|block|location_description|district|ward|community_area|latitude|longitude|is_downtown|distance_to_downtown_km|geom_wkt|
++-----------+-----+--------------------+--------+----+--------------+--------+---------+-----------+-----------------------+--------+
++-----------+-----+--------------------+--------+----+--------------+--------+---------+-----------+-----------------------+--------+
+
+
+============================================================
+ search case case_number 'HX'
+============================================================
+  dim_case.case_number LIKE '%HX%' -> 57,931 rows
++--------------------+-----------+-------------------+
+|case_id             |case_number|updated_on         |
++--------------------+-----------+-------------------+
+|-9222946617489296152|HX107124   |2024-01-12T12:33:28|
+|-9222242051933829688|HX116268   |2024-01-26T16:35:10|
+|-9222130728366054300|HX140553   |2024-03-03T09:16:32|
+|-9221935152443750757|HX150048   |2024-03-18T09:41:50|
+|-9221507594775186010|HX150062   |2024-03-18T09:50:37|
++--------------------+-----------+-------------------+
+only showing top 5 rows
+
+
+============================================================
+ qotd
+============================================================
+  Arrest rate:
++------+-----+
+|arrest|count|
++------+-----+
+| false|47502|
+|  true|10429|
++------+-----+
+
+
+============================================================
+ ALL 38 COMMANDS EXECUTED SUCCESSFULLY
+============================================================
