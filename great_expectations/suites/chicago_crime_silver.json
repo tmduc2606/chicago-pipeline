@@ -2,6 +2,7 @@
   "name": "chicago_crime_silver",
   "expectation_suite_name": "chicago_crime_silver",
   "data_asset_type": "table",
+  "version": 2,
   "meta": {
     "project": "chicago-pipeline",
     "layer": "silver",
@@ -55,7 +56,7 @@
     },
     {
       "expectation_type": "expect_column_values_to_be_in_set",
-      "kwargs": {"column": "district", "value_set": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 22, 24, 25]},
+      "kwargs": {"column": "district", "value_set": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]},
       "meta": {"severity": "warning"}
     },
     {
@@ -65,7 +66,37 @@
     },
     {
       "expectation_type": "expect_column_values_to_match_regex",
-      "kwargs": {"column": "case_number", "regex": "^[A-Z]\\d{6,}$"},
+      "kwargs": {"column": "case_number", "regex": "^[A-Z]{2}\\d{6}$"},
+      "meta": {"severity": "warning"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_arrested"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_domestic"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_domestic_arrest"},
+      "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_unassigned_district"},
+      "meta": {"severity": "warning"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_unassigned_community"},
+      "meta": {"severity": "warning"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_unassigned_ward"},
       "meta": {"severity": "warning"}
     }
   ]

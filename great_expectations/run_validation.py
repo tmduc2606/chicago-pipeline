@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 _src = Path("/opt/pipeline/src")
@@ -35,6 +36,20 @@ def _load_suite(suite_path: str) -> list[dict]:
     with open(suite_path) as f:
         suite = json.load(f)
     return suite.get("expectations", [])
+
+
+def _apply_config_overrides(expectations: list[dict]) -> list[dict]:
+    """Override expectation kwargs from pipeline config (Phase 1: district set)."""
+    district_allowed = settings.validation.get("districts", {}).get("allowed")
+    if district_allowed:
+        for exp in expectations:
+            if (
+                exp["expectation_type"] == "expect_column_values_to_be_in_set"
+                and exp["kwargs"].get("column") == "district"
+            ):
+                exp["kwargs"]["value_set"] = district_allowed
+                log.info("district_set_overridden", count=len(district_allowed))
+    return expectations
 
 
 def _validate_expectation(df, exp: dict) -> tuple[bool, str]:
@@ -77,8 +92,70 @@ def _validate_expectation(df, exp: dict) -> tuple[bool, str]:
             ok = ok and count <= max_val
         return ok, f"row count {count} not in [{min_val}, {max_val}]"
 
+    elif exp_type == "expect_column_values_to_be_of_type":
+        col = kwargs["column"]
+        expected = kwargs["type_"]
+        actual = df.schema[col].dataType.simpleString()
+        return actual == expected, f"{col} type is {actual}, expected {expected}"
+
+    elif exp_type == "expect_column_values_to_be_in_set":
+        from pyspark.sql.functions import col as spark_col
+        col = kwargs["column"]
+        value_set = set(kwargs["value_set"])
+        bad = df.filter(~spark_col(col).isin(list(value_set))).count()
+        return bad == 0, f"{bad} values in {col} not in allowed set"
+
     else:
         return True, f"SKIPPED: {exp_type} (not implemented)"
+
+
+def _write_report_local(report: dict, suite_name: str) -> Path:
+    report_path = Path("/opt/great_expectations/reports") / f"{suite_name}_report.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, "w") as f:
+        json.dump(report, f, indent=2, default=str)
+    return report_path
+
+
+def _write_report_s3a(spark: SparkSession, report: dict, suite_name: str) -> str | None:
+    bucket = settings.storage.get("bucket", "lake")
+    now = datetime.now(timezone.utc)
+    date_str = now.strftime("%Y-%m-%d")
+    ts_str = now.strftime("%H%M%S")
+    s3_path = f"s3a://{bucket}/reports/ge/{suite_name}/{date_str}/{ts_str}_report.json"
+
+    try:
+        rdd = spark.sparkContext.parallelize([json.dumps(report, default=str)])
+        rdd.coalesce(1).saveAsTextFile(s3_path)
+        return s3_path
+    except Exception as e:
+        log.warning("ge_report_s3a_failed", path=s3_path, error=str(e))
+        return None
+
+
+def _check_schema_evolution(df, suite_name: str) -> list[str]:
+    warnings = []
+    schema_cols = {f.name for f in df.schema.fields}
+
+    if suite_name == "chicago_crime_silver":
+        expected = {
+            "id", "case_number", "date", "block", "iucr", "primary_type",
+            "description", "location_description", "arrest", "domestic",
+            "beat", "district", "ward", "community_area", "fbi_code",
+            "latitude", "longitude", "updated_on",
+            "is_arrested", "is_domestic", "is_domestic_arrest",
+            "is_unassigned_district", "is_unassigned_community", "is_unassigned_ward",
+            "date_year", "date_month", "date_dow",
+            "updated_on_ts", "hours_to_update",
+        }
+        missing = expected - schema_cols
+        extra = schema_cols - expected - {"_ingest_ts", "ingest_date", "year", "month"}
+        if missing:
+            warnings.append(f"Missing expected columns: {sorted(missing)}")
+        if extra:
+            warnings.append(f"Unexpected new columns: {sorted(extra)}")
+
+    return warnings
 
 
 def run_validation(
@@ -91,6 +168,7 @@ def run_validation(
 
     suite_path = Path("/opt/great_expectations/suites") / f"{suite_name}.json"
     expectations = _load_suite(str(suite_path))
+    expectations = _apply_config_overrides(expectations)
 
     all_passed = True
     results = []
@@ -115,17 +193,20 @@ def run_validation(
         if not passed and severity == "critical":
             all_passed = False
 
+    from chicago_pipeline.common.drift import run_drift_detection
+    drift = run_drift_detection(df, suite_name, data_path, spark)
+
     report = {
         "suite": suite_name,
         "data_path": data_path,
         "success": all_passed,
+        "schema_warnings": _check_schema_evolution(df, suite_name),
+        "drift": drift,
         "results": results,
     }
 
-    report_path = Path("/opt/great_expectations/reports") / f"{suite_name}_report.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2, default=str)
+    _write_report_local(report, suite_name)
+    s3_path = _write_report_s3a(spark, report, suite_name)
 
     if all_passed:
         print(f"VALIDATION PASSED: {suite_name}")
@@ -135,6 +216,9 @@ def run_validation(
             if r["status"] == "FAIL":
                 print(f"  FAIL [{r['severity']}]: {r['expectation']}")
                 print(f"        {r['message']}")
+
+    if s3_path:
+        log.info("ge_report_written", path=s3_path)
 
     spark.stop()
     return all_passed

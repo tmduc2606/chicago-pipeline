@@ -15,6 +15,7 @@ from pyspark.sql.types import (
     FloatType,
     IntegerType,
     StringType,
+    TimestampType,
 )
 
 from chicago_pipeline.common.logger import get_logger
@@ -41,7 +42,23 @@ SILVER_COLUMNS = {
     "latitude": FloatType(),
     "longitude": FloatType(),
     "updated_on": StringType(),
+    "is_arrested": BooleanType(),
+    "is_domestic": BooleanType(),
+    "is_domestic_arrest": BooleanType(),
+    "is_unassigned_district": BooleanType(),
+    "is_unassigned_community": BooleanType(),
+    "is_unassigned_ward": BooleanType(),
+    "date_year": IntegerType(),
+    "date_month": IntegerType(),
+    "date_dow": IntegerType(),
+    "updated_on_ts": TimestampType(),
+    "hours_to_update": IntegerType(),
 }
+
+TEXT_COLS = [
+    "primary_type", "description", "location_description",
+    "block", "fbi_code", "case_number", "beat",
+]
 
 
 def _cast_columns(df: DataFrame) -> DataFrame:
@@ -103,6 +120,55 @@ def _add_partition_columns(df: DataFrame) -> DataFrame:
     )
 
 
+def _standardize_text(df: DataFrame) -> DataFrame:
+    for c in TEXT_COLS:
+        df = df.withColumn(c, F.trim(F.col(c)))
+    return df
+
+
+def _add_updated_on_ts(df: DataFrame) -> DataFrame:
+    return df.withColumn(
+        "updated_on_ts",
+        F.coalesce(
+            F.to_timestamp(F.col("updated_on"), "MM/dd/yyyy hh:mm:ss a"),
+            F.to_timestamp(F.col("updated_on"), "yyyy-MM-dd'T'HH:mm:ss"),
+            F.to_timestamp(F.col("updated_on")),
+        ),
+    )
+
+
+def _add_date_components(df: DataFrame) -> DataFrame:
+    return (
+        df.withColumn("date_year", F.year(F.col("date")))
+        .withColumn("date_month", F.month(F.col("date")))
+        .withColumn("date_dow", F.dayofweek(F.col("date")))
+    )
+
+
+def _add_conforming_booleans(df: DataFrame) -> DataFrame:
+    return (
+        df.withColumn("is_arrested", F.col("arrest"))
+        .withColumn("is_domestic", F.col("domestic"))
+        .withColumn("is_domestic_arrest", F.col("arrest") & F.col("domestic"))
+        .withColumn("is_unassigned_district", F.col("district").isNull())
+        .withColumn("is_unassigned_community", F.col("community_area").isNull())
+        .withColumn("is_unassigned_ward", F.col("ward").isNull())
+    )
+
+
+def _add_hours_to_update(df: DataFrame) -> DataFrame:
+    return df.withColumn(
+        "hours_to_update",
+        F.greatest(
+            F.least(
+                ((F.unix_timestamp(F.col("updated_on_ts")) - F.unix_timestamp(F.col("date").cast("timestamp"))) / F.lit(3600)).cast(IntegerType()),
+                F.lit(365 * 24),
+            ),
+            F.lit(0),
+        ),
+    )
+
+
 def silver_transform(spark: SparkSession, bronze_path: str, output_root: str | None = None) -> int:
     cfg = settings.silver
     bucket = settings.storage.get("bucket", "lake")
@@ -112,13 +178,24 @@ def silver_transform(spark: SparkSession, bronze_path: str, output_root: str | N
     log.info("silver_read_bronze", path=bronze_path)
     df = spark.read.parquet(bronze_path)
 
+    if "ingest_date" in df.columns:
+        latest = df.agg(F.max("ingest_date")).collect()[0][0]
+        if latest is not None:
+            df = df.filter(F.col("ingest_date") == latest)
+            log.info("silver_partition_pruned", latest_ingest_date=str(latest))
+
     original_count = df.count()
     log.info("silver_bronze_row_count", count=original_count)
 
     df = _cast_columns(df)
+    df = _standardize_text(df)
     df = _filter_date_range(df)
     df = _filter_chicago_bbox(df)
     df = _dedup(df)
+    df = _add_updated_on_ts(df)
+    df = _add_date_components(df)
+    df = _add_conforming_booleans(df)
+    df = _add_hours_to_update(df)
     df = _add_partition_columns(df)
 
     transformed_count = df.count()

@@ -66,5 +66,9 @@ class Settings:
             "json_format": self._data.get("logging", {}).get("json_format", True),
         })()
 
+    @property
+    def validation(self) -> dict[str, Any]:
+        return self._data.get("validation", {})
+
 
 settings = Settings()

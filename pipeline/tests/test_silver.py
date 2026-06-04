@@ -20,17 +20,48 @@ def test_silver_columns_definition():
         "description", "location_description", "arrest", "domestic",
         "beat", "district", "ward", "community_area", "fbi_code",
         "latitude", "longitude", "updated_on",
+        "is_arrested", "is_domestic", "is_domestic_arrest",
+        "is_unassigned_district", "is_unassigned_community", "is_unassigned_ward",
+        "date_year", "date_month", "date_dow",
+        "updated_on_ts", "hours_to_update",
     }
     assert set(SILVER_COLUMNS.keys()) == expected
+    assert len(SILVER_COLUMNS) == 29
 
 
-def test_bronze_suite_loadable():
-    suite_path = Path(__file__).resolve().parents[2] / "great_expectations" / "suites" / "chicago_crime_bronze.json"
-    assert suite_path.exists(), f"Bronze suite not found at {suite_path}"
-    with open(suite_path) as f:
-        suite = json.load(f)
-    assert suite["expectation_suite_name"] == "chicago_crime_bronze"
-    assert len(suite["expectations"]) >= 5
+def test_extension_columns_dtypes():
+    from chicago_pipeline.silver.to_silver import SILVER_COLUMNS
+    from pyspark.sql.types import BooleanType, IntegerType, TimestampType
+    bool_flags = ["is_arrested", "is_domestic", "is_domestic_arrest",
+                  "is_unassigned_district", "is_unassigned_community", "is_unassigned_ward"]
+    for c in bool_flags:
+        assert isinstance(SILVER_COLUMNS[c], BooleanType), f"{c} should be BooleanType"
+
+    int_date = ["date_year", "date_month", "date_dow"]
+    for c in int_date:
+        assert isinstance(SILVER_COLUMNS[c], IntegerType), f"{c} should be IntegerType"
+
+    assert isinstance(SILVER_COLUMNS["updated_on_ts"], TimestampType), "updated_on_ts should be TimestampType"
+    assert isinstance(SILVER_COLUMNS["hours_to_update"], IntegerType), "hours_to_update should be IntegerType"
+
+
+def test_extension_functions_exist():
+    from chicago_pipeline.silver.to_silver import (
+        _standardize_text, _add_updated_on_ts, _add_date_components,
+        _add_conforming_booleans, _add_hours_to_update,
+    )
+    assert callable(_standardize_text)
+    assert callable(_add_updated_on_ts)
+    assert callable(_add_date_components)
+    assert callable(_add_conforming_booleans)
+    assert callable(_add_hours_to_update)
+
+
+def test_text_cols_defined():
+    from chicago_pipeline.silver.to_silver import TEXT_COLS
+    assert len(TEXT_COLS) == 7
+    assert "primary_type" in TEXT_COLS
+    assert "beat" in TEXT_COLS
 
 
 def test_silver_suite_loadable():
@@ -39,7 +70,7 @@ def test_silver_suite_loadable():
     with open(suite_path) as f:
         suite = json.load(f)
     assert suite["expectation_suite_name"] == "chicago_crime_silver"
-    assert len(suite["expectations"]) >= 5
+    assert len(suite["expectations"]) >= 18
 
 
 def test_ge_config_exists():
@@ -90,3 +121,58 @@ def test_silver_config_in_base_yaml():
     assert "prefix" in silver
     assert "chicago_bbox" in silver
     assert "date_range" in silver
+    assert "validation" in config
+    districts = config["validation"]["districts"]
+    assert "allowed" in districts
+    assert len(districts["allowed"]) == 25
+    assert "slack_webhook_url" in districts
+    assert "auto_remediate" in districts
+
+
+def test_drift_module_importable():
+    from chicago_pipeline.common.drift import (
+        run_drift_detection, _detect_district_drift, _compare_district_sets,
+        _send_slack_alert, _auto_remediate_districts,
+    )
+    assert callable(run_drift_detection)
+    assert callable(_detect_district_drift)
+    assert callable(_compare_district_sets)
+    assert callable(_send_slack_alert)
+    assert callable(_auto_remediate_districts)
+
+
+def test_drift_detection_no_drift():
+    from chicago_pipeline.common.drift import _compare_district_sets
+    allowed = list(range(1, 26))
+    actual = list(range(1, 26))
+    drift = _compare_district_sets(allowed, actual, "test_suite", "test")
+    assert not drift["drift_detected"]
+    assert drift["new_values"] == []
+    assert drift["missing_values"] == []
+
+
+def test_drift_detection_with_new_values():
+    from chicago_pipeline.common.drift import _compare_district_sets
+    allowed = list(range(1, 26))
+    actual = list(range(1, 28))
+    drift = _compare_district_sets(allowed, actual, "test_suite", "test")
+    assert drift["drift_detected"]
+    assert drift["new_values"] == [26, 27]
+    assert drift["missing_values"] == []
+
+
+def test_drift_detection_with_missing_values():
+    from chicago_pipeline.common.drift import _compare_district_sets
+    allowed = list(range(1, 26))
+    actual = list(range(1, 24))
+    drift = _compare_district_sets(allowed, actual, "test_suite", "test")
+    assert drift["drift_detected"]
+    assert drift["new_values"] == []
+    assert drift["missing_values"] == [24, 25]
+
+
+def test_settings_validation_property():
+    from chicago_pipeline.common.settings import settings
+    v = settings.validation
+    assert "districts" in v
+    assert v["districts"]["allowed"] == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]

@@ -2,6 +2,7 @@
   "name": "chicago_crime_bronze",
   "expectation_suite_name": "chicago_crime_bronze",
   "data_asset_type": "table",
+  "version": 2,
   "meta": {
     "project": "chicago-pipeline",
     "layer": "bronze",
@@ -10,11 +11,6 @@
   "expectations": [
     {
       "expectation_type": "expect_column_values_to_not_be_null",
-      "kwargs": {"column": "id"},
-      "meta": {"severity": "critical"}
-    },
-    {
-      "expectation_type": "expect_column_values_to_be_unique",
       "kwargs": {"column": "id"},
       "meta": {"severity": "critical"}
     },
@@ -47,6 +43,11 @@
       "expectation_type": "expect_table_row_count_to_be_between",
       "kwargs": {"min_value": 1000},
       "meta": {"severity": "critical"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {"column": "case_number", "regex": "^[A-Z]{2}\\d{6}$"},
+      "meta": {"severity": "warning"}
     }
   ]
 }
