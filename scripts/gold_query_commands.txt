@@ -1,0 +1,38 @@
+help
+tables
+schema fact
+schema time
+schema offense
+schema location
+schema case
+head fact 3
+head time 3
+head offense 3
+head location 3
+head case 3
+count fact
+count fact year
+count fact arrest
+count fact domestic
+count offense primary_type
+count offense fbi_code
+count location district
+count location is_downtown
+filter fact arrest True
+filter fact arrest False
+filter fact domestic True
+filter fact year 2024
+agg fact hours_to_update mean
+agg fact hours_to_update max
+agg fact hours_to_update min
+agg offense offense_id count
+agg location distance_to_downtown_km mean
+join
+search offense primary_type THEFT
+search offense primary_type BATTERY
+search offense primary_type ASSAULT
+search location block W 79TH
+search case case_number HX
+qotd
+qotd
+quit
