@@ -66,7 +66,8 @@ def bronze_writer(spark: SparkSession, source_csv: str, output_root: str | None 
     )
 
     output_path = f"{output_root}/{partition_col}={ingest_date_str}"
-    df.write.mode("overwrite").parquet(output_path)
+    df_to_write = df.drop(partition_col)
+    df_to_write.write.mode("overwrite").parquet(output_path)
 
     row_count = df.count()
     log.info(

@@ -29,10 +29,9 @@ def test_generate_synthetic_creates_file():
 
 
 def test_generate_synthetic_reproducible():
-    with (
-        tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp1,
-        tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as tmp2,
-    ):
+    tmp1 = tempfile.NamedTemporaryFile(suffix=".csv", delete=False)
+    tmp2 = tempfile.NamedTemporaryFile(suffix=".csv", delete=False)
+    with tmp1, tmp2:
         p1, p2 = tmp1.name, tmp2.name
     try:
         r1 = generate_synthetic(p1, days=1, seed=42)

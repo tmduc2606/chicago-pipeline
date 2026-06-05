@@ -74,7 +74,8 @@ services:
 
   # ---------- processing ----------
   spark-master:
-    image: apache/spark:3.5.1
+    build: ./docker/spark
+    image: ccp-spark:3.5.1
     container_name: ccp-spark-master
     command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
     environment:
@@ -95,16 +96,22 @@ services:
       - ./pipeline:/opt/pipeline
       - ./great_expectations:/opt/great_expectations
       - ./dbt:/opt/dbt
+      - ./data:/data
+      - ./contracts:/opt/contracts:ro
+      - ./scripts:/opt/scripts:ro
+      - ./airflow/dags:/opt/airflow/dags:ro
+      - ./Makefile:/opt/Makefile:ro
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 15s
       timeout: 5s
       retries: 5
       start_period: 60s
-    restart: unless-stopped
 
   spark-worker:
-    image: apache/spark:3.5.1
+    build: ./docker/spark
+    image: ccp-spark:3.5.1
     container_name: ccp-spark-worker
     command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
     depends_on:
@@ -118,6 +125,8 @@ services:
     volumes:
       - ./pipeline:/opt/pipeline
       - ./great_expectations:/opt/great_expectations
+      - ./dbt:/opt/dbt
+      - ./data:/data
     restart: unless-stopped
 
   # ---------- orchestration ----------

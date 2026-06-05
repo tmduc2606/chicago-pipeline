@@ -183,6 +183,7 @@ def silver_transform(spark: SparkSession, bronze_path: str, output_root: str | N
         if latest is not None:
             df = df.filter(F.col("ingest_date") == latest)
             log.info("silver_partition_pruned", latest_ingest_date=str(latest))
+    df = df.drop("ingest_date")
 
     original_count = df.count()
     log.info("silver_bronze_row_count", count=original_count)
@@ -216,10 +217,22 @@ def silver_transform(spark: SparkSession, bronze_path: str, output_root: str | N
 
 
 if __name__ == "__main__":
+    import argparse
+
     from chicago_pipeline.common.spark_session import get_spark
 
-    bronze_path = sys.argv[1] if len(sys.argv) > 1 else "s3a://lake/bronze/chicago_crime"
+    parser = argparse.ArgumentParser(description="Transform Bronze to Silver")
+    parser.add_argument("--bronze-path", default="s3a://lake/bronze/chicago_crime",
+                        help="Bronze parquet root path")
+    parser.add_argument("--ingest-date", default=None,
+                        help="Process only this ingest_date partition (e.g. 2026-06-04). Default: latest")
+    args = parser.parse_args()
+
     spark = get_spark(app_name="SilverTransform")
+    if args.ingest_date:
+        bronze_path = f"{args.bronze_path}/ingest_date={args.ingest_date}"
+    else:
+        bronze_path = args.bronze_path
     count = silver_transform(spark, bronze_path)
     print(f"Silver transform complete: {count} rows")
     spark.stop()

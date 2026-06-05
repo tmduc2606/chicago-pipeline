@@ -1,6 +1,6 @@
 """M3 Gold Layer Verification — one-off validation of all Gold tables.
 
-Run: docker compose exec spark-master /opt/spark/bin/spark-submit /opt/pipeline/scripts/spike/verify_m3_gold.py
+Run: docker compose exec spark-master /opt/spark/bin/spark-submit /opt/scripts/spike/verify_m3_gold.py
 """
 from __future__ import annotations
 

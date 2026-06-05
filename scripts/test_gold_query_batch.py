@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Gold Query Tool — batch test runner (no REPL, direct function calls).
-Run: docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 ... /opt/pipeline/scripts/test_gold_query_batch.py
+Run: docker compose exec spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 ... /opt/scripts/test_gold_query_batch.py
 """
 from __future__ import annotations
 

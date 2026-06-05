@@ -39,6 +39,7 @@ lineage/
 data/*.csv
 pipeline/src/*.egg-info/
 pipeline/build/
+pipeline/scripts/
 
 # Reference repos (local only, not for public repo)
 references/

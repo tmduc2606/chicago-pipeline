@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Gold Layer Explorer — Chicago Crime DBMS
-Run: docker compose exec spark-master /opt/spark/bin/spark-submit /opt/pipeline/scripts/explore/gold_explorer.py
+Run: docker compose exec spark-master /opt/spark/bin/spark-submit /opt/scripts/explore/gold_explorer.py
 """
 from __future__ import annotations
 

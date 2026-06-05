@@ -52,11 +52,14 @@ pipeline: ## Ingest -> Silver -> Gold -> Postgres -> dbt (one-shot end-to-end)
 	@$(MAKE) dbt-test
 	@$(MAKE) quality
 
-spark-bronze: ## Run Bronze ingestion
+seed: ## Generate synthetic data for a fresh pipeline run
+	python scripts/seed.py
+
+spark-bronze: seed ## Run Bronze ingestion
 	docker compose exec -T spark-master \
 	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
-	    /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /tmp/chicago_synthetic.csv
+	    /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime_synthetic_90d.csv
 
 spark-silver: ## Run Silver transformation
 	docker compose exec -T spark-master \
@@ -115,7 +118,7 @@ load-postgres: ## Load Gold Parquet -> Postgres (warehouse schema)
 dbt-deps: ## Install dbt packages
 	docker compose exec -T spark-master bash -c "cd /opt/dbt && dbt deps --profiles-dir ."
 
-dbt-run: ## Run all dbt models
+dbt-run: dbt-deps ## Run all dbt models
 	docker compose exec -T spark-master bash -c "cd /opt/dbt && dbt run --profiles-dir ."
 
 dbt-test: ## Run dbt tests
@@ -180,10 +183,7 @@ format: ## Auto-format code
 	docker compose exec -T web pnpm format
 
 # ---- demo ----------------------------------------------------------------
-.PHONY: demo seed
+.PHONY: demo
 demo: ## Seed 90 days of synthetic data so the dashboard is populated
 	@$(MAKE) seed
 	@$(MAKE) pipeline
-
-seed: ## Insert synthetic data
-	@bash scripts/seed.sh
