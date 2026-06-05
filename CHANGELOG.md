@@ -194,3 +194,41 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Updated `agents/backend/AGENTS.md` — added M4 inputs: 5 mart tables (`mart_kpi_daily`, `mart_arrest_summary`, `mart_crime_type_trend`, `mart_geo_choropleth`, `mart_temporal_heatmap`); M4 prerequisite gate.
 - Updated `agents/backend/CONTRACTS.md` — added M4 consume rows for all 5 dbt marts with API endpoint mapping.
 - Updated `agents/qa/AGENTS.md` — added M4 quality gates: `load-postgres` row count check, `dbt-run`/`dbt-test` model materialization, PostGIS `ST_SRID` verification, 5 mart row count > 0.
+
+### Fixed (M4 QoL — Bronze schema)
+- `pipeline/src/chicago_pipeline/bronze/to_bronze.py`: drops `ingest_date` from DataFrame before `partitionBy` write. Column only exists in directory structure, not in data files. Eliminates `COLUMN_ALREADY_EXISTS` WARN in Silver reader.
+
+### Added (M4 QoL — Silver partition selection)
+- `pipeline/src/chicago_pipeline/silver/to_silver.py`: added `--ingest-date` CLI arg for per-partition processing. Allows targeting a specific Bronze partition instead of auto-detecting latest.
+
+### Fixed (M4 QoL — Makefile)
+- Removed duplicate `seed` target (was defined at both line 55 and line 191; second overrode first).
+- `dbt-run` now depends on `dbt-deps` — `make dbt-run` always works from fresh state without manual `dbt deps` step.
+
+### Added (M4 QoL — Docker image)
+- Created `docker/spark/Dockerfile` — custom Spark image with Hadoop AWS JARs (`hadoop-aws-3.3.4.jar`, `aws-java-sdk-bundle-1.12.262.jar`) and all Python dependencies baked in (boto3, pyarrow, dbt-core 1.8.7, dbt-postgres 1.8.2, pyspark 3.5.3, pytest, pytest-mock).
+- `docker-compose.yaml`: spark services now use `build: ./docker/spark` with `ccp-spark:3.5.1` image tag.
+- `docker-compose.yaml`: spark-master volumes expanded — added `contracts/`, `scripts/`, `airflow/dags/`, `Makefile` as `:ro` mounts.
+- `docker-compose.yaml`: spark-worker volumes expanded — added `./dbt:/opt/dbt` and `./data:/data`.
+
+### Added (M4 QoL — PowerShell pipeline)
+- Created `scripts/pipeline.ps1` — PowerShell equivalents for all Makefile targets (seed, spark-bronze, spark-silver, spark-gold, load-postgres, dbt-run, dbt-test, pipeline).
+
+### Added (M4 QoL — cross-platform seed)
+- Created `scripts/seed.py` — Python seed script (deterministic, `random.seed(42)`, 57,931 rows, 90 days of synthetic Chicago crime data). Works on Windows without bash.
+
+### Fixed (M4 QoL — Python 3.8 compatibility)
+- `pipeline/src/chicago_pipeline/ingest/download_kaggle.py`: added `from __future__ import annotations` for `str | Path` union syntax on Python 3.8.
+- `pipeline/tests/test_ingest.py`: rewrote `test_generate_synthetic_reproducible` to use flat `with tmp1, tmp2:` (parenthesized context managers require Python 3.10+).
+
+### Changed (M4 QoL — script paths)
+- `scripts/explore/gold_explorer.py`, `gold_query.py`, `scripts/spike/verify_m3_gold.py`, `scripts/test_gold_query_batch.py`: updated docstrings from `/opt/pipeline/scripts/` to `/opt/scripts/` to match docker-compose volume mounts.
+- Removed duplicate `pipeline/scripts/` directory (was byte-identical copy of `scripts/explore/` and `scripts/spike/`).
+- `.gitignore`: added `pipeline/scripts/` to prevent re-creation of duplicates.
+
+### Verified (M4 QoL — end-to-end pipeline)
+- Clean-slate pipeline run M1→M4 on 2026-06-05: Bronze 57,931 → Silver 57,931 → Gold 5 tables → Postgres 5 tables → dbt 12/12 models + 53/53 tests.
+- Unit tests: 63/63 PASS.
+- GE Bronze: 8/8 PASS (57,931 rows, 19 cols — clean schema).
+- GE Silver: 18/18 PASS (57,931 rows, 32 cols, zero COLUMN_ALREADY_EXISTS WARN).
+- Postgres: 5 base tables + 5 dbt marts, 4 PKs + 4 FKs + 1 GiST index + 4 B-tree indexes, PostGIS SRID 4326.
