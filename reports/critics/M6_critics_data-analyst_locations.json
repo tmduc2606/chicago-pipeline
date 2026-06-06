@@ -1,0 +1,33 @@
+{
+  "persona": "data-analyst",
+  "evaluated_at": "2026-06-06T14:47:00Z",
+  "page": "/locations",
+  "issues": [
+    {
+      "id": "M6-CRITIC-007",
+      "category": "missing_feature",
+      "severity": "P1",
+      "title": "Location list is not sortable or filterable",
+      "description": "The 'Top Locations' list shows locations ranked by count, but there is no way to sort by a different metric or filter by district.",
+      "reproduction_steps": ["Navigate to Locations", "View 'Top Locations' list", "Look for sort/filter controls"],
+      "expected": "Sort by count, name, or district; filter by district or area",
+      "actual": "Static list, no sorting or filtering",
+      "file_refs": ["web/src/pages/LocationsPage.tsx:33-73"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-008",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "No way to export location data",
+      "description": "Location data (counts, percentages) cannot be exported. A data analyst needs this for reports.",
+      "reproduction_steps": ["Navigate to Locations", "Look for export/download button"],
+      "expected": "Export button to download location data as CSV",
+      "actual": "No export functionality",
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 3,
+  "checklist_total": 5,
+  "summary": "Locations page shows geographic data but location list lacks sorting/filtering and export."
+}

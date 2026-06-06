@@ -16,8 +16,6 @@ htmlcov/
 .tox/
 .nox/
 *.egg-info/
-dist/
-build/
 
 # Pipeline (generated data, editable installs)
 data/*.csv
@@ -31,15 +29,7 @@ scripts/validate_agents.sh
 CODEOWNERS
 
 # Documentation (generated / agent-authored, keep locally only)
-docs/
-*.md
 lineage/
-
-# Pipeline (generated data, editable installs)
-data/*.csv
-pipeline/src/*.egg-info/
-pipeline/build/
-pipeline/scripts/
 
 # Reference repos (local only, not for public repo)
 references/
@@ -52,8 +42,6 @@ node_modules/
 .pnpm-store/
 .next/
 out/
-build/
-dist/
 .vite/
 *.tsbuildinfo
 
@@ -105,6 +93,8 @@ coverage/
 .nyc_output/
 
 # Playwright
+playwright-report/
+test-results/
 web/playwright-report/
 web/test-results/
 web/blob-report/
@@ -112,6 +102,3 @@ web/playwright/.cache/
 
 # Storybook
 web/storybook-static/
-
-# Generated / placeholder contract files we *do* want to keep are listed via ! patterns
-# (e.g. contracts/openapi.yaml is regenerated; keep it)

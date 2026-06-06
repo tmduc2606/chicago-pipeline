@@ -1,0 +1,57 @@
+{
+  "persona": "executive",
+  "evaluated_at": "2026-06-06T15:00:00Z",
+  "page": "/",
+  "issues": [
+    {
+      "id": "M6-CRITIC-032",
+      "category": "visual_glitch",
+      "severity": "P1",
+      "title": "KPI cards are below the fold on some screen sizes",
+      "description": "On smaller screens (1366x768), the KPI cards may not be immediately visible without scrolling. An executive needs the top-line numbers visible immediately.",
+      "reproduction_steps": ["Set browser to 1366x768", "Navigate to Dashboard", "Check if KPIs are visible without scrolling"],
+      "expected": "KPIs visible in the viewport on first load, no scrolling required",
+      "actual": "Page header + KPI row may require slight scroll on smaller screens",
+      "file_refs": ["web/src/pages/DashboardPage.tsx:28-72"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-033",
+      "category": "confusing_label",
+      "severity": "P1",
+      "title": "YoY Change shows 0.0% which is misleading",
+      "description": "The 'YoY Change' KPI shows 0.0%. An executive seeing this may think crime hasn't changed, but this is actually a calculation artifact (comparing to itself).",
+      "reproduction_steps": ["Navigate to Dashboard", "Read 'YoY Change' KPI"],
+      "expected": "Either show a meaningful comparison or explain that the data is a single period",
+      "actual": "Shows 0.0% without context",
+      "file_refs": ["web/src/pages/DashboardPage.tsx:65-70", "api/app/services/overview.py:87"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-034",
+      "category": "visual_glitch",
+      "severity": "P2",
+      "title": "Color coding inconsistency between KPIs",
+      "description": "Total Crimes uses cyan, Arrest Rate uses cyan, Domestic % uses amber, YoY Change uses conditional red/green. The color coding is not consistent with the meaning of the metrics.",
+      "reproduction_steps": ["Navigate to Dashboard", "Compare KPI card colors"],
+      "expected": "Consistent color coding: green for positive metrics, red for negative, neutral for informational",
+      "actual": "Cyan used for both Total Crimes (informational) and Arrest Rate (performance)",
+      "file_refs": ["web/src/pages/DashboardPage.tsx:47-71"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-035",
+      "category": "missing_state",
+      "severity": "P3",
+      "title": "No dashboard summary or 'at a glance' section",
+      "description": "An executive wants a 30-second overview. The current dashboard has 8+ visualizations competing for attention. There is no summary section.",
+      "reproduction_steps": ["Navigate to Dashboard", "Try to get a complete picture in 5 seconds"],
+      "expected": "A 'Summary' card at the top with the 3-4 most important takeaways",
+      "actual": "KPI cards only; no narrative summary",
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 2,
+  "checklist_total": 5,
+  "summary": "Dashboard shows KPIs but has visual hierarchy issues, misleading YoY number, and no executive summary."
+}

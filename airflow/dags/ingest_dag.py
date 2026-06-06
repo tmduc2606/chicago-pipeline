@@ -18,7 +18,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from airflow.decorators import dag, task
-from airflow.models.variable import Variable
 from airflow.operators.python import PythonOperator
 
 sys.path.insert(0, "/opt/pipeline/src")
@@ -39,6 +38,18 @@ SOURCE_CSV = "/tmp/chicago_crime/source.csv"
 SYNTHETIC_DAYS = int(os.getenv("SYNTHETIC_DAYS", "90"))
 SYNTHETIC_START = os.getenv("SYNTHETIC_START", "2024-01-01")
 SYNTHETIC_SEED = int(os.getenv("SYNTHETIC_SEED", "42"))
+
+
+def _get_s3a_conf() -> dict:
+    from airflow.models.variable import Variable
+    return {
+        "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+        "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
+        "spark.hadoop.fs.s3a.access.key": Variable.get("MINIO_ROOT_USER"),
+        "spark.hadoop.fs.s3a.secret.key": Variable.get("MINIO_ROOT_PASSWORD"),
+        "spark.hadoop.fs.s3a.path.style.access": "true",
+        "spark.hadoop.fs.s3a.connection.ssl.enabled": "false",
+    }
 
 
 @dag(
@@ -97,14 +108,7 @@ def ingest_dag() -> None:
         conn_id="spark_default",
         application_args=[SOURCE_CSV],
         verbose=True,
-        conf={
-            "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-            "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
-            "spark.hadoop.fs.s3a.access.key": Variable.get("MINIO_ROOT_USER"),
-            "spark.hadoop.fs.s3a.secret.key": Variable.get("MINIO_ROOT_PASSWORD"),
-            "spark.hadoop.fs.s3a.path.style.access": "true",
-            "spark.hadoop.fs.s3a.connection.ssl.enabled": "false",
-        },
+        conf_func=_get_s3a_conf,
     )
 
     dl = kaggle_download()

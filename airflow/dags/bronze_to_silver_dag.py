@@ -12,12 +12,11 @@ Parquet to MinIO. Alerts on drift detection.
 
 from __future__ import annotations
 
+import os
 import sys
 from datetime import datetime, timedelta
 
 from airflow.decorators import dag, task
-from airflow.models.variable import Variable
-from airflow.operators.python import PythonOperator
 
 sys.path.insert(0, "/opt/pipeline/src")
 
@@ -35,14 +34,17 @@ DEFAULT_ARGS = {
 BRONZE_PATH = "s3a://lake/bronze/chicago_crime/ingest_date={{ ds_nodash }}"
 SILVER_PATH = "s3a://lake/silver/chicago_crime"
 
-S3A_CONF = {
-    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-    "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
-    "spark.hadoop.fs.s3a.access.key": Variable.get("MINIO_ROOT_USER"),
-    "spark.hadoop.fs.s3a.secret.key": Variable.get("MINIO_ROOT_PASSWORD"),
-    "spark.hadoop.fs.s3a.path.style.access": "true",
-    "spark.hadoop.fs.s3a.connection.ssl.enabled": "false",
-}
+
+def _get_s3a_conf() -> dict:
+    from airflow.models.variable import Variable
+    return {
+        "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+        "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
+        "spark.hadoop.fs.s3a.access.key": Variable.get("MINIO_ROOT_USER"),
+        "spark.hadoop.fs.s3a.secret.key": Variable.get("MINIO_ROOT_PASSWORD"),
+        "spark.hadoop.fs.s3a.path.style.access": "true",
+        "spark.hadoop.fs.s3a.connection.ssl.enabled": "false",
+    }
 
 
 @dag(
@@ -67,7 +69,7 @@ def bronze_to_silver_dag() -> None:
         master="spark://spark-master:7077",
         application_args=[BRONZE_PATH, "chicago_crime_bronze", "bronze_checkpoint"],
         verbose=True,
-        conf=S3A_CONF,
+        conf_func=_get_s3a_conf,
     )
 
     spark_silver = SparkSubmitOperator(
@@ -78,7 +80,7 @@ def bronze_to_silver_dag() -> None:
         master="spark://spark-master:7077",
         application_args=[BRONZE_PATH, SILVER_PATH],
         verbose=True,
-        conf=S3A_CONF,
+        conf_func=_get_s3a_conf,
     )
 
     ge_checkpoint_silver = SparkSubmitOperator(
@@ -89,7 +91,7 @@ def bronze_to_silver_dag() -> None:
         master="spark://spark-master:7077",
         application_args=[SILVER_PATH, "chicago_crime_silver", "silver_checkpoint"],
         verbose=True,
-        conf=S3A_CONF,
+        conf_func=_get_s3a_conf,
     )
 
     detect_district_drift = SparkSubmitOperator(
@@ -100,7 +102,7 @@ def bronze_to_silver_dag() -> None:
         master="spark://spark-master:7077",
         application_args=[SILVER_PATH, "chicago_crime_silver"],
         verbose=True,
-        conf=S3A_CONF,
+        conf_func=_get_s3a_conf,
     )
 
     ge_checkpoint_bronze >> spark_silver >> ge_checkpoint_silver >> detect_district_drift

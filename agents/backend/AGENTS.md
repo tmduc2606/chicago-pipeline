@@ -18,7 +18,9 @@ Ship a clean, fast, type-safe HTTP API on top of the dbt marts. Be the contract 
 - `contracts/dbt-manifest.json` (from Data Engineer)
 - `contracts/event-catalog.md` (for HTTP event names)
 - dbt marts (PostgreSQL) — read-only access
-- **M4 mart tables:** `mart_kpi_daily`, `mart_arrest_summary`, `mart_crime_type_trend`, `mart_geo_choropleth`, `mart_temporal_heatmap` — all in `warehouse` schema
+- **M4 mart tables:** `mart_kpi_daily` (7 rows), `mart_arrest_summary` (1,250 rows), `mart_crime_type_trend` (900 rows), `mart_geo_choropleth` (57,931 rows), `mart_temporal_heatmap` (26,304 rows) — all in `warehouse` schema
+- Redis at `redis://redis:6379` for caching (TTL 5 min, SWR 60 s)
+- Postgres credentials: env vars `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (set via `.env`)
 
 ## Outputs produced
 - FastAPI routers under `api/app/routers/`
@@ -28,6 +30,27 @@ Ship a clean, fast, type-safe HTTP API on top of the dbt marts. Be the contract 
 - `contracts/api-types.ts` (generated from openapi.yaml)
 - `/metrics`, `/health`, `/health/ready`, `/health/live`
 
+## M5 scope (FastAPI backend)
+- **22 endpoints** across 11 tags: overview, timeseries (4), geo (2), crime-types (2), arrests (2), context (2), filters, pipeline (2), quality, system (4)
+- **Stack**: FastAPI 0.111+ async, Pydantic v2, SQLAlchemy 2.x async + asyncpg, Redis 7, structlog, prometheus-fastapi-instrumentator
+- **Caching**: Redis TTL 300s, stale-while-revalidate, query-hash keys
+- **Error model**: `{"error": {"code", "message", "request_id"}}`
+- **Forecast**: Exponential smoothing in SQL (no Python ML)
+- **Anomaly detection**: SQL z-score window functions
+- **Heatmap**: `EXTRACT(dow)` × `EXTRACT(hour)` aggregation
+- **Testing**: pytest + httpx.AsyncClient, ≥80% coverage on routers + services
+- **Dockerfile**: Python 3.11-slim, uvicorn
+- **Acceptance**: `make api-up` starts, `make api-test` green, `make api-docs` shows Swagger, `/api/health/live` returns 200
+
+## M6 Phase 1 scope (Backend prep for Frontend integration)
+- Add `from`, `to`, `types` filter params to 8 endpoints: `/api/heatmap`, `/api/geo/clusters`, `/api/geo/choropleth`, `/api/arrests/by-district`, `/api/arrests/by-type`, `/api/context/domestic`, `/api/context/location`, `/api/crime-types/trend`
+- Extend `FilterOptions` schema with `community_areas: list[int]`
+- Make `TimeseriesPoint.arrests` non-null (default 0)
+- Add `label` field to `ChoroplethBucket` for display
+- Fix CORS: lock methods to `["GET", "OPTIONS"]`, headers to `["Content-Type", "X-Request-ID"]`, remove `localhost:3000`
+- Regenerate `contracts/api-types.ts` after all changes
+- Create `docs/milestones/M5-test.md` ✅ DONE
+
 ## Quality gates
 - `make api-up` (starts FastAPI on :8000)
 - `make api-test` (pytest, coverage ≥ 80 % on `routers/` and `services/`)
@@ -35,7 +58,8 @@ Ship a clean, fast, type-safe HTTP API on top of the dbt marts. Be the contract 
 - OpenAPI drift check: `make contracts-validate` exits 0
 - All routes paginated (`limit` + `cursor`)
 - All routes cached in Redis (TTL 5 min, SWR 60 s)
-- **M4 prerequisite:** all 5 dbt marts must exist and have row counts > 0 before wiring endpoints
+- **M4 prerequisite:** all 5 dbt marts must exist with row counts > 0 before wiring endpoints; Postgres must have PostGIS extension and `warehouse` schema; `./dbt:/opt/dbt` volume mounted for live dbt model sync
+- **M5 prerequisite:** all 22 endpoints respond with valid JSON matching `contracts/openapi.yaml` schemas
 
 ## Style
 - FastAPI: async, dependency injection, no business logic in routes.

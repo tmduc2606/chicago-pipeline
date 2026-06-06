@@ -1,0 +1,34 @@
+{
+  "persona": "journalist",
+  "evaluated_at": "2026-06-06T14:57:00Z",
+  "page": "/locations",
+  "issues": [
+    {
+      "id": "M6-CRITIC-028",
+      "category": "missing_feature",
+      "severity": "P1",
+      "title": "No way to compare crime density across districts",
+      "description": "The choropleth map shows crime counts by district, but there is no way to compare crime density (per capita or per area). A journalist needs this for comparison stories.",
+      "reproduction_steps": ["Navigate to Locations", "View choropleth map", "Look for density/per-capita metric"],
+      "expected": "Toggle between raw count and per-capita rate",
+      "actual": "Only raw count; no per-capita option",
+      "file_refs": ["web/src/components/maps/ChoroplethMap.tsx:73-143"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-029",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "No hotspot clustering visualization",
+      "description": "The cluster map shows individual crime points, but there is no heatmap or hotspot visualization showing concentration areas.",
+      "reproduction_steps": ["Navigate to Locations", "View cluster map", "Look for hotspot visualization"],
+      "expected": "Heatmap overlay showing crime concentration areas",
+      "actual": "Individual dots only; no density visualization",
+      "file_refs": ["web/src/components/maps/ClusterMap.tsx"],
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 3,
+  "checklist_total": 5,
+  "summary": "Locations page shows geographic data but lacks density metrics and hotspot visualization needed for comparison stories."
+}

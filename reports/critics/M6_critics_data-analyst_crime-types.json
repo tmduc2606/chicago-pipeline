@@ -1,0 +1,34 @@
+{
+  "persona": "data-analyst",
+  "evaluated_at": "2026-06-06T14:46:00Z",
+  "page": "/crime-types",
+  "issues": [
+    {
+      "id": "M6-CRITIC-005",
+      "category": "missing_feature",
+      "severity": "P1",
+      "title": "No click-to-filter interaction between charts",
+      "description": "Clicking a bar in the 'Most Common Types' chart does not filter the 'Arrest Rate by Type' chart. A data analyst expects linked views.",
+      "reproduction_steps": ["Navigate to Crime Types", "Click 'THEFT' bar in left chart", "Observe right chart unchanged"],
+      "expected": "Clicking a bar in one chart highlights or filters that type in the other chart",
+      "actual": "Charts are independent; no cross-filtering",
+      "file_refs": ["web/src/pages/CrimeTypesPage.tsx:22-114"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-006",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "Table is not sortable by arrest rate",
+      "description": "The 'All Crime Types' table has columns for Type, Count, and Arrest Rate, but clicking column headers does not sort.",
+      "reproduction_steps": ["Navigate to Crime Types", "Scroll to 'All Crime Types' table", "Click 'Arrest Rate' column header"],
+      "expected": "Table sorts by arrest rate (ascending/descending)",
+      "actual": "No sorting functionality; table is static",
+      "file_refs": ["web/src/pages/CrimeTypesPage.tsx:88-111"],
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 4,
+  "checklist_total": 5,
+  "summary": "Crime Types page shows correct data but charts are not interactive and table lacks sorting."
+}

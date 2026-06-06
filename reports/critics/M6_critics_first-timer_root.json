@@ -1,0 +1,56 @@
+{
+  "persona": "first-timer",
+  "evaluated_at": "2026-06-06T15:05:00Z",
+  "page": "/",
+  "issues": [
+    {
+      "id": "M6-CRITIC-039",
+      "category": "missing_state",
+      "severity": "P0",
+      "title": "No onboarding or welcome message",
+      "description": "A first-time visitor lands on the Dashboard with no explanation of what this is, where the data comes from, or how to use it. The sidebar says 'Chicago Crime' but there is no welcome text.",
+      "reproduction_steps": ["Navigate to Dashboard as a new user", "Look for any welcome message or onboarding"],
+      "expected": "A welcome banner or modal explaining the dashboard purpose and data source",
+      "actual": "No onboarding; page starts with KPI cards immediately",
+      "file_refs": ["web/src/pages/DashboardPage.tsx:28-36"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-040",
+      "category": "missing_state",
+      "severity": "P1",
+      "title": "Maps show as empty black boxes during loading",
+      "description": "The ChoroplethMap and ClusterMap components show as black card containers while the map tiles load. A first-time visitor may think the maps are broken.",
+      "reproduction_steps": ["Navigate to Dashboard", "Observe map cards during initial load"],
+      "expected": "Loading skeleton or spinner while map tiles load",
+      "actual": "Empty black card containers until tiles load",
+      "file_refs": ["web/src/components/maps/ChoroplethMap.tsx:128-143", "web/src/components/maps/ClusterMap.tsx"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-041",
+      "category": "missing_state",
+      "severity": "P2",
+      "title": "No empty state for filtered results",
+      "description": "When filters return no data, the charts may show empty states but there is no explicit message like 'No crimes match these filters'.",
+      "reproduction_steps": ["Navigate to Dashboard", "Apply very restrictive filters (e.g., one specific type + one day)", "Check chart states"],
+      "expected": "Message: 'No crimes match these filters. Try broadening your date range.'",
+      "actual": "Charts show empty or zero values without explanation",
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-042",
+      "category": "accessibility",
+      "severity": "P2",
+      "title": "No keyboard navigation support",
+      "description": "A first-time visitor using keyboard navigation cannot tab through the sidebar, charts, or maps. No focus indicators are visible.",
+      "reproduction_steps": ["Press Tab key repeatedly on Dashboard", "Look for focus indicators"],
+      "expected": "Visible focus rings on all interactive elements",
+      "actual": "No visible focus indicators; keyboard navigation unclear",
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 1,
+  "checklist_total": 5,
+  "summary": "Dashboard shows real data but first-time visitors have no onboarding, maps show empty states during loading, and keyboard navigation is unclear."
+}

@@ -1,0 +1,33 @@
+{
+  "persona": "citizen",
+  "evaluated_at": "2026-06-06T14:51:00Z",
+  "page": "/crime-types",
+  "issues": [
+    {
+      "id": "M6-CRITIC-015",
+      "category": "confusing_label",
+      "severity": "P1",
+      "title": "Crime type labels are raw database values",
+      "description": "Labels like 'THEFT', 'BATTERY', 'ASSAULT' are in ALL CAPS and look like database values, not natural language. A citizen expects 'Theft', 'Battery', 'Assault'.",
+      "reproduction_steps": ["Navigate to Crime Types", "Read bar chart labels"],
+      "expected": "Title-cased, human-readable labels (e.g., 'Theft' not 'THEFT')",
+      "actual": "ALL CAPS raw database values",
+      "file_refs": ["web/src/pages/CrimeTypesPage.tsx:51", "web/src/pages/CrimeTypesPage.tsx:71"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-016",
+      "category": "missing_state",
+      "severity": "P2",
+      "title": "No explanation of what crime types mean",
+      "description": "A citizen may not know the difference between 'THEFT' and 'BURGLARY' or what 'OFFENSE INVOLVING CHILDREN' covers.",
+      "reproduction_steps": ["Navigate to Crime Types", "Hover over a bar", "Look for explanation"],
+      "expected": "Tooltip or glossary explaining each crime type",
+      "actual": "No explanations; only raw type names",
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 3,
+  "checklist_total": 5,
+  "summary": "Crime Types page shows correct data but labels are raw database values without explanations."
+}

@@ -1,0 +1,33 @@
+{
+  "persona": "journalist",
+  "evaluated_at": "2026-06-06T14:56:00Z",
+  "page": "/crime-types",
+  "issues": [
+    {
+      "id": "M6-CRITIC-026",
+      "category": "missing_feature",
+      "severity": "P1",
+      "title": "No trend data for individual crime types",
+      "description": "The Crime Types page shows current counts and arrest rates, but there is no way to see how a specific crime type has trended over time. A journalist needs this for trend stories.",
+      "reproduction_steps": ["Navigate to Crime Types", "Look for trend chart per type"],
+      "expected": "Click a crime type to see its timeseries trend",
+      "actual": "Only aggregate bar charts; no per-type trend",
+      "file_refs": ["web/src/pages/CrimeTypesPage.tsx:22-114"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-027",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "No comparison between crime types",
+      "description": "A journalist wants to compare 'THEFT' vs 'BURGLARY' trends side by side. The current view only shows separate bars.",
+      "reproduction_steps": ["Navigate to Crime Types", "Try to compare two types"],
+      "expected": "Multi-select to overlay trend lines for selected types",
+      "actual": "No comparison capability",
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 3,
+  "checklist_total": 5,
+  "summary": "Crime Types page shows current data but lacks trend analysis and comparison capability needed for stories."
+}

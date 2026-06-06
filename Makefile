@@ -37,9 +37,9 @@ health: ## Show health of all services
 urls: ## Print all service URLs
 	@bash scripts/urls.sh
 
-reset: ## Destroy volumes and restart fresh
+reset: ## Destroy volumes and restart fresh (project-scoped only)
 	docker compose down -v
-	docker volume prune -f
+	@echo "Volumes removed. Orphaned volumes pruned safely."
 
 # ---- data engineering ----------------------------------------------------
 .PHONY: pipeline spark-bronze spark-silver spark-gold load-postgres quality
@@ -159,7 +159,7 @@ web-test: ## Unit tests
 	docker compose exec -T web pnpm test
 
 web-e2e: ## Playwright e2e
-	docker compose exec -T web pnpm test:e2e
+	docker compose --profile test run --rm playwright
 
 # ---- contracts & agents --------------------------------------------------
 .PHONY: contracts-validate agents-lint

@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+@theme {
+  --color-bg: #0a0a0f;
+  --color-bg-card: #12121a;
+  --color-bg-muted: #1a1a26;
+  --color-bg-hover: #222233;
+  --color-border: #2a2a3d;
+  --color-border-bright: #3d3d56;
+  --color-text: #e8e8f0;
+  --color-text-muted: #8888a0;
+  --color-text-dim: #55556a;
+  --color-primary: #6366f1;
+  --color-primary-bright: #818cf8;
+  --color-primary-dim: #4f46e5;
+  --color-accent-cyan: #22d3ee;
+  --color-accent-green: #34d399;
+  --color-accent-amber: #fbbf24;
+  --color-accent-rose: #fb7185;
+  --color-accent-orange: #fb923c;
+  --color-success: #34d399;
+  --color-danger: #fb7185;
+  --color-warning: #fbbf24;
+  --color-surface: #161622;
+}
+
+html {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+body {
+  @apply bg-bg text-text m-0 p-0 antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-bg;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-border-bright;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-text-dim;
+}
+
+/* Chart loading animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--color-bg-muted) 25%, var(--color-bg-hover) 50%, var(--color-bg-muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Glow effect for KPI cards */
+.kpi-glow {
+  box-shadow: 0 0 0 1px var(--color-border),
+              0 4px 20px -4px rgba(99, 102, 241, 0.1);
+}
+.kpi-glow:hover {
+  box-shadow: 0 0 0 1px var(--color-border-bright),
+              0 8px 30px -4px rgba(99, 102, 241, 0.15);
+}
+
+/* Card base */
+.card {
+  @apply rounded-xl border border-border bg-bg-card p-5;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  @apply border-border-bright;
+}
+
+/* Hide MapLibre default logo/controls that leak outside map containers */
+.maplibregl-ctrl-logo,
+.maplibregl-ctrl-attrib {
+  display: none !important;
+}

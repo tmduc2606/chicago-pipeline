@@ -1,0 +1,22 @@
+{
+  "persona": "executive",
+  "evaluated_at": "2026-06-06T15:02:00Z",
+  "page": "/locations",
+  "issues": [
+    {
+      "id": "M6-CRITIC-037",
+      "category": "missing_state",
+      "severity": "P2",
+      "title": "No 'Hottest District' summary",
+      "description": "An executive wants to know 'Which district has the most crime?' at a glance. The maps and list require reading through data.",
+      "reproduction_steps": ["Navigate to Locations", "Try to identify the hottest district quickly"],
+      "expected": "A callout showing 'Hottest district: District X with Y crimes'",
+      "actual": "No summary; maps and list required",
+      "file_refs": ["web/src/pages/LocationsPage.tsx:24-73"],
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 4,
+  "checklist_total": 5,
+  "summary": "Locations page shows maps but lacks executive-level summary."
+}

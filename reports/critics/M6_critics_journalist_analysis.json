@@ -1,0 +1,33 @@
+{
+  "persona": "journalist",
+  "evaluated_at": "2026-06-06T14:58:00Z",
+  "page": "/analysis",
+  "issues": [
+    {
+      "id": "M6-CRITIC-030",
+      "category": "missing_feature",
+      "severity": "P1",
+      "title": "Analysis page does not provide deeper analysis than Dashboard",
+      "description": "The Analysis page shows the same TimeseriesChart and ArrestRateChart as Dashboard. A journalist expects correlation analysis, distribution plots, or trend decomposition.",
+      "reproduction_steps": ["Navigate to Analysis", "Compare with Dashboard"],
+      "expected": "Correlation matrix, distribution plots, seasonal decomposition",
+      "actual": "Same charts as Dashboard",
+      "file_refs": ["web/src/pages/AnalysisPage.tsx:7-55"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-031",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "No narrative or story suggestions",
+      "description": "A journalist wants the system to suggest angles: 'Theft spiked 30% in Q3 2025' or 'Arrest rates are lowest in District 7'. No story suggestions are provided.",
+      "reproduction_steps": ["Navigate to Analysis", "Look for story suggestions or angle recommendations"],
+      "expected": "Auto-generated story suggestions based on data patterns",
+      "actual": "Static Key Insights only",
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 3,
+  "checklist_total": 5,
+  "summary": "Analysis page is a thin wrapper around Dashboard without deeper analytical capability for journalism."
+}

@@ -1,0 +1,45 @@
+{
+  "persona": "citizen",
+  "evaluated_at": "2026-06-06T14:52:00Z",
+  "page": "/locations",
+  "issues": [
+    {
+      "id": "M6-CRITIC-017",
+      "category": "confusing_label",
+      "severity": "P1",
+      "title": "Location descriptions are raw database values",
+      "description": "Labels like 'STREET', 'RESIDENCE', 'APARTMENT' are raw values. A citizen expects 'On the street', 'At a residence', 'In an apartment'.",
+      "reproduction_steps": ["Navigate to Locations", "Read location list labels"],
+      "expected": "Human-readable location descriptions",
+      "actual": "Raw database values in ALL CAPS",
+      "file_refs": ["web/src/pages/LocationsPage.tsx:58"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-018",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "No way to search for a specific location",
+      "description": "A citizen wants to find their neighborhood. There is no search box or filter to type a location name.",
+      "reproduction_steps": ["Navigate to Locations", "Look for a search box"],
+      "expected": "Search input to filter locations by name",
+      "actual": "No search functionality; only a static list",
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-019",
+      "category": "missing_state",
+      "severity": "P3",
+      "title": "Maps do not explain what districts/areas mean",
+      "description": "The choropleth and cluster maps show data points but there is no legend explaining what the dots/circles represent or what 'district' means.",
+      "reproduction_steps": ["Navigate to Locations", "View maps", "Look for explanation of map symbols"],
+      "expected": "Legend explaining map symbols and district boundaries",
+      "actual": "No map legend or explanation",
+      "file_refs": ["web/src/components/maps/ChoroplethMap.tsx:128-143"],
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 2,
+  "checklist_total": 5,
+  "summary": "Locations page shows geographic data but labels are raw database values and maps lack explanations."
+}

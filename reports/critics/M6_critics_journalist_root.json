@@ -1,0 +1,57 @@
+{
+  "persona": "journalist",
+  "evaluated_at": "2026-06-06T14:55:00Z",
+  "page": "/",
+  "issues": [
+    {
+      "id": "M6-CRITIC-022",
+      "category": "missing_feature",
+      "severity": "P1",
+      "title": "No year-over-year comparison view",
+      "description": "The 'YoY Change' KPI shows a single number (0.0%) but there is no chart comparing 2024 vs 2025 data side by side. A journalist needs this for trend stories.",
+      "reproduction_steps": ["Navigate to Dashboard", "Look at 'YoY Change' KPI", "Look for a comparison chart"],
+      "expected": "A chart overlaying 2024 and 2025 data on the same axis",
+      "actual": "Only a single percentage number; no comparison visualization",
+      "file_refs": ["web/src/pages/DashboardPage.tsx:65-70"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-023",
+      "category": "missing_feature",
+      "severity": "P1",
+      "title": "No anomaly or spike detection",
+      "description": "The timeseries chart shows daily data but there is no indication of unusual spikes or anomalies. A journalist needs this to find story leads.",
+      "reproduction_steps": ["Navigate to Dashboard", "View 'Daily Crime Trend' chart", "Look for anomaly markers"],
+      "expected": "Red dots or markers on unusual spikes; tooltip explaining 'X% above average'",
+      "actual": "No anomaly detection or visual indicators",
+      "file_refs": ["web/src/components/charts/TimeseriesChart.tsx:73-88"],
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-024",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "No time period quick-select",
+      "description": "A journalist needs to quickly jump to 'Last 30 days', 'This year', 'Since 2024'. Currently only custom date pickers are available.",
+      "reproduction_steps": ["Navigate to Dashboard", "Look for quick-select buttons like 'Last 30 days'"],
+      "expected": "Buttons or dropdown for common time periods",
+      "actual": "Only custom date pickers in sidebar",
+      "status": "reported"
+    },
+    {
+      "id": "M6-CRITIC-025",
+      "category": "missing_feature",
+      "severity": "P2",
+      "title": "No shareable link with current filters",
+      "description": "A journalist wants to share a specific filtered view with a colleague. The URL does not update when filters change.",
+      "reproduction_steps": ["Navigate to Dashboard", "Apply date filter", "Copy URL from browser", "Paste in new tab"],
+      "expected": "URL contains filter state (e.g., ?from=2024-01-01&to=2025-12-31)",
+      "actual": "URL does not reflect filter state",
+      "file_refs": ["web/src/stores/filters.ts"],
+      "status": "reported"
+    }
+  ],
+  "checklist_pass": 2,
+  "checklist_total": 5,
+  "summary": "Dashboard shows data but lacks YoY comparison, anomaly detection, and shareable links needed for investigative journalism."
+}
