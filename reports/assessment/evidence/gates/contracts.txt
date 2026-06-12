@@ -1,0 +1,14 @@
+  [32mOK[0m  contracts/openapi.yaml (17244 bytes)
+  [32mOK[0m  contracts/dbt-manifest.json (1344 bytes)
+  [32mOK[0m  contracts/api-types.ts (2246 bytes)
+  [32mOK[0m  contracts/event-catalog.md (3162 bytes)
+  [32mOK[0m  contracts/design-tokens.json (2655 bytes)
+  [32mOK[0m  contracts/CHANGELOG.md (1330 bytes)
+  [32mOK[0m  contracts/README.md (1922 bytes)
+  [32mOK[0m  contracts/openapi.yaml is valid YAML
+  [32mOK[0m  contracts/dbt-manifest.json is valid JSON
+  [32mOK[0m  contracts/design-tokens.json is valid JSON
+  [32mOK[0m  contracts/api-types.ts declares expected interfaces
+  [32mOK[0m  contracts/event-catalog.md has an event table
+
+All contracts valid.

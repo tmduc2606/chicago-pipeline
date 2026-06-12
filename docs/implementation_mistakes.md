@@ -176,9 +176,66 @@
 
 ---
 
+## MISTAKE-013 | Missing env vars cause downstream container failures
+
+| Field | Value |
+|-------|-------|
+| **Severity** | MEDIUM |
+| **Discovered** | M0–M6 assessment (load_postgres.py crash) |
+| **Services affected** | `.env`, `docker-compose.yaml`, `load_postgres.py` |
+| **Root cause** | `.env` file omitted `POSTGRES_HOST` and `POSTGRES_PORT`. Docker Compose substituted blank strings. The spark-master container received `POSTGRES_HOST=""` and `POSTGRES_PORT=""`, causing SQLAlchemy to build an invalid connection URL (`...:None`). |
+| **Symptom** | `ValueError: invalid literal for int() with base 10: 'None'` on `create_engine()` |
+| **Fix pattern** | Ensure `.env` contains ALL variables referenced by `${VAR}` in `docker-compose.yaml`. Cross-reference on every compose change. |
+| **Prevention rule** | **RULE:** After any `docker-compose.yaml` change that adds `${VAR}` references, run `grep -oP '\$\{[A-Z_]+\}' docker-compose.yaml | sort -u` and verify every variable exists in `.env`. |
+
+---
+
+## MISTAKE-014 | Host scripts cannot run inside containers
+
+| Field | Value |
+|-------|-------|
+| **Severity** | LOW |
+| **Discovered** | M0–M6 assessment (README quick-start) |
+| **Services affected** | `scripts/seed.py`, `docker-compose.yaml` |
+| **Root cause** | `scripts/` directory is NOT mounted into the spark-master container. Only `./pipeline:/opt/pipeline` and `./data:/data` are mounted. Running `docker compose exec spark-master python scripts/seed.py` fails with "No such file or directory". |
+| **Symptom** | `python3: can't open file 'scripts/seed.py': [Errno 2] No such file or directory` |
+| **Fix pattern** | `scripts/seed.py` generates a CSV on the HOST filesystem at `data/chicago_crime_synthetic_90d.csv`. The `data/` directory IS mounted into the container at `/data`. So: run seed on the host first, then run pipeline stages in the container. |
+| **Prevention rule** | **RULE:** Scripts that write to host-mounted volumes (e.g., `data/`) MUST run on the host, not inside the container. Document the execution context (host vs container) in every script's docstring. |
+
+---
+
+## MISTAKE-015 | Hidden DOM elements interfere with E2E selectors
+
+| Field | Value |
+|-------|-------|
+| **Severity** | LOW |
+| **Discovered** | M0–M6 assessment (Playwright heatmap test) |
+| **Services affected** | `web/src/components/charts/KpiCard.tsx`, `web/e2e/dashboard.spec.ts` |
+| **Root cause** | Adding a hidden `<canvas className="hidden">` to KpiCard (for sparkline PNG export) caused `page.locator("canvas").first()` in Playwright to match the hidden canvas instead of the visible ECharts heatmap canvas. |
+| **Symptom** | `expect(locator).toBeVisible()` fails because the first canvas has `class="hidden"` |
+| **Fix pattern** | Use `page.locator("canvas:not(.hidden)")` or `page.locator("canvas:visible")` in E2E tests when hidden utility elements exist. |
+| **Prevention rule** | **RULE:** When adding hidden utility elements (export canvases, portals), update all E2E selectors that might match them. Prefer semantic selectors (`[data-testid]`) over element-type selectors. |
+
+---
+
+## MISTAKE-016 | Assessment script timeout too short for E2E
+
+| Field | Value |
+|-------|-------|
+| **Severity** | LOW |
+| **Discovered** | M0–M6 assessment |
+| **Services affected** | `scripts/run_assessment.sh` |
+| **Root cause** | Default 120s bash timeout was insufficient for the Playwright E2E suite (40 tests take ~3.5 min). The script appeared to complete but was actually killed mid-execution. |
+| **Symptom** | E2E tests show "passed" in partial output but the full suite never completes |
+| **Fix pattern** | Set timeout to 900000ms (15 min) when calling the assessment script. |
+| **Prevention rule** | **RULE:** When running the full assessment pipeline, always specify `--timeout 900000` or run with `MSYS_NO_PATHCONV=1` in Git Bash with adequate timeout. |
+
+---
+
 ## Changelog
 
 | Date | Entry | Author |
 |------|-------|--------|
 | 2026-06-06 | Initial catalogue: MISTAKE-001 through MISTAKE-008 (M6 discoveries) | QA Agent |
 | 2026-06-06 | Added MISTAKE-009 through MISTAKE-012 (M6 critic pass setup) | Architect Agent |
+| 2026-06-09 | Added MISTAKE-013 through MISTAKE-016 (M0–M6 assessment findings) | QA Agent |

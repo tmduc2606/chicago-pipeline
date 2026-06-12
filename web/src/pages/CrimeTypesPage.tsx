@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useFilterStore, filtersToParams } from "@/stores/filters";
-import { titleCase } from "@/lib/utils";
+import { formatCrimeType } from "@/lib/utils";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   BarChart,
   Bar,
@@ -93,22 +94,23 @@ export function CrimeTypesPage() {
         <div className="card">
           <h3 className="mb-3 text-sm font-semibold text-text">Top 3 Crime Types</h3>
           <div className="grid grid-cols-1 gap-2 text-xs text-text-muted sm:grid-cols-3">
-            <p><span className="font-medium text-text">{titleCase(top3[0]!.primary_type)}</span> — {top3[0]!.count.toLocaleString()} incidents</p>
-            <p><span className="font-medium text-text">{titleCase(top3[1]!.primary_type)}</span> — {top3[1]!.count.toLocaleString()} incidents</p>
-            <p><span className="font-medium text-text">{titleCase(top3[2]!.primary_type)}</span> — {top3[2]!.count.toLocaleString()} incidents</p>
+            <p><span className="font-medium text-text">{formatCrimeType(top3[0]!.primary_type)}</span> — {top3[0]!.count.toLocaleString()} incidents</p>
+            <p><span className="font-medium text-text">{formatCrimeType(top3[1]!.primary_type)}</span> — {top3[1]!.count.toLocaleString()} incidents</p>
+            <p><span className="font-medium text-text">{formatCrimeType(top3[2]!.primary_type)}</span> — {top3[2]!.count.toLocaleString()} incidents</p>
           </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="card">
-          <h3 className="mb-4 text-sm font-semibold text-text">Most Common Types</h3>
+        <ErrorBoundary>
+          <div className="card">
+            <h3 className="mb-4 text-sm font-semibold text-text">Most Common Types</h3>
           {loadingTop ? (
             <div className="shimmer h-[400px] rounded" />
           ) : (
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
-                data={topTypes?.map((d) => ({ name: titleCase(d.primary_type), count: d.count })) ?? []}
+                data={topTypes?.map((d) => ({ name: formatCrimeType(d.primary_type), count: d.count })) ?? []}
                 layout="vertical"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3d" horizontal={false} />
@@ -120,7 +122,9 @@ export function CrimeTypesPage() {
             </ResponsiveContainer>
           )}
         </div>
+        </ErrorBoundary>
 
+        <ErrorBoundary>
         <div className="card">
           <h3 className="mb-4 text-sm font-semibold text-text">Arrest Rate by Type</h3>
           {loadingArrests ? (
@@ -128,7 +132,7 @@ export function CrimeTypesPage() {
           ) : (
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
-                data={typeArrests?.map((d) => ({ name: titleCase(d.primary_type), rate: d.arrest_rate })) ?? []}
+                data={typeArrests?.map((d) => ({ name: formatCrimeType(d.primary_type), rate: d.arrest_rate })) ?? []}
                 layout="vertical"
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3d" horizontal={false} />
@@ -140,6 +144,7 @@ export function CrimeTypesPage() {
             </ResponsiveContainer>
           )}
         </div>
+        </ErrorBoundary>
       </div>
 
       <div className="card">
@@ -176,7 +181,7 @@ export function CrimeTypesPage() {
                 const arrest = typeArrests?.find((a) => a.primary_type === t.primary_type);
                 return (
                   <tr key={t.primary_type} className="border-b border-border/50 transition-colors hover:bg-bg-hover/50">
-                    <td className="py-3 pr-4 font-medium text-text">{titleCase(t.primary_type)}</td>
+                    <td className="py-3 pr-4 font-medium text-text">{formatCrimeType(t.primary_type)}</td>
                     <td className="py-3 pr-4 text-right tabular-nums text-text-muted">{t.count.toLocaleString()}</td>
                     <td className="py-3 text-right tabular-nums text-text-muted">
                       {arrest ? `${arrest.arrest_rate.toFixed(1)}%` : "—"}
@@ -191,6 +196,24 @@ export function CrimeTypesPage() {
       </div>
       </>
       )}
+
+      {/* Data Notes */}
+      <div className="card">
+        <h3 className="mb-3 text-sm font-semibold text-text">Data Notes</h3>
+        <div className="space-y-2 text-xs text-text-dim">
+          <p>
+            <strong className="text-text-muted">Data source:</strong> Chicago Crime Database — Kaggle Chicago Crime 2024–2026 (synthetic data).
+          </p>
+          <p>
+            <strong className="text-text-muted">Crime types:</strong> Categories used by the Chicago Police Department to classify
+            incidents. Some types may have been consolidated for display purposes.
+          </p>
+          <p>
+            <strong className="text-text-muted">Limitations:</strong> This is synthetic data. Arrest rates may not reflect
+            conviction rates or final case outcomes.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

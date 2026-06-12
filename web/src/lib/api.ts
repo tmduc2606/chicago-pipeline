@@ -1,3 +1,16 @@
+export type AnomalyPoint = {
+  ts: string;
+  z: number;
+  count: number;
+};
+
+export type TypeTrendPoint = {
+  primary_type: string;
+  ts: string;
+  count: number;
+  arrests: number;
+};
+
 const API_BASE = "/api";
 
 type FetchOptions = {
@@ -129,4 +142,15 @@ export const api = {
 
   health: (signal?: AbortSignal) =>
     fetchJson<HealthCheck>("/health", { signal }),
+
+  anomalies: (params?: URLSearchParams, signal?: AbortSignal) =>
+    fetchJson<AnomalyPoint[]>(`/timeseries/anomalies${params ? "?" + params : ""}`, { signal }),
+
+  crimeTypesTrends: (params: URLSearchParams, signal?: AbortSignal) =>
+    fetchJson<TypeTrendPoint[]>(`/crime-types/trends?${params}`, { signal }),
+
+  exportCsv: (params?: URLSearchParams) => {
+    const url = `${API_BASE}/export/csv${params ? "?" + params : ""}`;
+    return url;
+  },
 };

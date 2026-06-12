@@ -13,13 +13,9 @@ include $(ENV_FILE)
 export
 
 # ---- stack lifecycle -----------------------------------------------------
-.PHONY: up up-lite down ps logs health urls reset
-up: ## Bring up the full docker-compose stack
+.PHONY: up down ps logs health urls reset
+up: ## Bring up the docker-compose stack
 	docker compose up -d --build
-	@$(MAKE) health
-
-up-lite: ## Bring up a minimal stack (no Marquez, no Grafana, smaller resource limits)
-	docker compose -f docker-compose.lite.yml up -d --build
 	@$(MAKE) health
 
 down: ## Stop the stack

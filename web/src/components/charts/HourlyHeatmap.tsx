@@ -2,6 +2,7 @@ import ReactECharts from "echarts-for-react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useFilterStore, filtersToParams } from "@/stores/filters";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const HOUR_LABELS = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}:00`);
@@ -10,7 +11,7 @@ export function HourlyHeatmap() {
   const filters = useFilterStore();
   const params = filtersToParams(filters);
 
-  const { data: heatmap, isLoading } = useQuery({
+  const { data: heatmap, isLoading, error } = useQuery({
     queryKey: ["heatmap", params.toString()],
     queryFn: ({ signal }) => api.heatmap(params, signal),
   });
@@ -20,6 +21,17 @@ export function HourlyHeatmap() {
       <div className="card">
         <div className="mb-4 shimmer h-4 w-40 rounded" />
         <div className="shimmer h-[120px] rounded" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="card">
+        <h3 className="mb-4 text-sm font-semibold text-text">Crimes by Hour of Day</h3>
+        <div className="flex h-[120px] items-center justify-center rounded-lg bg-bg-muted">
+          <p className="text-sm text-text-dim">Failed to load heatmap data</p>
+        </div>
       </div>
     );
   }
@@ -87,7 +99,10 @@ export function HourlyHeatmap() {
 
   return (
     <div className="card">
-      <h3 className="mb-4 text-sm font-semibold text-text">Crimes by Hour of Day</h3>
+      <div className="mb-4 flex items-center">
+        <h3 className="text-sm font-semibold text-text">Crimes by Hour of Day</h3>
+        <HelpTooltip content="Heatmap showing crime frequency by day of week and hour. Darker cells indicate higher crime counts. Use this to identify peak crime windows." />
+      </div>
       <ReactECharts option={option} style={{ height: 180 }} />
     </div>
   );

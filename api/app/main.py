@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.middleware.gzip import GZipMiddleware
@@ -8,6 +9,7 @@ from app.routers import (
     arrests,
     context,
     crime_types,
+    export,
     filters,
     geo,
     health,
@@ -22,6 +24,22 @@ app = FastAPI(
     version="0.1.0",
     description="Public HTTP API exposing dbt marts for the Chicago Crime DBMS dashboard.",
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": {
+                "code": "internal_server_error",
+                "message": "An unexpected error occurred",
+                "request_id": request.state.request_id
+                if hasattr(request.state, "request_id")
+                else None,
+            }
+        },
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -48,3 +66,4 @@ app.include_router(filters.router, prefix="/api", tags=["filters"])
 app.include_router(pipeline.router, prefix="/api", tags=["pipeline"])
 app.include_router(quality.router, prefix="/api", tags=["quality"])
 app.include_router(health.router, prefix="/api", tags=["system"])
+app.include_router(export.router, prefix="/api", tags=["export"])

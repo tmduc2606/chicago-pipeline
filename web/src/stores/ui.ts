@@ -5,7 +5,9 @@ type SidebarState = {
   toggle: () => void;
 };
 
+const isMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
+
 export const useSidebar = create<SidebarState>((set) => ({
-  collapsed: false,
+  collapsed: isMobile(),
   toggle: () => set((s) => ({ collapsed: !s.collapsed })),
 }));

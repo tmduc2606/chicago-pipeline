@@ -40,11 +40,15 @@ paths:
       operationId: getOverview
       parameters:
         - in: query
-          name: from
+          name: from_date
           schema: { type: string, format: date }
         - in: query
-          name: to
+          name: to_date
           schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
       responses:
         "200":
           description: OK
@@ -61,10 +65,10 @@ paths:
           name: granularity
           schema: { type: string, enum: [daily, weekly, monthly], default: daily }
         - in: query
-          name: from
+          name: from_date
           schema: { type: string, format: date }
         - in: query
-          name: to
+          name: to_date
           schema: { type: string, format: date }
       responses:
         "200":
@@ -111,6 +115,17 @@ paths:
       tags: [timeseries]
       summary: 7x24 heatmap (weekday x hour)
       operationId: getHeatmap
+      parameters:
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
       responses:
         "200":
           description: OK
@@ -122,6 +137,20 @@ paths:
       tags: [geo]
       summary: H3-clustered incident points
       operationId: getGeoClusters
+      parameters:
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
+        - in: query
+          name: zoom
+          schema: { type: integer, default: 8 }
       responses:
         "200":
           description: OK
@@ -142,6 +171,16 @@ paths:
         - in: query
           name: metric
           schema: { type: string, enum: [count, arrest_rate], default: count }
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
       responses:
         "200":
           description: OK
@@ -156,6 +195,16 @@ paths:
       summary: Top N crime types by count
       operationId: getCrimeTypesTop
       parameters:
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
         - in: query
           name: limit
           schema: { type: integer, default: 10, maximum: 50 }
@@ -177,6 +226,12 @@ paths:
           name: type
           required: true
           schema: { type: string }
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
       responses:
         "200":
           description: OK
@@ -190,6 +245,17 @@ paths:
       tags: [arrests]
       summary: Arrest rate per district
       operationId: getArrestsByDistrict
+      parameters:
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
       responses:
         "200":
           description: OK
@@ -203,6 +269,17 @@ paths:
       tags: [arrests]
       summary: Arrest rate per primary type
       operationId: getArrestsByType
+      parameters:
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
       responses:
         "200":
           description: OK
@@ -216,6 +293,17 @@ paths:
       tags: [context]
       summary: Domestic vs non-domestic split
       operationId: getDomesticSplit
+      parameters:
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
       responses:
         "200":
           description: OK
@@ -227,6 +315,20 @@ paths:
       tags: [context]
       summary: Top location_description values
       operationId: getTopLocations
+      parameters:
+        - in: query
+          name: from_date
+          schema: { type: string, format: date }
+        - in: query
+          name: to_date
+          schema: { type: string, format: date }
+        - in: query
+          name: types
+          schema: { type: string }
+          description: Comma-separated primary types
+        - in: query
+          name: limit
+          schema: { type: integer, default: 15, maximum: 50 }
       responses:
         "200":
           description: OK
@@ -397,10 +499,13 @@ components:
         count: { type: integer }
     ChoroplethBucket:
       type: object
-      required: [key, value]
+      required: [key, label, value]
       properties:
         key: { type: string, description: "district or community_area id" }
+        label: { type: string }
         value: { type: number }
+        lat: { type: number }
+        lng: { type: number }
     CrimeTypeCount:
       type: object
       required: [primary_type, count]

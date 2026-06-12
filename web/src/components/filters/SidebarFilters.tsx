@@ -1,7 +1,7 @@
 import { useFilterStore } from "@/stores/filters";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { titleCase } from "@/lib/utils";
+import { formatCrimeType } from "@/lib/utils";
 
 const QUICK_PERIODS = [
   { label: "All time", days: 0 },
@@ -15,7 +15,7 @@ function toDateString(date: Date) {
 }
 
 export function SidebarFilters() {
-  const { from, to, types, setFrom, setTo, setTypes, reset } = useFilterStore();
+  const { from, to, types, districts, setFrom, setTo, setTypes, setDistricts, reset } = useFilterStore();
   const { data: filters } = useQuery({
     queryKey: ["filters"],
     queryFn: ({ signal }) => api.filters(signal),
@@ -51,10 +51,11 @@ export function SidebarFilters() {
       <div className="space-y-3">
         {/* Date From */}
         <div>
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-text-dim">
+          <label htmlFor="filter-from" className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-text-dim">
             From
           </label>
           <input
+            id="filter-from"
             type="date"
             value={from ?? ""}
             min={filters?.date_min}
@@ -66,10 +67,11 @@ export function SidebarFilters() {
 
         {/* Date To */}
         <div>
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-text-dim">
+          <label htmlFor="filter-to" className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-text-dim">
             To
           </label>
           <input
+            id="filter-to"
             type="date"
             value={to ?? ""}
             min={filters?.date_min}
@@ -120,11 +122,42 @@ export function SidebarFilters() {
                   }}
                   className="h-3 w-3 rounded border-border-bright accent-primary"
                 />
-                <span className="text-text-muted">{titleCase(t)}</span>
+                <span className="text-text-muted">{formatCrimeType(t)}</span>
               </label>
             ))}
           </div>
         </div>
+
+        {/* Districts */}
+        {filters?.districts && filters.districts.length > 0 && (
+          <div>
+            <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-text-dim">
+              Districts {districts?.length ? `(${districts.length})` : ""}
+            </label>
+            <div className="max-h-32 overflow-auto rounded-lg border border-border bg-bg-muted p-2">
+              {filters.districts.map((d) => (
+                <label
+                  key={d}
+                  className="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-xs transition-colors hover:bg-bg-hover"
+                >
+                  <input
+                    type="checkbox"
+                    checked={districts?.includes(d) ?? false}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setDistricts([...(districts ?? []), d]);
+                      } else {
+                        setDistricts((districts ?? []).filter((x) => x !== d));
+                      }
+                    }}
+                    className="h-3 w-3 rounded border-border-bright accent-primary"
+                  />
+                  <span className="text-text-muted">District {d}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

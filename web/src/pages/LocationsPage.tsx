@@ -5,6 +5,7 @@ import { useFilterStore, filtersToParams } from "@/stores/filters";
 import { ChoroplethMap } from "@/components/maps/ChoroplethMap";
 import { ClusterMap } from "@/components/maps/ClusterMap";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { LocationTrendChart } from "@/components/charts/LocationTrendChart";
 import { titleCase } from "@/lib/utils";
 
 type SortKey = "name" | "count";
@@ -74,6 +75,11 @@ export function LocationsPage() {
           <ClusterMap />
         </ErrorBoundary>
       </div>
+
+      {/* Location trend chart */}
+      <ErrorBoundary>
+        <LocationTrendChart />
+      </ErrorBoundary>
 
       {/* Map legend */}
       <div className="flex flex-wrap gap-4 rounded-lg bg-bg-card px-4 py-2 text-xs text-text-dim">
@@ -178,6 +184,26 @@ export function LocationsPage() {
             </div>
           </>
         )}
+      </div>
+
+      {/* Data Notes */}
+      <div className="card">
+        <h3 className="mb-3 text-sm font-semibold text-text">Data Notes</h3>
+        <div className="space-y-2 text-xs text-text-dim">
+          <p>
+            <strong className="text-text-muted">Data source:</strong> Chicago Crime Database — Kaggle Chicago Crime 2024–2026 (synthetic data).
+            Data is refreshed on every pipeline startup.
+          </p>
+          <p>
+            <strong className="text-text-muted">Methodology:</strong> Crimes are aggregated from the Gold layer of a medallion pipeline
+            (Bronze → Silver → Gold) using Apache Spark and dbt. Location data is based on the Chicago Police Department's
+            district and community area boundaries.
+          </p>
+          <p>
+            <strong className="text-text-muted">Limitations:</strong> This is synthetic data and should not be used for real-world
+            policy decisions. Geographic coordinates are approximated from district centroids.
+          </p>
+        </div>
       </div>
     </div>
   );

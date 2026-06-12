@@ -13,12 +13,14 @@ export function useUrlSync() {
     const to = params.get("to_date");
     const typesRaw = params.get("types");
     const areasRaw = params.get("community_areas");
+    const districtsRaw = params.get("districts");
 
     const store = useFilterStore.getState();
     if (from) store.setFrom(from);
     if (to) store.setTo(to);
     if (typesRaw) store.setTypes(typesRaw.split(","));
     if (areasRaw) store.setCommunityAreas(areasRaw.split(",").map(Number));
+    if (districtsRaw) store.setDistricts(districtsRaw.split(",").map(Number));
   }, []);
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export function useUrlSync() {
       if (state.from) params.set("from_date", state.from);
       if (state.to) params.set("to_date", state.to);
       if (state.types && state.types.length > 0) params.set("types", state.types.join(","));
+      if (state.districts && state.districts.length > 0) params.set("districts", state.districts.join(","));
       if (state.communityAreas && state.communityAreas.length > 0)
         params.set("community_areas", state.communityAreas.join(","));
 

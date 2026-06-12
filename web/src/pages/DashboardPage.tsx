@@ -11,7 +11,7 @@ import { HourlyHeatmap } from "@/components/charts/HourlyHeatmap";
 import { ChoroplethMap } from "@/components/maps/ChoroplethMap";
 import { ClusterMap } from "@/components/maps/ClusterMap";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { titleCase } from "@/lib/utils";
+import { formatCrimeType } from "@/lib/utils";
 
 function AboutThisData() {
   const [open, setOpen] = useState(false);
@@ -61,10 +61,28 @@ export function DashboardPage() {
     queryFn: ({ signal }) => api.overview(params, signal),
   });
 
+  const { data: timeseries } = useQuery({
+    queryKey: ["timeseries-kpi", params.toString()],
+    queryFn: ({ signal }) => api.timeseries(params, signal),
+  });
+
   const { data: topLocations, isLoading: loadingLocations } = useQuery({
     queryKey: ["locations", params.toString()],
     queryFn: ({ signal }) => api.topLocations(params, signal),
   });
+
+  const { data: topTypes } = useQuery({
+    queryKey: ["crime-types-top", params.toString()],
+    queryFn: ({ signal }) => api.crimeTypesTop(params, signal),
+  });
+
+  const sparklineCounts = timeseries?.map((d) => d.count) ?? [];
+  const sparklineArrests = timeseries?.map((d) => d.arrests) ?? [];
+
+  const csvUrl = api.exportCsv(params);
+  const dateRange = filters.from && filters.to
+    ? `${filters.from} to ${filters.to}`
+    : "the full dataset period";
 
   return (
     <div className="space-y-6">
@@ -95,6 +113,7 @@ export function DashboardPage() {
             format="number"
             color="cyan"
             subtitle="All incidents in selected period"
+            sparklineData={sparklineCounts}
           />
           <KpiCard
             title="Arrest Rate"
@@ -102,6 +121,7 @@ export function DashboardPage() {
             format="percent"
             color="cyan"
             subtitle="Crimes resulting in arrest"
+            sparklineData={sparklineArrests}
           />
           <KpiCard
             title="Domestic Incidents"
@@ -150,6 +170,45 @@ export function DashboardPage() {
           </div>
         )}
         </>
+      )}
+
+      {/* Key Findings */}
+      {!loadingOverview && overview && topTypes && topTypes.length > 0 && (
+        <div className="card">
+          <h3 className="mb-3 text-sm font-semibold text-text">Key Findings</h3>
+          <div className="space-y-2 text-xs text-text-dim">
+            <p>
+              <span className="text-accent-rose">&bull;</span>{" "}
+              <strong className="text-text-muted">{overview.total.toLocaleString()}</strong> total crimes recorded
+              {filters.from || filters.to ? ` (${dateRange})` : ""}.
+            </p>
+            <p>
+              <span className="text-accent-cyan">&bull;</span>{" "}
+              <strong className="text-text-muted">{formatCrimeType(topTypes[0]!.primary_type)}</strong> is the most common crime type
+              with <strong className="text-text-muted">{topTypes[0]!.count.toLocaleString()}</strong> incidents
+              {topTypes.length > 1
+                ? ` — ${(topTypes[0]!.count / topTypes[1]!.count).toFixed(1)}x more than ${formatCrimeType(topTypes[1]!.primary_type)}`
+                : ""}.
+            </p>
+            {overview.arrest_rate > 0 && (
+              <p>
+                <span className="text-accent-green">&bull;</span>{" "}
+                Arrest rate is <strong className="text-text-muted">{overview.arrest_rate}%</strong>
+                {" "}(roughly 1 in {Math.round(100 / overview.arrest_rate)} crimes leads to an arrest).
+              </p>
+            )}
+            {overview.prev_total > 0 && (
+              <p>
+                <span className={overview.delta_pct < 0 ? "text-accent-green" : "text-accent-rose"}>&bull;</span>{" "}
+                Year-over-year crime totals are{" "}
+                <strong className={overview.delta_pct < 0 ? "text-accent-green" : "text-accent-rose"}>
+                  {overview.delta_pct > 0 ? "up" : "down"} {Math.abs(overview.delta_pct).toFixed(1)}%
+                </strong>
+                {" "}compared to the same period last year.
+              </p>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Timeseries */}
@@ -201,7 +260,9 @@ export function DashboardPage() {
                 </span>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-text">{titleCase(loc.location_description)}</span>
+                    <span className="font-medium text-text">
+                      {loc.location_description.charAt(0).toUpperCase() + loc.location_description.slice(1).toLowerCase().replace(/_/g, " ")}
+                    </span>
                     <span className="tabular-nums text-text-muted">
                       {loc.count.toLocaleString()}
                     </span>
@@ -219,6 +280,38 @@ export function DashboardPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Data Notes */}
+      <div className="card">
+        <h3 className="mb-3 text-sm font-semibold text-text">Data Notes</h3>
+        <div className="space-y-2 text-xs text-text-dim">
+          <p>
+            <strong className="text-text-muted">Data source:</strong> Chicago Crime Database — Kaggle Chicago Crime 2024–2026 (synthetic data).
+            Data is refreshed on every pipeline startup.
+          </p>
+          <p>
+            <strong className="text-text-muted">Methodology:</strong> Crimes are aggregated from the Gold layer of a medallion pipeline
+            (Bronze → Silver → Gold) using Apache Spark and dbt. Arrest rates represent the percentage of incidents where
+            at least one arrest was made.
+          </p>
+          <p>
+            <strong className="text-text-muted">Limitations:</strong> This is synthetic data and should not be used for real-world
+            policy decisions. Figures may differ from official Chicago Police Department statistics.
+          </p>
+          <div className="flex gap-3 pt-1">
+            <a
+              href={csvUrl}
+              download
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-muted px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-primary hover:text-primary-bright"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download CSV
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

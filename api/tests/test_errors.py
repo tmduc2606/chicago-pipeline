@@ -100,7 +100,7 @@ async def test_pipeline_runs_limit_over_100(client: AsyncClient):
 async def test_health_live_returns_200(client: AsyncClient):
     response = await client.get("/api/health/live")
     assert response.status_code == 200
-    assert response.json() == {"status": "alive"}
+    assert response.json() == {"status": "ok"}
 
 
 @pytest.mark.asyncio

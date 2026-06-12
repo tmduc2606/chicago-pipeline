@@ -6,7 +6,7 @@ from httpx import AsyncClient
 async def test_liveness(client: AsyncClient):
     response = await client.get("/api/health/live")
     assert response.status_code == 200
-    assert response.json() == {"status": "alive"}
+    assert response.json() == {"status": "ok"}
 
 
 @pytest.mark.asyncio

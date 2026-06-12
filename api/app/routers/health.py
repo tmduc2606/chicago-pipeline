@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.get("/health/live")
 async def liveness():
-    return {"status": "alive"}
+    return {"status": "ok"}
 
 
 @router.get("/health/ready")

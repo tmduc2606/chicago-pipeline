@@ -32,7 +32,7 @@ test.describe("Dashboard page", () => {
   test("heatmap renders canvas", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByText("Crimes by Hour of Day")).toBeVisible();
-    const canvas = page.locator("canvas").first();
+    const canvas = page.locator("canvas:not(.hidden)").first();
     await expect(canvas).toBeVisible({ timeout: 15000 });
   });
 

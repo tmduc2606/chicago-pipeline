@@ -27,3 +27,10 @@ class AnomalyPoint(BaseModel):
 
 class Heatmap(BaseModel):
     matrix: list[list[int]]
+
+
+class TypeTrendPoint(BaseModel):
+    primary_type: str
+    ts: str
+    count: int
+    arrests: int = 0

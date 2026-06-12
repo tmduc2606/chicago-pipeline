@@ -3,7 +3,9 @@ import { api } from "@/lib/api";
 import { useFilterStore, filtersToParams } from "@/stores/filters";
 import { TimeseriesChart } from "@/components/charts/TimeseriesChart";
 import { ArrestRateChart } from "@/components/charts/ArrestRateChart";
-import { titleCase } from "@/lib/utils";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { TypeTrendChart } from "@/components/charts/TypeTrendChart";
+import { formatCrimeType } from "@/lib/utils";
 
 export function AnalysisPage() {
   const filters = useFilterStore();
@@ -24,6 +26,12 @@ export function AnalysisPage() {
     queryFn: ({ signal }) => api.topLocations(params, signal),
   });
 
+  const topTypeNames = (topTypes ?? []).slice(0, 5).map((t) => t.primary_type);
+  const trendsParams = new URLSearchParams(params);
+  if (topTypeNames.length > 0) {
+    trendsParams.set("types", topTypeNames.join(","));
+  }
+
   const yoyDisplay = overview && overview.prev_total > 0
     ? `${overview.delta_pct}%`
     : "—";
@@ -33,6 +41,8 @@ export function AnalysisPage() {
     : "the full dataset period";
 
   const typeCount = filters.types?.length ?? 0;
+
+  const csvUrl = api.exportCsv(params);
 
   return (
     <div className="space-y-6">
@@ -64,8 +74,20 @@ export function AnalysisPage() {
       </div>
       )}
 
-      <TimeseriesChart />
-      <ArrestRateChart />
+      <ErrorBoundary>
+        <TimeseriesChart />
+      </ErrorBoundary>
+
+      {/* Multi-type trend chart */}
+      {topTypes && topTypes.length >= 2 && (
+        <ErrorBoundary>
+          <TypeTrendChart typesParam={topTypeNames.join(",")} />
+        </ErrorBoundary>
+      )}
+
+      <ErrorBoundary>
+        <ArrestRateChart />
+      </ErrorBoundary>
 
       {loadingOverview ? (
         <div className="card py-8">
@@ -102,9 +124,9 @@ export function AnalysisPage() {
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-rose" />
               <span>
-                Most common type: <strong className="mr-1 text-text">{titleCase(topTypes[0]!.primary_type)}</strong>
+                Most common type: <strong className="mr-1 text-text">{formatCrimeType(topTypes[0]!.primary_type)}</strong>
                 {" "}with {topTypes[0]!.count.toLocaleString()} incidents
-                {topTypes.length > 1 ? `, followed by ${titleCase(topTypes[1]!.primary_type)} (${topTypes[1]!.count.toLocaleString()})` : ""}.
+                {topTypes.length > 1 ? `, followed by ${formatCrimeType(topTypes[1]!.primary_type)} (${topTypes[1]!.count.toLocaleString()})` : ""}.
               </span>
             </li>
           )}
@@ -112,7 +134,9 @@ export function AnalysisPage() {
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-green" />
               <span>
-                Most crimes occur at <strong className="mr-1 text-text">{titleCase(topLocations[0]!.location_description)}</strong>
+                Most crimes occur at <strong className="mr-1 text-text">
+                  {topLocations[0]!.location_description.charAt(0).toUpperCase() + topLocations[0]!.location_description.slice(1).toLowerCase().replace(/_/g, " ")}
+                </strong>
                 {" "}({topLocations[0]!.count.toLocaleString()} incidents).
               </span>
             </li>
@@ -120,6 +144,38 @@ export function AnalysisPage() {
         </ul>
       </div>
       )}
+
+      {/* Data Notes */}
+      <div className="card">
+        <h3 className="mb-3 text-sm font-semibold text-text">Data Notes</h3>
+        <div className="space-y-2 text-xs text-text-dim">
+          <p>
+            <strong className="text-text-muted">Data source:</strong> Chicago Crime Database — Kaggle Chicago Crime 2024–2026 (synthetic data).
+            Data is refreshed on every pipeline startup.
+          </p>
+          <p>
+            <strong className="text-text-muted">Methodology:</strong> Crimes are aggregated from the Gold layer of a medallion pipeline
+            (Bronze → Silver → Gold) using Apache Spark and dbt. Arrest rates represent the percentage of incidents where
+            at least one arrest was made.
+          </p>
+          <p>
+            <strong className="text-text-muted">Limitations:</strong> This is synthetic data and should not be used for real-world
+            policy decisions. Figures may differ from official Chicago Police Department statistics.
+          </p>
+          <div className="flex gap-3 pt-1">
+            <a
+              href={csvUrl}
+              download
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-muted px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-primary hover:text-primary-bright"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download CSV
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -35,10 +35,15 @@ async def forecast(
 @router.get("/timeseries/anomalies", response_model=list[AnomalyPoint])
 async def anomalies(
     z: float = Query(3.0),
+    from_date: str | None = Query(None),
+    to_date: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
 ):
-    return await get_anomalies(db, redis=redis, z=z)
+    return await get_anomalies(
+        db, redis=redis, z=z,
+        from_date=from_date, to_date=to_date,
+    )
 
 
 @router.get("/heatmap", response_model=Heatmap)

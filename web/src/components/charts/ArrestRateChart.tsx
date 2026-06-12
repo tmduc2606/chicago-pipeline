@@ -11,12 +11,13 @@ import {
 import { api } from "@/lib/api";
 import { useFilterStore, filtersToParams } from "@/stores/filters";
 import { ChartSkeleton } from "./TimeseriesChart";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 
 export function ArrestRateChart() {
   const filters = useFilterStore();
   const params = filtersToParams(filters);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["arrests-by-district", params.toString()],
     queryFn: ({ signal }) => api.arrestsByDistrict(params, signal),
   });
@@ -25,9 +26,23 @@ export function ArrestRateChart() {
     return <ChartSkeleton height={300} title="Arrest Rate by District" />;
   }
 
+  if (error) {
+    return (
+      <div className="card">
+        <h3 className="mb-4 text-sm font-semibold text-text">Arrest Rate by District</h3>
+        <div className="flex h-[300px] items-center justify-center rounded-lg bg-bg-muted">
+          <p className="text-sm text-text-dim">Failed to load arrest data</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="card">
-      <h3 className="mb-4 text-sm font-semibold text-text">Arrest Rate by District</h3>
+      <div className="mb-4 flex items-center">
+        <h3 className="text-sm font-semibold text-text">Arrest Rate by District</h3>
+        <HelpTooltip content="Percentage of crimes resulting in at least one arrest, broken down by police district. Higher rates indicate more active enforcement." />
+      </div>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3d" />

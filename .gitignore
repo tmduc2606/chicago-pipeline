@@ -100,5 +100,8 @@ web/test-results/
 web/blob-report/
 web/playwright/.cache/
 
+# Root test placeholder (actual tests in api/tests, pipeline/tests, web/e2e)
+tests/
+
 # Storybook
 web/storybook-static/

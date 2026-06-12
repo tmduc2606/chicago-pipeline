@@ -98,7 +98,7 @@ async def get_top_locations(
     return [
         LocationCount(
             location_description=str(r.location_description),
-            count=r.count,
+            count=int(r.count),  # type: ignore[call-overload]
         )
         for r in rows
     ]

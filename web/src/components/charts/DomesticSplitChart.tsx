@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useFilterStore, filtersToParams } from "@/stores/filters";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 
 export function DomesticSplitChart() {
   const filters = useFilterStore();
   const params = filtersToParams(filters);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["domestic", params.toString()],
     queryFn: ({ signal }) => api.domesticSplit(params, signal),
   });
@@ -26,13 +27,27 @@ export function DomesticSplitChart() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="card">
+        <h3 className="mb-4 text-sm font-semibold text-text">Domestic vs Non-Domestic</h3>
+        <div className="flex h-[160px] items-center justify-center rounded-lg bg-bg-muted">
+          <p className="text-sm text-text-dim">Failed to load domestic data</p>
+        </div>
+      </div>
+    );
+  }
+
   const total = data.true_count + data.false_count;
   const domesticPct = total > 0 ? (data.true_count / total) * 100 : 0;
   const nonDomesticPct = 100 - domesticPct;
 
   return (
     <div className="card">
-      <h3 className="mb-4 text-sm font-semibold text-text">Domestic vs Non-Domestic</h3>
+      <div className="mb-4 flex items-center">
+        <h3 className="text-sm font-semibold text-text">Domestic vs Non-Domestic</h3>
+        <HelpTooltip content="Crimes are classified as domestic when they involve family or household members. This metric helps identify patterns in interpersonal violence." />
+      </div>
       <div className="flex items-center gap-6">
         {/* Donut chart */}
         <div className="relative h-36 w-36 flex-shrink-0">

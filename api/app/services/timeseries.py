@@ -65,7 +65,7 @@ async def get_timeseries(
     """)
     result = await db.execute(sql, params)
     rows = result.fetchall()
-    return [TimeseriesPoint(ts=str(r.ts), count=r.count, arrests=r.arrests) for r in rows]
+    return [TimeseriesPoint(ts=str(r.ts), count=int(r.count), arrests=int(r.arrests)) for r in rows]  # type: ignore[call-overload]
 
 
 @cached(ttl=300)
@@ -86,11 +86,11 @@ async def get_forecast(
     hist_result = await db.execute(hist_sql)
     hist_rows = hist_result.fetchall()
     history = [
-        TimeseriesPoint(ts=str(r.ts), count=r.count, arrests=r.arrests)
+        TimeseriesPoint(ts=str(r.ts), count=int(r.count), arrests=int(r.arrests))  # type: ignore[call-overload]
         for r in hist_rows
     ]
 
-    counts = [r.count for r in hist_rows]
+    counts = [int(r.count) for r in hist_rows]  # type: ignore[call-overload]
     if not counts:
         return ForecastBundle(history=[], forecast=[])
 
@@ -127,13 +127,32 @@ async def get_forecast(
 async def get_anomalies(
     db: AsyncSession,
     z: float = 3.0,
+    from_date: str | None = None,
+    to_date: str | None = None,
     redis=None,
 ) -> list[AnomalyPoint]:
+    conditions: list[str] = []
+    params: dict = {"z": z}
+    if from_date:
+        try:
+            params["from_date"] = date.fromisoformat(from_date)
+            conditions.append("t.date >= :from_date")
+        except ValueError:
+            pass
+    if to_date:
+        try:
+            params["to_date"] = date.fromisoformat(to_date)
+            conditions.append("t.date <= :to_date")
+        except ValueError:
+            pass
+    where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
     sql = text(f"""
         WITH daily AS (
             SELECT t.date AS ts, COUNT(*)::int AS count
             FROM {SCHEMA}.fact_crime f
             JOIN {SCHEMA}.dim_time t ON f.time_id = t.time_id
+            {where}
             GROUP BY t.date
         ),
         stats AS (
@@ -145,9 +164,9 @@ async def get_anomalies(
         WHERE ABS((d.count - s.avg) / NULLIF(s.std, 0)) > :z
         ORDER BY d.ts
     """)
-    result = await db.execute(sql, {"z": z})
+    result = await db.execute(sql, params)
     rows = result.fetchall()
-    return [AnomalyPoint(ts=str(r.ts), z=float(r.z_score), count=r.count) for r in rows]
+    return [AnomalyPoint(ts=str(r.ts), z=float(r.z_score), count=int(r.count)) for r in rows]  # type: ignore[call-overload]
 
 
 @cached(ttl=300)
@@ -198,5 +217,5 @@ async def get_heatmap(
     for r in rows:
         wd = int(r.weekday) % 7
         hr = int(r.hour) % 24
-        matrix[wd][hr] = int(r.count)
+        matrix[wd][hr] = int(r.count)  # type: ignore[call-overload]
     return Heatmap(matrix=matrix)

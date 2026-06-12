@@ -3,14 +3,13 @@ import maplibregl from "maplibre-gl";
 import { useQuery } from "@tanstack/react-query";
 import { api, type ChoroplethBucket } from "@/lib/api";
 import { useFilterStore, filtersToParams } from "@/stores/filters";
+import { MAP_STYLE, CHICAGO_CENTER, MAP_DEFAULTS } from "@/config/map";
 
 type GeoJSONFeature = {
   type: "Feature";
   geometry: { type: "Point"; coordinates: [number, number] };
   properties: Record<string, unknown>;
 };
-
-const DARK_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 
 function applyChoroplethData(map: maplibregl.Map, d: ChoroplethBucket[] | undefined) {
   if (!d || d.length === 0) return;
@@ -91,9 +90,9 @@ export function ChoroplethMap() {
     try {
       const map = new maplibregl.Map({
         container: mapContainer.current,
-        style: DARK_STYLE,
-        center: [-87.6298, 41.8781],
-        zoom: 10,
+        style: MAP_STYLE,
+        center: CHICAGO_CENTER,
+        zoom: MAP_DEFAULTS.choropleth.zoom,
         attributionControl: false,
       });
 

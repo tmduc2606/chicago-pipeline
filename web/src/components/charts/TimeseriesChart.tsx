@@ -6,35 +6,72 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Area,
-  AreaChart,
+  Legend,
+  ComposedChart,
+  Scatter,
 } from "recharts";
 import { api } from "@/lib/api";
 import { useFilterStore, filtersToParams } from "@/stores/filters";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 
 export function TimeseriesChart() {
   const filters = useFilterStore();
   const params = filtersToParams(filters);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["timeseries", params.toString()],
     queryFn: ({ signal }) => api.timeseries(params, signal),
+  });
+
+  const { data: anomalies } = useQuery({
+    queryKey: ["anomalies", params.toString()],
+    queryFn: ({ signal }) => api.anomalies(params, signal),
   });
 
   if (isLoading || !data) {
     return <ChartSkeleton height={300} title="Daily Crime Trend" />;
   }
 
+  if (error) {
+    return (
+      <div className="card">
+        <h3 className="mb-4 text-sm font-semibold text-text">Daily Crime Trend</h3>
+        <div className="flex h-[300px] items-center justify-center rounded-lg bg-bg-muted">
+          <p className="text-sm text-text-dim">Failed to load trend data</p>
+        </div>
+      </div>
+    );
+  }
+
+  const anomalyDates = new Set(anomalies?.map((a) => a.ts) ?? []);
+
   const chartData = data.map((d) => ({
     date: d.ts,
     count: d.count,
     arrests: d.arrests,
+    isAnomaly: anomalyDates.has(d.ts),
+  }));
+
+  const scatterData = (anomalies ?? []).map((a) => ({
+    date: a.ts,
+    count: a.count,
+    z: a.z,
   }));
 
   return (
     <div className="card">
-      <h3 className="mb-4 text-sm font-semibold text-text">Daily Crime Trend</h3>
+      <div className="mb-4 flex items-center">
+        <h3 className="text-sm font-semibold text-text">Daily Crime Trend</h3>
+        <HelpTooltip content="Daily count of all crimes (blue) and arrests (green). Red dots mark statistical anomalies where daily counts exceeded 2 standard deviations above the mean." />
+      </div>
+      {anomalies && anomalies.length > 0 && (
+        <p className="mb-3 text-xs text-accent-rose">
+          {anomalies.length} anomalous day{anomalies.length > 1 ? "s" : ""} detected (z-score &gt;{" "}
+          {anomalies[0]!.z.toFixed(1)})
+        </p>
+      )}
       <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={chartData}>
+        <ComposedChart data={chartData}>
           <defs>
             <linearGradient id="gradientCount" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
@@ -70,6 +107,9 @@ export function TimeseriesChart() {
               color: "#e8e8f0",
             }}
           />
+          <Legend
+            wrapperStyle={{ fontSize: "11px", color: "#e8e8f0" }}
+          />
           <Area
             type="monotone"
             dataKey="count"
@@ -86,7 +126,17 @@ export function TimeseriesChart() {
             fill="url(#gradientArrests)"
             name="Arrests"
           />
-        </AreaChart>
+          {scatterData.length > 0 && (
+            <Scatter
+              data={scatterData}
+              dataKey="count"
+              name="Anomalies"
+              fill="#fb7185"
+              stroke="#e11d48"
+              strokeWidth={1}
+            />
+          )}
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

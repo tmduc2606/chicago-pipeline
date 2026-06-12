@@ -26,7 +26,7 @@ export function Sidebar() {
       <div className="flex h-14 items-center justify-between border-b border-border px-4">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-logo">
               <span className="text-xs font-bold text-white">CC</span>
             </div>
             <span className="text-sm font-semibold text-text">Chicago Crime</span>
