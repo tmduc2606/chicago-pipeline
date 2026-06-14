@@ -24,7 +24,7 @@ pipeline/build/
 
 # Agent scaffolding (local LLM workflow, not for public repo)
 AGENTS.md
-agents/
+/agents/
 scripts/validate_agents.sh
 CODEOWNERS
 
@@ -101,7 +101,7 @@ web/blob-report/
 web/playwright/.cache/
 
 # Root test placeholder (actual tests in api/tests, pipeline/tests, web/e2e)
-tests/
+/tests/
 
 # Storybook
 web/storybook-static/

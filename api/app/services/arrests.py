@@ -1,5 +1,7 @@
 from datetime import date
+from typing import Any
 
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,9 +16,9 @@ def _build_filter(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-) -> tuple[str, dict]:
+) -> tuple[str, dict[str, Any]]:
     conditions = []
-    params: dict = {}
+    params: dict[str, Any] = {}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)
@@ -46,7 +48,7 @@ async def get_arrests_by_district(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[DistrictArrest]:
     where, params = _build_filter(from_date, to_date, types)
 
@@ -84,7 +86,7 @@ async def get_arrests_by_type(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[CrimeTypeArrest]:
     where, params = _build_filter(from_date, to_date, types)
 

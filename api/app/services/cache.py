@@ -2,14 +2,15 @@ import functools
 import hashlib
 import json
 from collections.abc import Callable
+from typing import Any
 
 from redis.asyncio import Redis
 
 
-def cached(ttl: int = 300):
-    def decorator(func: Callable) -> Callable:
+def cached(ttl: int = 300) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
-        async def wrapper(*args, redis: Redis | None = None, **kwargs):
+        async def wrapper(*args: Any, redis: Redis | None = None, **kwargs: Any) -> Any:
             if redis is None:
                 return await func(*args, **kwargs)
             key_parts = [func.__name__]
@@ -31,7 +32,7 @@ def cached(ttl: int = 300):
     return decorator
 
 
-def _to_dict(obj):
+def _to_dict(obj: Any) -> Any:
     if hasattr(obj, "model_dump"):
         return obj.model_dump()
     if isinstance(obj, list):

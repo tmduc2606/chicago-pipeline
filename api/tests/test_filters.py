@@ -7,7 +7,9 @@ from httpx import AsyncClient
 @pytest.mark.asyncio
 async def test_filters(client: AsyncClient, db_session):
     mock_date = MagicMock()
-    mock_date.one.return_value = type("Row", (), {"date_min": "2024-01-01", "date_max": "2024-03-31"})()
+    mock_date.one.return_value = type(
+        "Row", (), {"date_min": "2024-01-01", "date_max": "2024-03-31"}
+    )()
 
     mock_types = MagicMock()
     mock_types.fetchall.return_value = [

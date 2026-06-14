@@ -1,5 +1,7 @@
 from datetime import date
+from typing import Any
 
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,14 +16,13 @@ from app.services.cache import cached
 
 SCHEMA = "warehouse"
 
-
 def _build_date_filter(
     from_date: str | None,
     to_date: str | None,
     prefix: str = "t.",
-) -> tuple[str, dict]:
+) -> tuple[str, dict[str, Any]]:
     conditions = []
-    params: dict = {}
+    params: dict[str, Any] = {}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)
@@ -44,7 +45,7 @@ async def get_timeseries(
     granularity: str = "daily",
     from_date: str | None = None,
     to_date: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[TimeseriesPoint]:
     where, params = _build_date_filter(from_date, to_date)
     if granularity == "daily":
@@ -72,7 +73,7 @@ async def get_timeseries(
 async def get_forecast(
     db: AsyncSession,
     horizon: int = 14,
-    redis=None,
+    redis: Redis | None = None,
 ) -> ForecastBundle:
     hist_sql = text(f"""
         SELECT t.date AS ts,
@@ -86,8 +87,7 @@ async def get_forecast(
     hist_result = await db.execute(hist_sql)
     hist_rows = hist_result.fetchall()
     history = [
-        TimeseriesPoint(ts=str(r.ts), count=int(r.count), arrests=int(r.arrests))  # type: ignore[call-overload]
-        for r in hist_rows
+        TimeseriesPoint(ts=str(r.ts), count=int(r.count), arrests=int(r.arrests)) for r in hist_rows  # type: ignore[call-overload]
     ]
 
     counts = [int(r.count) for r in hist_rows]  # type: ignore[call-overload]
@@ -129,10 +129,10 @@ async def get_anomalies(
     z: float = 3.0,
     from_date: str | None = None,
     to_date: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[AnomalyPoint]:
     conditions: list[str] = []
-    params: dict = {"z": z}
+    params: dict[str, Any] = {"z": z}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)
@@ -175,10 +175,10 @@ async def get_heatmap(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> Heatmap:
     conditions = []
-    params: dict = {}
+    params: dict[str, Any] = {}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)

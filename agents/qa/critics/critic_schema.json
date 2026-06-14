@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "M6 Critic Output",
+  "description": "Structured output from a persona-based critic evaluation of the Chicago Crime Dashboard",
+  "type": "object",
+  "properties": {
+    "persona": {
+      "type": "string",
+      "enum": ["data-analyst", "citizen", "journalist", "executive", "first-timer"],
+      "description": "The user persona used for this evaluation"
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the evaluation was performed"
+    },
+    "page": {
+      "type": "string",
+      "enum": ["/", "/crime-types", "/locations", "/analysis"],
+      "description": "The page being evaluated"
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^M6-CRITIC-\\d{3}$",
+            "description": "Unique issue ID (M6-CRITIC-001, M6-CRITIC-002, ...)"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "missing_feature",
+              "broken_flow",
+              "confusing_label",
+              "visual_glitch",
+              "performance",
+              "accessibility",
+              "missing_state"
+            ],
+            "description": "Category of the issue"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["P0", "P1", "P2", "P3"],
+            "description": "Severity level (P0=critical, P1=high, P2=medium, P3=low)"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Short title of the issue"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Detailed description of the issue"
+          },
+          "reproduction_steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Steps to reproduce the issue"
+          },
+          "expected": {
+            "type": "string",
+            "description": "What should happen"
+          },
+          "actual": {
+            "type": "string",
+            "description": "What actually happens"
+          },
+          "related_bug": {
+            "type": "string",
+            "description": "Link to m6_hotfix_catalogue entry if applicable"
+          },
+          "file_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "File paths with line numbers where the issue originates"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["reported", "triaged", "in_progress", "fixed", "verified", "wontfix"],
+            "default": "reported",
+            "description": "Current status of the issue"
+          },
+          "fix_pr": {
+            "type": "string",
+            "description": "PR URL when fixed"
+          }
+        },
+        "required": ["id", "category", "severity", "title", "description", "status"]
+      },
+      "description": "List of issues found during evaluation"
+    },
+    "checklist_pass": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of checklist items that passed"
+    },
+    "checklist_total": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of checklist items evaluated"
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "One-line summary of the evaluation result"
+    }
+  },
+  "required": ["persona", "page", "issues", "checklist_pass", "checklist_total", "summary"]
+}

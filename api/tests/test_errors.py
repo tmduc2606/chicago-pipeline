@@ -118,7 +118,9 @@ async def test_health_returns_200_or_503(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_overview_no_params(client: AsyncClient, db_session):
     mock = __import__("unittest.mock", fromlist=["MagicMock"]).MagicMock()
-    mock.one.return_value = type("Row", (), {"total": 100, "arrest_rate": 25.0, "domestic_pct": 12.0, "delta_pct": 0.0, "prev_total": 50})()
+    mock.one.return_value = type(
+        "Row", (), {"total": 100, "arrest_rate": 25.0, "domestic_pct": 12.0, "delta_pct": 0.0, "prev_total": 50}
+    )()
     db_session.execute.return_value = mock
     response = await client.get("/api/overview")
     assert response.status_code == 200

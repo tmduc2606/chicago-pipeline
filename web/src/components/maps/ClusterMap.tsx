@@ -51,6 +51,7 @@ function applyClusterData(map: maplibregl.Map, d: GeoCluster[] | undefined) {
 export function ClusterMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const styleLoaded = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [tilesLoaded, setTilesLoaded] = useState(false);
   const filters = useFilterStore();
@@ -73,8 +74,9 @@ export function ClusterMap() {
         attributionControl: false,
       });
 
-      map.on("error", () => {});
+      map.on("error", (e) => console.error("ClusterMap error:", e.error?.message));
       map.on("load", () => setTilesLoaded(true));
+      map.on("style.load", () => { styleLoaded.current = true; });
 
       mapRef.current = map;
     } catch {
@@ -82,6 +84,7 @@ export function ClusterMap() {
     }
 
     return () => {
+      styleLoaded.current = false;
       mapRef.current?.remove();
       mapRef.current = null;
       setTilesLoaded(false);
@@ -97,10 +100,18 @@ export function ClusterMap() {
       applyClusterData(map, data);
     };
 
-    if (map.isStyleLoaded()) {
+    if (styleLoaded.current || map.isStyleLoaded()) {
       applyData();
     } else {
-      map.once("style.load", applyData);
+      const onStyleLoad = () => {
+        styleLoaded.current = true;
+        applyData();
+      };
+      map.on("style.load", onStyleLoad);
+      if (styleLoaded.current) {
+        map.off("style.load", onStyleLoad);
+        applyData();
+      }
     }
   }, [data]);
 

@@ -26,13 +26,19 @@ export function SidebarFilters() {
       setFrom(null);
       setTo(null);
     } else {
-      const end = new Date(filters?.date_max ?? Date.now());
+      const maxDate = filters?.date_max;
+      if (!maxDate) return;
+      const end = new Date(maxDate);
+      if (isNaN(end.getTime())) return;
       const start = new Date(end);
       start.setDate(start.getDate() - days);
       setFrom(toDateString(start));
       setTo(toDateString(end));
     }
   };
+
+  const allTypesSelected = filters?.primary_types && types && types.length === filters.primary_types.length;
+  const allDistrictsSelected = filters?.districts && districts && districts.length === filters.districts.length;
 
   return (
     <div className="border-t border-border p-4">
@@ -101,9 +107,17 @@ export function SidebarFilters() {
 
         {/* Crime Types */}
         <div>
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-text-dim">
-            Crime Types {types?.length ? `(${types.length})` : ""}
-          </label>
+          <div className="mb-1 flex items-center justify-between">
+            <label className="text-[10px] font-medium uppercase tracking-wider text-text-dim">
+              Crime Types {types?.length ? `(${types.length})` : ""}
+            </label>
+            <button
+              onClick={() => setTypes(allTypesSelected ? null : filters?.primary_types ?? null)}
+              className="text-[10px] text-primary transition-colors hover:text-primary-bright"
+            >
+              {allTypesSelected ? "Deselect all" : "Select all"}
+            </button>
+          </div>
           <div className="max-h-40 overflow-auto rounded-lg border border-border bg-bg-muted p-2">
             {filters?.primary_types.map((t) => (
               <label
@@ -129,11 +143,19 @@ export function SidebarFilters() {
         </div>
 
         {/* Districts */}
-        {filters?.districts && filters.districts.length > 0 && (
+        {filters?.districts && filters.districts.length > 0 ? (
           <div>
-            <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-text-dim">
-              Districts {districts?.length ? `(${districts.length})` : ""}
-            </label>
+            <div className="mb-1 flex items-center justify-between">
+              <label className="text-[10px] font-medium uppercase tracking-wider text-text-dim">
+                Districts {districts?.length ? `(${districts.length})` : ""}
+              </label>
+              <button
+                onClick={() => setDistricts(allDistrictsSelected ? null : filters.districts ?? null)}
+                className="text-[10px] text-primary transition-colors hover:text-primary-bright"
+              >
+                {allDistrictsSelected ? "Deselect all" : "Select all"}
+              </button>
+            </div>
             <div className="max-h-32 overflow-auto rounded-lg border border-border bg-bg-muted p-2">
               {filters.districts.map((d) => (
                 <label
@@ -157,7 +179,11 @@ export function SidebarFilters() {
               ))}
             </div>
           </div>
-        )}
+        ) : filters?.districts ? (
+          <div className="rounded-lg border border-border bg-bg-muted p-3 text-center">
+            <span className="text-xs text-text-dim">No districts available</span>
+          </div>
+        ) : null}
       </div>
     </div>
   );

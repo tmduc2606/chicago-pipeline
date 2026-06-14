@@ -16,7 +16,7 @@ async def export_csv(
     types: str | None = Query(None, description="Comma-separated primary types"),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
+) -> PlainTextResponse:
     csv = await get_export_csv(
         db, redis=redis,
         from_date=from_date, to_date=to_date, types=types,

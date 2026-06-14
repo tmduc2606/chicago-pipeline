@@ -17,8 +17,8 @@ async def arrests_by_district(
     types: str | None = Query(None, description="Comma-separated primary types"),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_arrests_by_district(
+) -> list[DistrictArrest]:
+    return await get_arrests_by_district(  # type: ignore[no-any-return]
         db, redis=redis, from_date=from_date,
         to_date=to_date, types=types,
     )
@@ -31,8 +31,8 @@ async def arrests_by_type(
     types: str | None = Query(None, description="Comma-separated primary types"),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_arrests_by_type(
+) -> list[CrimeTypeArrest]:
+    return await get_arrests_by_type(  # type: ignore[no-any-return]
         db, redis=redis, from_date=from_date,
         to_date=to_date, types=types,
     )

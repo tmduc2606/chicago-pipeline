@@ -158,67 +158,81 @@ PM Score = (PM-1 × 0.30) + (PM-2 × 0.30) + (PM-3 × 0.25) + (PM-4 × 0.15)
 
 ---
 
-## 7. Community Organizer (Stakeholder) Persona
+## 7. Data Scientist Persona (M7 Primary)
 
-**Perspective:** "Can I use this to advocate for my neighborhood?"
-**Pages evaluated:** Locations (/locations)
+**Perspective:** "Is this analysis statistically sound and reproducible?"
+**Pages evaluated:** Analysis (/analysis), EDA notebook outputs
 
 ### Rubric
 
 | # | Criterion | 10 (Exceeds) | 7 (Acceptable) | 4 (Poor) | 0 (Not Present) | Weight |
 |---|-----------|-------------|----------------|----------|-----------------|--------|
-| CO-1 | **Neighborhood Search** — Can find specific areas by name | Search + autocomplete + district/community area views | Search works, no autocomplete | Can browse but no search | No location search | 30% |
-| CO-2 | **Comparative View** — Can compare neighborhoods side-by-side | Multi-select comparison with delta indicators | Can view one neighborhood at a time | Data exists but not comparable | No comparison | 30% |
-| CO-3 | **Actionable Insights** — Shows trends that suggest action areas | Trend + anomaly + ranking per neighborhood | Basic stats per neighborhood | Only raw counts | No insights | 25% |
-| CO-4 | **Shareable Findings** — Can share a filtered view with stakeholders | Shareable URL + screenshot-friendly layout | Shareable URL works | Can view but not share | No sharing | 15% |
+| DS-1 | **Methodology** — Appropriate statistical methods with alternatives documented | Chi-square, t-test, Cramér's V, Wilson CI, Shannon entropy, KMeans — all with alternatives | Most methods present, some alternatives missing | Basic aggregation only, no tests | No methodology | 25% |
+| DS-2 | **Sample Size** — Adequate data for all analyses | 61K+ rows, 3+ years, minimum 22 units per analysis | Adequate for most analyses | Some analyses on small samples | Insufficient data | 20% |
+| DS-3 | **Reproducibility** — Results can be independently verified | Seed set, notebook executes, data validation cell, clean dependency chain | Seed set, notebook executes | Partial reproducibility | Not reproducible | 30% |
+| DS-4 | **Assumption Validation** — Key assumptions stated and tested | 5+ assumptions documented, data validation cell, effect sizes reported | Assumptions stated but not tested | Assumptions not stated | No assumptions | 25% |
 
 ### Scoring Formula
 ```
-CO Score = (CO-1 × 0.30) + (CO-2 × 0.30) + (CO-3 × 0.25) + (CO-4 × 0.15)
+DS Score = (DS-1 × 0.25) + (DS-2 × 0.20) + (DS-3 × 0.30) + (DS-4 × 0.25)
 ```
 
 ---
 
-## 8. News Editor (Stakeholder) Persona
+## 8. Visualization Expert Persona (M7 Primary)
 
-**Perspective:** "Can I find headline-worthy stories quickly?"
-**Pages evaluated:** Dashboard (/), Analysis (/analysis)
+**Perspective:** "Are the charts clear, accurate, and accessible?"
+**Pages evaluated:** Analysis (/analysis), all chart outputs
 
 ### Rubric
 
 | # | Criterion | 10 (Exceeds) | 7 (Acceptable) | 4 (Poor) | 0 (Not Present) | Weight |
 |---|-----------|-------------|----------------|----------|-----------------|--------|
-| NE-1 | **Headline Findings** — Top 3 insights visible on Dashboard | Hero KPIs + trend + anomaly highlighted | KPIs visible, trends present | Data exists but no highlights | No summary view | 25% |
-| NE-2 | **Surprise Detection** — Anomalies and unusual patterns flagged | Anomaly markers + z-score labels + trend context | Trend shows spikes, no markers | No anomaly detection | No trend data | 25% |
-| NE-3 | **Context for Stories** — Data source, methodology, and limitations visible | Source + methodology + date range + caveats on every page | Source in About only | Minimal context | No context | 25% |
-| NE-4 | **Export for Article** — Can get numbers and charts for publication | CSV export + high-res chart export + shareable URL | Shareable URL works | Can view but not export | No export | 25% |
+| VE-1 | **Chart Selection** — Each chart type appropriate for its data | Bar, line, heatmap, scatter, stacked area — all correct | Most appropriate, 1-2 suboptimal | Wrong chart types | No charts | 20% |
+| VE-2 | **Label Quality** — Titles, axes, legends, data labels clear | All labels present, data labels on key charts, formatted numbers | Most labels present | Missing labels or wrong format | Unlabeled charts | 25% |
+| VE-3 | **Color & Contrast** — Accessible, consistent, meaningful | Colorblind-safe palette, violent/non-violent coding, conditional colors | Mostly consistent, 1-2 issues | Random colors, contrast violations | No color system | 25% |
+| VE-4 | **Information Density** — Balanced, no overload, no truncation | All categories visible, no arbitrary Top-N truncation | Mostly balanced | Too many or too few categories | Empty or cluttered | 30% |
 
 ### Scoring Formula
 ```
-NE Score = (NE-1 × 0.25) + (NE-2 × 0.25) + (NE-3 × 0.25) + (NE-4 × 0.25)
+VE Score = (VE-1 × 0.20) + (VE-2 × 0.25) + (VE-3 × 0.25) + (VE-4 × 0.30)
 ```
 
 ---
 
 ## 9. Composite Critic Score
 
-### Weighted Average
+### Weighted Average (Milestone-Dependent)
 
-| Persona | Weight | Rationale |
-|---------|--------|-----------|
-| Data Analyst | 25% | Primary power user — data accuracy is core |
-| Citizen | 15% | Accessibility and understandability |
-| Executive | 15% | Decision-maker — speed to insight |
-| Journalist | 10% | Investigative use case — depth of analysis |
-| First-Timer | 10% | Onboarding — usability baseline |
-| Policy Maker | 10% | Stakeholder — defensibility of data |
-| Community Organizer | 8% | Stakeholder — neighborhood-level utility |
-| News Editor | 7% | Stakeholder — headline discovery |
+| Persona | Weight (M0-M4) | Weight (M5-M6) | Weight (M7) | Rationale |
+|---------|:--------------:|:--------------:|:-----------:|-----------|
+| Data Analyst | 25% | 25% | 15% | Primary power user — data accuracy is core |
+| Citizen | 15% | 15% | 10% | Accessibility and understandability |
+| Executive | 15% | 15% | 10% | Decision-maker — speed to insight |
+| Data Scientist | 5% | 5% | 30% | Statistical rigor (elevated for M7) |
+| Journalist | 10% | 10% | 5% | Investigative use case — depth of analysis |
+| First-Timer | 10% | 10% | 5% | Onboarding — usability baseline |
+| Policy Maker | 10% | 10% | 10% | Stakeholder — defensibility of data |
+| Visualization Expert | 10% | 10% | 15% | Chart quality (elevated for M7) |
 
 ### Composite Formula
+
+**M0-M4 (Data Pipeline):**
 ```
 Critic Composite = (DA × 0.25) + (CI × 0.15) + (EX × 0.15) + (JO × 0.10) + 
-                   (FT × 0.10) + (PM × 0.10) + (CO × 0.08) + (NE × 0.07)
+                   (FT × 0.10) + (PM × 0.10) + (DS × 0.05) + (VE × 0.10)
+```
+
+**M5-M6 (API + Frontend):**
+```
+Critic Composite = (DA × 0.25) + (CI × 0.15) + (EX × 0.15) + (JO × 0.10) + 
+                   (FT × 0.10) + (PM × 0.10) + (DS × 0.05) + (VE × 0.10)
+```
+
+**M7 (EDA):**
+```
+Critic Composite = (DA × 0.15) + (CI × 0.10) + (EX × 0.10) + (DS × 0.30) + 
+                   (JO × 0.05) + (FT × 0.05) + (PM × 0.10) + (VE × 0.15)
 ```
 
 ### Pass/Fail Thresholds
@@ -236,4 +250,5 @@ Critic Composite = (DA × 0.25) + (CI × 0.15) + (EX × 0.15) + (JO × 0.10) +
 
 | Date | Entry | Author |
 |------|-------|--------|
-| 2026-06-06 | Initial rubric: 8 personas, 44 criteria, 10-point scale | Assessment Framework |
+| 2026-06-14 | v2.0 — Unified rubric: milestone-specific weights, added Data Scientist + Visualization Expert for M7 | QA Agent |
+| 2026-06-06 | v1.0 — Initial rubric: 8 personas, 44 criteria, 10-point scale | Assessment Framework |

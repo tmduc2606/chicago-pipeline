@@ -1,6 +1,8 @@
 from datetime import date
 from io import StringIO
+from typing import Any
 
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,10 +17,10 @@ async def get_export_csv(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> str:
     conditions: list[str] = []
-    params: dict = {}
+    params: dict[str, Any] = {}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)

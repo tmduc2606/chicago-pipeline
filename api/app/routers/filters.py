@@ -13,5 +13,5 @@ router = APIRouter()
 async def filters(
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_filters(db, redis=redis)
+) -> FilterOptions:
+    return await get_filters(db, redis=redis)  # type: ignore[no-any-return]

@@ -55,7 +55,7 @@ spark-bronze: seed ## Run Bronze ingestion
 	docker compose exec -T spark-master \
 	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
-	    /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime_synthetic_90d.csv
+	  /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime_synthetic.csv
 
 spark-silver: ## Run Silver transformation
 	docker compose exec -T spark-master \

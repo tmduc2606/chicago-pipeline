@@ -1,3 +1,4 @@
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,7 +9,7 @@ SCHEMA = "warehouse"
 
 
 @cached(ttl=300)
-async def get_filters(db: AsyncSession, redis=None) -> FilterOptions:
+async def get_filters(db: AsyncSession, redis: Redis | None = None) -> FilterOptions:
     date_sql = text(f"""
         SELECT MIN(date)::text AS date_min, MAX(date)::text AS date_max
         FROM {SCHEMA}.dim_time

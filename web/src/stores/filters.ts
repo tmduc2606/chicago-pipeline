@@ -25,13 +25,21 @@ const INITIAL: FilterState = {
   communityAreas: null,
 };
 
-export const useFilterStore = create<FilterState & FilterActions>((set) => ({
+export const useFilterStore = create<FilterState & FilterActions>((set, get) => ({
   ...INITIAL,
-  setFrom: (v) => set({ from: v }),
-  setTo: (v) => set({ to: v }),
-  setTypes: (v) => set({ types: v }),
-  setDistricts: (v) => set({ districts: v }),
-  setCommunityAreas: (v) => set({ communityAreas: v }),
+  setFrom: (v) => {
+    const { to } = get();
+    if (v && to && v > to) return;
+    set({ from: v });
+  },
+  setTo: (v) => {
+    const { from } = get();
+    if (from && v && v < from) return;
+    set({ to: v });
+  },
+  setTypes: (v) => set({ types: v && v.length > 0 ? v : null }),
+  setDistricts: (v) => set({ districts: v && v.length > 0 ? v : null }),
+  setCommunityAreas: (v) => set({ communityAreas: v && v.length > 0 ? v : null }),
   reset: () => set(INITIAL),
 }));
 

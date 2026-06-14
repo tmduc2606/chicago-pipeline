@@ -16,8 +16,8 @@ async def timeseries(
     to_date: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_timeseries(
+) -> list[TimeseriesPoint]:
+    return await get_timeseries(  # type: ignore[no-any-return]
         db, redis=redis, granularity=granularity,
         from_date=from_date, to_date=to_date,
     )
@@ -28,8 +28,8 @@ async def forecast(
     horizon: int = Query(14, ge=1, le=60),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_forecast(db, redis=redis, horizon=horizon)
+) -> ForecastBundle:
+    return await get_forecast(db, redis=redis, horizon=horizon)  # type: ignore[no-any-return]
 
 
 @router.get("/timeseries/anomalies", response_model=list[AnomalyPoint])
@@ -39,8 +39,8 @@ async def anomalies(
     to_date: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_anomalies(
+) -> list[AnomalyPoint]:
+    return await get_anomalies(  # type: ignore[no-any-return]
         db, redis=redis, z=z,
         from_date=from_date, to_date=to_date,
     )
@@ -53,5 +53,5 @@ async def heatmap(
     types: str | None = Query(None, description="Comma-separated primary types"),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_heatmap(db, redis=redis, from_date=from_date, to_date=to_date, types=types)
+) -> Heatmap:
+    return await get_heatmap(db, redis=redis, from_date=from_date, to_date=to_date, types=types)  # type: ignore[no-any-return]

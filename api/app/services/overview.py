@@ -1,5 +1,7 @@
 from datetime import date, timedelta
+from typing import Any
 
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,9 +15,9 @@ def _build_filter(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-) -> tuple[str, dict]:
+) -> tuple[str, dict[str, Any]]:
     conditions = []
-    params: dict = {}
+    params: dict[str, Any] = {}
 
     if from_date:
         try:
@@ -43,9 +45,9 @@ def _build_filter(
 def _build_prev_where(
     from_date: str | None,
     to_date: str | None,
-) -> tuple[str, dict]:
+) -> tuple[str, dict[str, Any]]:
     """Build WHERE clause for the previous comparison period using Python date math."""
-    params: dict = {}
+    params: dict[str, Any] = {}
     try:
         if from_date and to_date:
             fd = date.fromisoformat(from_date)
@@ -80,7 +82,7 @@ async def get_overview(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> OverviewKpi:
     where, params = _build_filter(from_date, to_date, types)
 

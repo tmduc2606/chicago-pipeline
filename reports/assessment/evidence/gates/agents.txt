@@ -1,27 +1,9 @@
-  [32mOK[0m  agents/architect/AGENTS.md (3415 bytes)
-  [32mOK[0m  agents/architect/PROMPT.md (1173 bytes)
-  [32mOK[0m  agents/architect/CONTRACTS.md (1157 bytes)
-  [32mOK[0m  agents/data-engineer/AGENTS.md (5306 bytes)
-  [32mOK[0m  agents/data-engineer/PROMPT.md (1570 bytes)
-  [32mOK[0m  agents/data-engineer/CONTRACTS.md (2324 bytes)
-  [32mOK[0m  agents/backend/AGENTS.md (4439 bytes)
-  [32mOK[0m  agents/backend/PROMPT.md (1588 bytes)
-  [32mOK[0m  agents/backend/CONTRACTS.md (2099 bytes)
-  [32mOK[0m  agents/frontend/AGENTS.md (4978 bytes)
-  [32mOK[0m  agents/frontend/PROMPT.md (1461 bytes)
-  [32mOK[0m  agents/frontend/CONTRACTS.md (1429 bytes)
-  [32mOK[0m  agents/qa/AGENTS.md (8258 bytes)
-  [32mOK[0m  agents/qa/PROMPT.md (1131 bytes)
-  [32mOK[0m  agents/qa/CONTRACTS.md (1289 bytes)
-  [32mOK[0m  agents/sre/AGENTS.md (3066 bytes)
-  [32mOK[0m  agents/sre/PROMPT.md (1208 bytes)
-  [32mOK[0m  agents/sre/CONTRACTS.md (1205 bytes)
-  [32mOK[0m  agents/docs/AGENTS.md (1805 bytes)
-  [32mOK[0m  agents/docs/PROMPT.md (1076 bytes)
-  [32mOK[0m  agents/docs/CONTRACTS.md (1526 bytes)
-  [32mOK[0m  agents/security/AGENTS.md (1923 bytes)
-  [32mOK[0m  agents/security/PROMPT.md (1109 bytes)
-  [32mOK[0m  agents/security/CONTRACTS.md (1472 bytes)
-  [32mOK[0m  AGENTS.md (root) exists
-
-All agent files present.
+Agent files: 8
+architect: 56 lines
+backend: 66 lines
+data-engineer: 72 lines
+docs: 45 lines
+frontend: 65 lines
+qa: 233 lines
+security: 44 lines
+sre: 51 lines

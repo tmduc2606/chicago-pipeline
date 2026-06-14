@@ -18,8 +18,8 @@ async def crime_types_top(
     limit: int = Query(10, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_top_types(
+) -> list[CrimeTypeCount]:
+    return await get_top_types(  # type: ignore[no-any-return]
         db, redis=redis, from_date=from_date,
         to_date=to_date, types=types, limit=limit,
     )
@@ -32,8 +32,8 @@ async def crime_type_trend(
     to_date: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_type_trend(
+) -> list[TimeseriesPoint]:
+    return await get_type_trend(  # type: ignore[no-any-return]
         db, redis=redis, primary_type=type,
         from_date=from_date, to_date=to_date,
     )
@@ -46,8 +46,8 @@ async def crime_types_trends(
     to_date: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_multi_type_trend(
+) -> list[TypeTrendPoint]:
+    return await get_multi_type_trend(  # type: ignore[no-any-return]
         db, redis=redis, types=types,
         from_date=from_date, to_date=to_date,
     )

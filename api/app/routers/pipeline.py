@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get("/pipeline/status", response_model=list[DagStatus])
-async def pipeline_status():
+async def pipeline_status() -> list[DagStatus]:
     return await get_pipeline_status()
 
 
@@ -15,5 +15,5 @@ async def pipeline_status():
 async def pipeline_runs(
     dag_id: str = Query(...),
     limit: int = Query(10, ge=1, le=100),
-):
+) -> list[DagRun]:
     return await get_pipeline_runs(dag_id, limit=limit)

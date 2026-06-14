@@ -1,9 +1,10 @@
-# Chicago Pipeline — M0→M6 Assessment Framework
+# Chicago Pipeline — Unified Assessment Framework (M0–M7)
 
-**Date:** 2026-06-06
-**Status:** FRAMEWORK — Ready for execution
-**Version:** 2.0
+**Date:** 2026-06-14
+**Status:** ACTIVE
+**Version:** 3.0
 **Authority:** Root AGENTS.md §Milestone evaluation protocol
+**Replaces:** `docs/assessment/protocol.md` v2.0 + `docs/eda-assessment/protocol.md` v1.1
 
 ---
 
@@ -11,79 +12,66 @@
 
 ### 1.1 Philosophy
 
-This assessment evaluates the project through **two complementary systems** aligned with production-grade practices (Google Engineering Practices, Sourcegraph Code Review Checklist, Microsoft severity classification):
-
-1. **Agent Assessment** — technical correctness, code quality, architectural integrity (automated + manual inspection)
-2. **Critic Evaluation** — end-user perspectives that assess usability, trust, and real-world value (structured 10-point rubrics)
-
-The tension between these systems ensures balanced quality — agents optimize for technical excellence while critics ensure the system serves its actual purpose.
-
-### 1.2 Design Principles
+A **single assessment system** evaluates all milestones (M0–M7) using one unified protocol with milestone-specific persona weights. This replaces the previous dual-system approach (M0-M6 production + M7 EDA).
 
 | Principle | Implementation |
 |-----------|---------------|
-| **Severity-weighted scoring** | S1 (Critical) items block assessment; S2-S4 apply score penalties (see `docs/assessment/risk_matrix.md`) |
-| **Hard-block on Critical** | Assessment fails automatically if any S1 finding is open — no override possible |
-| **Structured critic rubrics** | Every persona gets a 10-point rubric with measurable criteria (see `docs/assessment/rubric.md`) |
-| **Cross-cutting analysis** | Pattern consistency verified across files and milestones (not just per-milestone) |
-| **Evidence-based findings** | Every finding requires command output, code reference, or screenshot (see `docs/assessment/evidence_template.md`) |
-| **Automation-first** | 8-phase automated pipeline covers gates, E2E, inspections, and scoring |
+| **Severity-weighted scoring** | S1 (Critical) items block assessment; S2-S4 apply score penalties |
+| **Hard-block on Critical** | Assessment fails automatically if any S1 finding is open |
+| **Milestone-specific personas** | Same 8 personas, different weights per milestone type |
+| **Automation-first** | 8-phase pipeline covers gates, E2E, inspections, and scoring |
+| **Evidence-based findings** | Every finding requires command output, code reference, or screenshot |
 
-### 1.3 Document Architecture
+### 1.2 Document Architecture
 
 ```
 docs/assessment/
-        ├── protocol.md                ← This file: Framework protocol (how to assess)
-        ├── risk_matrix.md             ← Severity tiers (S1-S4) and hard-block rules
-        ├── rubric.md                  ← 10-point rubrics for all critic personas
-        ├── evidence_template.md       ← Standardized evidence collection formats
-        ├── checklist.md               ← Per-milestone code inspection checklists
-        ├── tracking.md                ← Living tracking document (findings + status)
-        ├── remediation.md             ← Fix candidates and projected gains
-        ├── preparation.md             ← Pre-assessment checklist
-        └── reports/assessment/           ← Automated evidence output
+├── protocol.md              ← This file: unified framework
+├── rubric.md                ← 10-point rubrics for all personas
+├── risk_matrix.md           ← Severity tiers (S1-S4) and hard-block rules
+├── evidence_template.md     ← Evidence collection formats
+├── checklist.md             ← Per-milestone inspection checklists
+├── tracking.md              ← Living tracking document
+├── remediation.md           ← Fix candidates and projected gains
+└── preparation.md           ← Pre-assessment checklist
 ```
 
 ---
 
-## 2. Dual Assessment System
+## 2. Unified Persona Set
 
-### 2.1 Agent Assessment (Technical)
+8 personas evaluate all milestones with context-dependent weights:
 
-Evaluates whether the system is **built right** — correctness, quality, security, performance.
+| Persona | Weight (M0-M4) | Weight (M5-M6) | Weight (M7) | Perspective |
+|---------|:--------------:|:--------------:|:-----------:|-------------|
+| **Data Analyst** | 25% | 25% | 15% | "Can I trust the numbers?" |
+| **Citizen** | 15% | 15% | 10% | "Can I understand this?" |
+| **Executive** | 15% | 15% | 10% | "30-second insight?" |
+| **Data Scientist** | 5% | 5% | 30% | "Is this analysis sound?" |
+| **Journalist** | 10% | 10% | 5% | "Can I find stories?" |
+| **First-Timer** | 10% | 10% | 5% | "Figure out in 2 min?" |
+| **Policy Maker** | 10% | 10% | 10% | "Defensible for policy?" |
+| **Visualization Expert** | 10% | 10% | 15% | "Are charts clear and effective?" |
 
-| Dimension | Weight | Owner | Checks |
-|-----------|--------|-------|--------|
-| **Data Engineering** | 25% | Data Engineer | Pipeline, dbt, GE, schema |
-| **Backend (API)** | 20% | Backend Engineer | FastAPI, endpoints, caching |
-| **Frontend (UI)** | 15% | Frontend Engineer | React, charts, maps, filters |
-| **Data Quality** | 15% | QA Engineer | GE expectations, dbt tests |
-| **Infrastructure** | 10% | SRE | Docker, health checks, compose |
-| **Documentation** | 5% | Docs Agent | README, ADRs, changelog |
-| **Security** | 5% | Security Agent | Secrets, CORS, CSP |
-| **Architecture** | 5% | Architect | Contracts, ADRs, ownership |
-| **Cross-Cutting** | — | Architect + QA | Pattern consistency, call-site verification |
-
-### 2.2 Critic Evaluation (User Experience)
-
-Evaluates whether the system **works for ME** — the end-user perspectives.
-
-| Persona | Weight | Pages | Key Question |
-|---------|--------|-------|-------------|
-| **Data Analyst** | 25% | /, /crime-types, /locations, /analysis | "Can I trust the numbers?" |
-| **Citizen** | 15% | /, /crime-types, /locations, /analysis | "Can I understand this?" |
-| **Executive** | 15% | /, /crime-types, /locations, /analysis | "30-second insight?" |
-| **Journalist** | 10% | /, /crime-types, /locations, /analysis | "Can I find stories?" |
-| **First-Timer** | 10% | /, /crime-types, /locations, /analysis | "Figure out in 2 min?" |
-| **Policy Maker** | 10% | /, /analysis | "Defensible for policy?" |
-| **Community Organizer** | 8% | /locations | "Advocate for my neighborhood?" |
-| **News Editor** | 7% | /, /analysis | "Headline-worthy findings?" |
+**Rationale:** M7 elevates Data Scientist (statistical rigor) and Visualization Expert (chart quality). M5-M6 elevates Data Analyst (data accuracy) and First-Timer (onboarding).
 
 ---
 
-## 3. Severity System
+## 3. Evaluation Dimensions
 
-### 3.1 Severity Tiers (from `docs/assessment/risk_matrix.md`)
+| Dimension | Weight (M0-M4) | Weight (M5-M6) | Weight (M7) | Owner |
+|-----------|:--------------:|:--------------:|:-----------:|-------|
+| **Automated Gates** | 30% | 25% | 15% | QA |
+| **Code Quality** | 25% | 20% | 10% | QA |
+| **Functional (E2E)** | 20% | 20% | 10% | QA |
+| **Critic Evaluation** | 15% | 25% | 40% | QA + personas |
+| **Data/EDA Quality** | 10% | 10% | 25% | QA |
+
+---
+
+## 4. Severity System
+
+### 4.1 Severity Tiers
 
 | Tier | Name | Score Impact | Block Status |
 |------|------|-------------|-------------|
@@ -92,7 +80,7 @@ Evaluates whether the system **works for ME** — the end-user perspectives.
 | **S3** | Medium | -5% per item | Tracked in overhaul |
 | **S4** | Low | -1% per item | Informational |
 
-### 3.2 Hard-Block Rules
+### 4.2 Hard-Block Rules
 
 An assessment **fails automatically** if:
 - Any S1 check item is marked FAIL
@@ -104,7 +92,7 @@ An assessment **fails automatically** if:
 - API health endpoint returns 500
 - Database connection fails
 
-### 3.3 Override Authority
+### 4.3 Override Authority
 
 | Severity | Override | Conditions |
 |----------|----------|------------|
@@ -115,7 +103,7 @@ An assessment **fails automatically** if:
 
 ---
 
-## 4. Test Taxonomy (L0–L4)
+## 5. Test Taxonomy (L0–L4)
 
 | Level | Definition | Chicago Pipeline Equivalent | Evidence Location |
 |-------|-----------|---------------------------|-------------------|
@@ -127,7 +115,7 @@ An assessment **fails automatically** if:
 
 ---
 
-## 5. Assessment Execution Protocol
+## 6. Assessment Execution Protocol
 
 ### 8-Phase Pipeline
 
@@ -146,16 +134,22 @@ Phase 8: Report Generation      → Automated (summary + tracking document)
 
 ```bash
 # Full assessment (all 8 phases)
-bash scripts/run_assessment.sh
+bash scripts/run_assessment.sh --milestone M7 --full
 
 # Individual phases
-bash scripts/run_assessment.sh --gates-only      # Phase 2
-bash scripts/run_assessment.sh --e2e-only        # Phase 3
-bash scripts/run_assessment.sh --critic          # Phase 4
-bash scripts/run_assessment.sh --inspections     # Phase 5
-bash scripts/run_assessment.sh --cross-cutting   # Phase 6
-bash scripts/run_assessment.sh --scoring         # Phase 7
-bash scripts/run_assessment.sh --report          # Phase 8
+bash scripts/run_assessment.sh --gates-only       # Phase 2
+bash scripts/run_assessment.sh --e2e-only          # Phase 3
+bash scripts/run_assessment.sh --critic            # Phase 4
+bash scripts/run_assessment.sh --inspections       # Phase 5
+bash scripts/run_assessment.sh --cross-cutting     # Phase 6
+bash scripts/run_assessment.sh --scoring           # Phase 7
+bash scripts/run_assessment.sh --report            # Phase 8
+
+# Web-specific testing
+bash scripts/run_assessment.sh --web-testing       # Map load, filter edge cases, perf
+
+# EDA-specific testing
+bash scripts/run_assessment.sh --eda-testing       # Notebook execution, report consistency
 ```
 
 ### Output Locations
@@ -173,9 +167,9 @@ bash scripts/run_assessment.sh --report          # Phase 8
 
 ---
 
-## 6. Score Calculation
+## 7. Score Calculation
 
-### 6.1 Per-Milestone Score
+### 7.1 Per-Milestone Score
 
 ```
 Base Score = (checks passed / total checks) × 100%
@@ -187,7 +181,7 @@ Milestone Score = max(0, Base Score - Severity Penalty)
 Hard Block: If any S1 check is FAIL → Milestone Score = 0
 ```
 
-### 6.2 Overall Assessment Score
+### 7.2 Overall Assessment Score
 
 ```
 Overall = Σ (Milestone Score × Milestone Weight)
@@ -195,14 +189,15 @@ Overall = Σ (Milestone Score × Milestone Weight)
 Weights:
   M0: 5%   (foundation)
   M1: 10%  (ingestion)
-  M2: 15%  (transformation)
-  M3: 15%  (aggregation)
-  M4: 20%  (warehouse)
-  M5: 15%  (API + Data Analyst validation)
-  M6: 20%  (UI + all critic personas)
+  M2: 10%  (transformation)
+  M3: 10%  (aggregation)
+  M4: 15%  (warehouse)
+  M5: 15%  (API)
+  M6: 20%  (Frontend + UI/UX)
+  M7: 15%  (EDA)
 ```
 
-### 6.3 Grade Boundaries
+### 7.3 Grade Boundaries
 
 | Grade | Score | Meaning | Action |
 |-------|-------|---------|--------|
@@ -214,9 +209,9 @@ Weights:
 
 ---
 
-## 7. Critic Evaluation Protocol
+## 8. Critic Evaluation Protocol
 
-### 7.1 Evaluation Template
+### 8.1 Evaluation Template
 
 Each critic persona evaluation follows this structure:
 
@@ -224,6 +219,7 @@ Each critic persona evaluation follows this structure:
 # Critic Evaluation: [Persona Name]
 **Timestamp:** [ISO-8601]
 **Evaluator:** [Agent name]
+**Milestone:** [M0–M7]
 **Pages evaluated:** [list]
 
 ## Rubric Scores (from docs/assessment/rubric.md)
@@ -236,7 +232,7 @@ Each critic persona evaluation follows this structure:
 **Verdict:** [PASS (≥8) | CONDITIONAL (7-7.9) | FAIL (<7)]
 ```
 
-### 7.2 Pass/Fail Thresholds
+### 8.2 Pass/Fail Thresholds
 
 | Threshold | Score | Action |
 |-----------|-------|--------|
@@ -247,9 +243,9 @@ Each critic persona evaluation follows this structure:
 
 ---
 
-## 8. Cross-Cutting Analysis Protocol
+## 9. Cross-Cutting Analysis Protocol
 
-### 8.1 Pattern Verification
+### 9.1 Pattern Verification
 
 Every assessment must verify cross-file pattern consistency using the implementation_mistakes.md prevention rules:
 
@@ -257,11 +253,12 @@ Every assessment must verify cross-file pattern consistency using the implementa
 |---------|-------------------|----------|
 | MISTAKE-001: `::date` SQL cast | `grep -r "::date" api/app/services/` | `evidence/code-inspections/` |
 | MISTAKE-002: Hardcoded coordinates | `grep -r "41.8781" web/src/` | `evidence/code-inspections/` |
+| MISTAKE-004: Map race condition | Check MapLibre components for `styleLoaded` ref | `evidence/code-inspections/` |
 | MISTAKE-005: Missing ErrorBoundary | Check all page components | `evidence/code-inspections/` |
 | MISTAKE-008: Param name mismatch | Compare frontend `api.ts` with backend `Query()` | `evidence/cross-cutting/` |
 | MISTAKE-010: Pattern repetition | Grep for broken pattern across siblings | `evidence/cross-cutting/` |
 
-### 8.2 Call-Site Verification
+### 9.2 Call-Site Verification
 
 For every modified function or endpoint:
 - All call sites checked
@@ -270,25 +267,88 @@ For every modified function or endpoint:
 
 ---
 
-## 9. Deliverables Checklist
+## 10. Per-Milestone Gate Criteria
 
-### Framework Files (this assessment cycle)
+### M0 (Foundation)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | Docker compose up succeeds | |
+| S1 | Health check returns 200 | |
+| S1 | Seed generates CSV | |
+| S2 | README renders correctly | |
+| S2 | Agent files present (all dirs) | |
 
-| # | File | Purpose | Status |
-|---|------|---------|--------|
-| 1 | `docs/assessment/protocol.md` | Framework protocol | ✅ This file |
-| 2 | `docs/assessment/risk_matrix.md` | Severity tiers & hard-block rules | ✅ Created |
-| 3 | `docs/assessment/rubric.md` | 10-point rubrics for critic personas | ✅ Created |
-| 4 | `docs/assessment/evidence_template.md` | Evidence collection formats | ✅ Created |
-| 5 | `docs/assessment/checklist.md` | Per-milestone inspection checklists | ✅ Enhanced |
-| 6 | `docs/assessment/tracking.md` | Living tracking document | ✅ Rewritten |
-| 7 | `scripts/run_assessment.sh` | 8-phase automated runner | ✅ Extended |
-| 8 | `scripts/validate_assessment.sh` | Completeness validation | ✅ Created |
-| 9 | `agents/qa/AGENTS.md` | QA assessment responsibilities | ✅ Updated |
+### M1 (Ingestion)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | Bronze Parquet exists in MinIO | |
+| S1 | Row count ≥ 61,000 | |
+| S2 | Schema matches gold-schema.json | |
+| S2 | Partitioning by year works | |
+
+### M2 (Transformation)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | Silver Parquet exists | |
+| S1 | No nulls in required columns | |
+| S2 | Type casting correct | |
+| S2 | Deduplication logic verified | |
+
+### M3 (Aggregation)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | Gold star schema (5 tables) | |
+| S1 | FK constraints valid | |
+| S2 | Aggregation correctness spot-check | |
+| S2 | Index coverage on FK columns | |
+
+### M4 (Warehouse)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | dbt 53/53 tests pass | |
+| S1 | PostGIS geometry verified | |
+| S1 | 63/63 unit tests pass | |
+| S2 | GE Bronze/Silver/Gold PASS | |
+| S2 | Model documentation complete | |
+
+### M5 (API)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | 42/42 pytest tests pass | |
+| S1 | Health endpoints return 200 | |
+| S1 | OpenAPI drift clean | |
+| S2 | Redis cache hit verified | |
+| S2 | Error model consistent | |
+
+### M6 (Frontend)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | 40/40 E2E tests pass | |
+| S1 | Build < 350kB JS, < 80kB CSS | |
+| S1 | Maps load within 5s | |
+| S2 | Filter edge cases validated | |
+| S2 | Dark theme no contrast violations | |
+| S2 | Mobile responsive (375px–1440px) | |
+| S2 | Filter URL-sync works | |
+| S3 | Skeleton loaders present | |
+| S3 | Error boundary isolation | |
+
+### M7 (EDA)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | Notebook 45/45 cells execute, 0 errors | |
+| S1 | 39/39 reports exist and follow template | |
+| S1 | TypeScript clean (`npx tsc --noEmit`) | |
+| S2 | Statistical tests present (chi-square, t-test, Cramér's V, Wilson CI) | |
+| S2 | All findings verified against actual output | |
+| S2 | No stale caveats in reports | |
+| S2 | insights.json values match actual data | |
+| S3 | Methodology section documents all methods | |
+| S3 | Colorblind-safe palette used | |
 
 ---
 
-## 10. Agent Responsibilities During Assessment
+## 11. Agent Responsibilities During Assessment
 
 ### QA Engineer (Assessment Owner)
 - Executes the 8-phase assessment pipeline
@@ -296,6 +356,7 @@ For every modified function or endpoint:
 - Performs critic persona evaluations
 - Validates assessment completeness via `validate_assessment.sh`
 - Publishes results in `reports/assessment/`
+- Maintains EDA backlog and insight reports
 
 ### Architect (Review Gate)
 - Reviews S2 findings for override decisions
@@ -310,9 +371,25 @@ For every modified function or endpoint:
 
 ---
 
+## 12. CI/CD Integration
+
+The assessment runs on every PR via `.github/workflows/ci.yml`:
+
+| Job | What It Checks | Required |
+|-----|---------------|----------|
+| lint | ruff + mypy + eslint + tsc | Yes |
+| contracts | OpenAPI spec + agent files | Yes |
+| security | gitleaks secret scan | Yes |
+| test | api pytest + web vitest | Yes |
+| e2e | Playwright tests | Yes (after test passes) |
+| agents | Agent file structure | Yes |
+
+---
+
 ## Changelog
 
 | Date | Entry | Author |
 |------|-------|--------|
-| 2026-06-06 | v2.0 — Complete restructure: 8-phase pipeline, severity system, critic rubrics, cross-cutting analysis | Assessment Framework |
-| 2026-06-06 | v1.0 — Initial framework with dual persona system | Assessment Framework |
+| 2026-06-14 | v3.0 — Unified framework: single protocol for M0-M7, 8 personas, milestone-specific weights | QA Agent |
+| 2026-06-06 | v2.0 — 8-phase pipeline, severity system, critic rubrics | Assessment Framework |
+| 2026-06-06 | v1.0 — Initial framework | Assessment Framework |

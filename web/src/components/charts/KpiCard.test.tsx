@@ -13,15 +13,15 @@ function wrapper({ children }: { children: React.ReactNode }) {
 
 describe("KpiCard", () => {
   it("renders title and formatted value", () => {
-    render(<KpiCard title="Total Crimes" value={57931} />, { wrapper });
+    render(<KpiCard title="Total Crimes" value={61316} />, { wrapper });
     expect(screen.getByText("Total Crimes")).toBeInTheDocument();
-    expect(screen.getByText("57,931")).toBeInTheDocument();
+    expect(screen.getByText("61,316")).toBeInTheDocument();
   });
 
   it("formats percent values", () => {
-    render(<KpiCard title="Arrest Rate" value={18.0} format="percent" />, {
+    render(<KpiCard title="Arrest Rate" value={21.6} format="percent" />, {
       wrapper,
     });
-    expect(screen.getByText("18.0%")).toBeInTheDocument();
+    expect(screen.getByText("21.6%")).toBeInTheDocument();
   });
 });

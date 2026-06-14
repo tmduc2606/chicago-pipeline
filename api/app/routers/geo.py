@@ -17,8 +17,8 @@ async def geo_clusters(
     zoom: int = Query(8),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_geo_clusters(
+) -> list[GeoCluster]:
+    return await get_geo_clusters(  # type: ignore[no-any-return]
         db, redis=redis, from_date=from_date,
         to_date=to_date, types=types, zoom=zoom,
     )
@@ -33,8 +33,8 @@ async def choropleth(
     types: str | None = Query(None, description="Comma-separated primary types"),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_choropleth(
+) -> list[ChoroplethBucket]:
+    return await get_choropleth(  # type: ignore[no-any-return]
         db, redis=redis, level=level, metric=metric,
         from_date=from_date, to_date=to_date, types=types,
     )

@@ -16,8 +16,8 @@ async def domestic_split(
     types: str | None = Query(None, description="Comma-separated primary types"),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_domestic_split(
+) -> BooleanSplit:
+    return await get_domestic_split(  # type: ignore[no-any-return]
         db, redis=redis, from_date=from_date,
         to_date=to_date, types=types,
     )
@@ -31,8 +31,8 @@ async def top_locations(
     limit: int = Query(15, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_top_locations(
+) -> list[LocationCount]:
+    return await get_top_locations(  # type: ignore[no-any-return]
         db, redis=redis, from_date=from_date,
         to_date=to_date, types=types, limit=limit,
     )

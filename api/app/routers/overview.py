@@ -16,8 +16,8 @@ async def overview(
     types: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
     redis: Redis = Depends(get_redis),
-):
-    return await get_overview(
+) -> OverviewKpi:
+    return await get_overview(  # type: ignore[no-any-return]
         db, redis=redis,
         from_date=from_date, to_date=to_date, types=types,
     )

@@ -167,6 +167,13 @@ def load_gold_to_postgres(engine, s3_client, bucket: str, prefix: str) -> dict[s
             _add_pk(engine, table)
             log.info("warehouse_pk_added", table=table)
 
+    # Phase 2b: add UNIQUE on fact_crime.crime_id to prevent accidental duplicates
+    with engine.begin() as conn:
+        conn.execute(text(
+            "ALTER TABLE warehouse.fact_crime ADD CONSTRAINT IF NOT EXISTS uq_fact_crime_crime_id UNIQUE (crime_id)"
+        ))
+    log.info("warehouse_fact_unique_added")
+
     # Phase 3: add FK constraints to fact table (dimensions now have PKs)
     _add_foreign_keys(engine, "fact_crime")
     log.info("warehouse_fact_fks_added")

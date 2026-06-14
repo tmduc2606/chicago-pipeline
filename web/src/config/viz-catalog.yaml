@@ -1,0 +1,182 @@
+# Visualization Catalog
+# Maintained by EDA Lead agent
+# Registry of all chart types in the Chicago Crime Pipeline
+
+charts:
+  # === Dashboard Page ===
+  - id: kpi_cards
+    name: KPI Cards
+    component: KpiCard
+    data_requirements: [total, arrest_rate, domestic_pct, delta_pct]
+    topics: [temporal]
+    tags: [distribution, comparison]
+    page: /
+    difficulty: 1
+
+  - id: timeseries_chart
+    name: Timeseries Chart
+    component: TimeseriesChart
+    data_requirements: [date, count, arrests]
+    topics: [temporal]
+    tags: [trend]
+    page: /
+    difficulty: 2
+
+  - id: type_trend_chart
+    name: Type Trend Chart
+    component: TypeTrendChart
+    data_requirements: [date, primary_type, count]
+    topics: [temporal, categorical]
+    tags: [trend, comparison]
+    page: /
+    difficulty: 2
+
+  - id: arrest_rate_chart
+    name: Arrest Rate Chart
+    component: ArrestRateChart
+    data_requirements: [date, arrest_rate]
+    topics: [temporal]
+    tags: [trend]
+    page: /
+    difficulty: 2
+
+  - id: hourly_heatmap
+    name: Hourly Heatmap
+    component: HourlyHeatmap
+    data_requirements: [hour, weekday, count]
+    topics: [temporal]
+    tags: [distribution]
+    page: /
+    difficulty: 2
+
+  # === Crime Types Page ===
+  - id: offense_bar_chart
+    name: Offense Bar Chart
+    component: OffenseBarChart
+    data_requirements: [primary_type, count]
+    topics: [categorical]
+    tags: [distribution, comparison]
+    page: /crime-types
+    difficulty: 1
+
+  # === Locations Page ===
+  - id: choropleth_map
+    name: Choropleth Map
+    component: ChoroplethMap
+    data_requirements: [district, count, lat, lng]
+    topics: [spatial]
+    tags: [distribution, comparison]
+    page: /locations
+    difficulty: 3
+
+  - id: cluster_map
+    name: Cluster Map
+    component: ClusterMap
+    data_requirements: [lat, lng, count]
+    topics: [spatial]
+    tags: [distribution]
+    page: /locations
+    difficulty: 3
+
+  - id: location_trend_chart
+    name: Location Trend Chart
+    component: LocationTrendChart
+    data_requirements: [date, district, count]
+    topics: [spatial, temporal]
+    tags: [trend, comparison]
+    page: /locations
+    difficulty: 2
+
+  # === Analysis Page ===
+  # (reuses TimeseriesChart, TypeTrendChart, ArrestRateChart from Dashboard)
+
+  # === Insights Page (M7) ===
+  - id: temporal_signatures
+    name: Temporal Signatures
+    component: Matplotlib (static)
+    data_requirements: [hour, primary_type, count]
+    topics: [temporal]
+    tags: [distribution]
+    page: /insights
+    difficulty: 2
+
+  - id: composition_shift
+    name: Crime Composition Shift
+    component: Matplotlib (static)
+    data_requirements: [year, primary_type, count]
+    topics: [temporal]
+    tags: [trend]
+    page: /insights
+    difficulty: 2
+
+  - id: hotspot_stability
+    name: Hotspot Stability
+    component: Matplotlib (static)
+    data_requirements: [year, district, count]
+    topics: [temporal]
+    tags: [trend]
+    page: /insights
+    difficulty: 3
+
+  - id: district_arrest_effectiveness
+    name: District Arrest Effectiveness
+    component: Matplotlib (static)
+    data_requirements: [district, arrest_rate]
+    topics: [spatial]
+    tags: [comparison]
+    page: /insights
+    difficulty: 2
+
+  - id: location_arrest_likelihood
+    name: Location Arrest Likelihood
+    component: Matplotlib (static)
+    data_requirements: [location_description, arrest_rate]
+    topics: [spatial]
+    tags: [correlation]
+    page: /insights
+    difficulty: 2
+
+  - id: crime_diversity
+    name: Crime Diversity
+    component: Matplotlib (static)
+    data_requirements: [location_description, primary_type]
+    topics: [spatial]
+    tags: [composition]
+    page: /insights
+    difficulty: 2
+
+  - id: domestic_spatial
+    name: Domestic Spatial Patterns
+    component: Matplotlib (static)
+    data_requirements: [district, is_domestic, count]
+    topics: [categorical]
+    tags: [comparison]
+    page: /insights
+    difficulty: 2
+
+  - id: low_arrest_rates
+    name: Low Arrest Rates
+    component: Matplotlib (static)
+    data_requirements: [primary_type, arrest_rate]
+    topics: [categorical]
+    tags: [comparison]
+    page: /insights
+    difficulty: 2
+
+  - id: behavioral_clustering
+    name: Behavioral Clustering
+    component: Matplotlib (static)
+    data_requirements: [primary_type, arrest_rate, domestic_rate, avg_hour]
+    topics: [relational]
+    tags: [clustering]
+    page: /insights
+    difficulty: 4
+
+  - id: neighborhood_archetypes
+    name: Neighborhood Archetypes
+    component: Matplotlib (static)
+    data_requirements: [district, primary_type, arrest_rate]
+    topics: [relational]
+    tags: [clustering]
+    page: /insights
+    difficulty: 4

@@ -20,24 +20,34 @@ Every top-level directory has exactly one owning agent. Other agents may read fr
 | `docs/` | Docs Agent | Architecture, runbook, UI, data-model; ADRs drafted by Docs, signed by Architect |
 | `docs/adr/` | Architect (sign-off) | Docs drafts; Architect is the gatekeeper |
 | `scripts/` | SRE (operational) / Architect (cross-cutting) | Healthchecks, validation, seed |
+| `scripts/notebooks/` | EDA Lead / EDA Researcher | EDA notebooks, analysis cells |
+| `reports/eda/` | EDA Lead | Insight reports, index |
 | `tests/` | QA Engineer | All test suites |
 | `.github/` | Security (dependabot, codeql) + QA (ci.yml) | CI/CD config |
 | `data/` | Data Engineer | Sample data, README |
 | `agents/` | Architect | Charter, per-agent rules |
+| `web/src/config/viz-catalog.yaml` | EDA Lead | Chart registry |
+| `web/src/config/insights.json` | EDA Lead | Aggregated insight entries |
 
 ## System diagram
 
 ```
 Kaggle CSV  ──►  Bronze (MinIO)  ──GE──►  Silver (MinIO)  ──GE──►  Gold (MinIO)
-                                                                    │
-                                                                    ▼
-                                                  dbt marts ◄── Postgres (PostGIS)
-                                                                    │
-                                                                    ▼
-                                                        FastAPI (19 routes)
-                                                                    │
-                                                                    ▼
-                                                        React SPA (8 pages)
+                                                                     │
+                                                                     ▼
+                                                   dbt marts ◄── Postgres (PostGIS)
+                                                                     │
+                                                                     ▼
+                                                         FastAPI (19 routes)
+                                                                     │
+                                                                     ▼
+                                                         React SPA (9 pages)
+                                                                     │
+                                                                     ▼
+                                                         EDA Layer (10 analyses)
+                                                          │              │
+                                                          ▼              ▼
+                                                  Insight Reports   InsightsPage
 ```
 
 ## Key decisions

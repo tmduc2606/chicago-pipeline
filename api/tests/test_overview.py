@@ -31,7 +31,10 @@ async def test_overview_returns_kpis(client: AsyncClient, db_session):
 async def test_overview_with_dates(client: AsyncClient, db_session):
     mock_result = MagicMock()
     mock_result.one.return_value = type(
-        "Row", (), {"total": 1000, "arrest_rate": 30.0, "domestic_pct": 15.0, "delta_pct": 0.0, "prev_total": 500}
+        "Row", (), {
+            "total": 1000, "arrest_rate": 30.0, "domestic_pct": 15.0,
+            "delta_pct": 0.0, "prev_total": 500,
+        }
     )()
     db_session.execute.return_value = mock_result
 

@@ -625,7 +625,7 @@ Every milestone (M0–M9) follows the same four-phase cycle. **No milestone is c
 | **M5. API (FastAPI)** | 1.5 d | All 22 endpoints, schemas, services, Redis cache, health checks, tests, OpenAPI. |
 | **M6. Web (React)** | 2.5 d | AppShell, dark theme, 9 pages + About + 404, all charts, skeleton loaders, filters (URL-synced), responsive layout, tests, Lighthouse pass. |
 | **Phase 2: EDA** | | |
-| **M7. EDA Layer** | 2 d | EDA notebooks, interactive exploration, 3-layer hierarchy (baseline→intermediate→advanced), insight reports, visualization catalog. New agents: EDA Lead, EDA Researcher. |
+| **M7. EDA Layer** | 2 d | Single notebook with 5 topic sections, 10 EDA analyses (temporal, spatial, categorical, relational), insight reports, `/insights` web page with filterable cards, visualization catalog. New agents: EDA Lead, EDA Researcher. Topic × Tag taxonomy replaces 3-layer hierarchy. |
 | **M8. Agentic AI** | 2 d | Natural language query interface, insight synthesis, LLM integration (open-source API agents, local lightweight LLMs). New agent: LLM Integration. |
 | **Phase 3: Production** | | |
 | **M9. Production Hardening** | 1.5 d | Auth (optional JWT/API key for admin), Prometheus + Grafana dashboards, light mode toggle, production Docker Compose, README rewrite, GIF/screenshots, demo script, final review pass. |

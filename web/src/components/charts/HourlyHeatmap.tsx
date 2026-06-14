@@ -72,19 +72,15 @@ export function HourlyHeatmap() {
       calculable: false,
       orient: "horizontal" as const,
       left: "center",
-      bottom: "0%",
+      bottom: -25,
+      splitNumber: 5,
       inRange: {
-        color: ["#1a1a26", "#312e81", "#4338ca", "#6366f1", "#818cf8"],
+        color: ["#2d2d44", "#312e81", "#4338ca", "#6366f1", "#818cf8"],
       },
       textStyle: { color: "#8888a0", fontSize: 9 },
-      formatter: (v: number) => {
-        if (v === 0) return "Fewer";
-        if (v >= max) return "More";
-        return "";
-      },
       text: ["Fewer", "More"],
     },
-    grid: { top: 10, bottom: 40, left: 30, right: 5 },
+    grid: { top: 10, bottom: 55, left: 30, right: 5 },
     series: [
       {
         type: "heatmap",
@@ -103,7 +99,7 @@ export function HourlyHeatmap() {
         <h3 className="text-sm font-semibold text-text">Crimes by Hour of Day</h3>
         <HelpTooltip content="Heatmap showing crime frequency by day of week and hour. Darker cells indicate higher crime counts. Use this to identify peak crime windows." />
       </div>
-      <ReactECharts option={option} style={{ height: 180 }} />
+      <ReactECharts option={option} style={{ height: 210 }} />
     </div>
   );
 }

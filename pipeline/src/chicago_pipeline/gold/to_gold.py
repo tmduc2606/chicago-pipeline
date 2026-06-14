@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pyspark.sql.functions as F
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql.types import BooleanType, FloatType, IntegerType, StringType, TimestampType
 
 _src = Path(__file__).resolve().parents[2]
@@ -76,6 +76,8 @@ def _build_dim_time(spark: SparkSession, cfg: dict) -> DataFrame:
 
 def _build_dim_offense(df: DataFrame) -> DataFrame:
     dim = df.select("iucr", "primary_type", "description", "fbi_code").distinct()
+    w = F.row_number().over(Window.partitionBy("iucr").orderBy(F.col("primary_type")))
+    dim = dim.withColumn("_rn", w).filter(F.col("_rn") == 1).drop("_rn")
     dim = dim.withColumn("offense_id", F.xxhash64(F.col("iucr")))
     return dim.select("offense_id", "iucr", "primary_type", "description", "fbi_code").orderBy("offense_id")
 

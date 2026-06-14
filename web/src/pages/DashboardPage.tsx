@@ -8,9 +8,6 @@ import { OffenseBarChart } from "@/components/charts/OffenseBarChart";
 import { ArrestRateChart } from "@/components/charts/ArrestRateChart";
 import { DomesticSplitChart } from "@/components/charts/DomesticSplitChart";
 import { HourlyHeatmap } from "@/components/charts/HourlyHeatmap";
-import { ChoroplethMap } from "@/components/maps/ChoroplethMap";
-import { ClusterMap } from "@/components/maps/ClusterMap";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { formatCrimeType } from "@/lib/utils";
 
 function AboutThisData() {
@@ -226,16 +223,6 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <OffenseBarChart />
         <ArrestRateChart />
-      </div>
-
-      {/* Maps */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ErrorBoundary>
-          <ChoroplethMap />
-        </ErrorBoundary>
-        <ErrorBoundary>
-          <ClusterMap />
-        </ErrorBoundary>
       </div>
 
       {/* Top Locations */}

@@ -1,5 +1,7 @@
 from datetime import date
+from typing import Any
 
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,9 +15,9 @@ def _build_filter(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-) -> tuple[str, dict]:
+) -> tuple[str, dict[str, Any]]:
     conditions = []
-    params: dict = {}
+    params: dict[str, Any] = {}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)
@@ -45,7 +47,7 @@ async def get_domestic_split(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> BooleanSplit:
     where, params = _build_filter(from_date, to_date, types)
     join = f"""
@@ -73,7 +75,7 @@ async def get_top_locations(
     to_date: str | None = None,
     types: str | None = None,
     limit: int = 15,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[LocationCount]:
     where, params = _build_filter(from_date, to_date, types)
     params["limit"] = limit

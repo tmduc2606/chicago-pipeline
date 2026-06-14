@@ -1,5 +1,7 @@
 from datetime import date
+from typing import Any
 
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,10 +19,10 @@ async def get_top_types(
     to_date: str | None = None,
     types: str | None = None,
     limit: int = 10,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[CrimeTypeCount]:
     conditions = []
-    params: dict = {"limit": limit}
+    params: dict[str, Any] = {"limit": limit}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)
@@ -63,10 +65,10 @@ async def get_type_trend(
     primary_type: str,
     from_date: str | None = None,
     to_date: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[TimeseriesPoint]:
     conditions = ["o.primary_type = :primary_type"]
-    params: dict = {"primary_type": primary_type}
+    params: dict[str, Any] = {"primary_type": primary_type}
     if from_date:
         conditions.append("t.date >= :from_date")
         params["from_date"] = date.fromisoformat(from_date)
@@ -89,8 +91,7 @@ async def get_type_trend(
     result = await db.execute(sql, params)
     rows = result.fetchall()
     return [
-        TimeseriesPoint(ts=str(r.ts), count=int(r.count), arrests=int(r.arrests or 0))  # type: ignore[call-overload]
-        for r in rows
+        TimeseriesPoint(ts=str(r.ts), count=int(r.count), arrests=int(r.arrests or 0)) for r in rows  # type: ignore[call-overload]
     ]
 
 
@@ -100,14 +101,14 @@ async def get_multi_type_trend(
     types: str,
     from_date: str | None = None,
     to_date: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[TypeTrendPoint]:
     type_list = [t.strip() for t in types.split(",") if t.strip()]
     if not type_list:
         return []
 
     conditions = []
-    params: dict = {}
+    params: dict[str, Any] = {}
     if from_date:
         params["from_date"] = date.fromisoformat(from_date)
         conditions.append("t.date >= :from_date")

@@ -2,15 +2,15 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    postgres_host: str = "postgres"
+    postgres_host: str = "localhost"
     postgres_port: int = 5432
     postgres_db: str = "chicago"
     postgres_user: str = "chicago"
     postgres_password: str = "change_me_local"
-    redis_host: str = "redis"
+    redis_host: str = "localhost"
     redis_port: int = 6379
-    redis_password: str = ""
-    airflow_base_url: str = "http://airflow-webserver:8080"
+    redis_password: str = "changeme"
+    airflow_base_url: str = "http://localhost:8080"
     airflow_user: str = "admin"
     airflow_password: str = "admin"
     env: str = "local"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run_assessment.sh — Chicago Pipeline M0→M6 Comprehensive Assessment Runner
+# run_assessment.sh — Chicago Pipeline M0→M7 Unified Assessment Runner
 #
 # 8-phase assessment pipeline aligned with production-grade standards.
 # Phases: Prerequisites → Gates → E2E → Critic → Inspections → Cross-Cutting → Scoring → Report
@@ -13,6 +13,8 @@
 #   bash scripts/run_assessment.sh --cross-cutting  # Phase 6: Cross-cutting analysis only
 #   bash scripts/run_assessment.sh --scoring        # Phase 7: Score calculation only
 #   bash scripts/run_assessment.sh --report         # Phase 8: Report generation only
+#   bash scripts/run_assessment.sh --web-testing    # Web-specific: map load, filters, perf
+#   bash scripts/run_assessment.sh --eda-testing    # EDA-specific: notebook, reports
 #
 # Output:
 #   docs/assessment/tracking.md                  # Tracking document (living)
@@ -40,8 +42,8 @@ CRITIC_MIN=7.0       # Minimum critic composite score
 
 # Milestone weights
 declare -A MILESTONE_WEIGHTS=(
-  ["M0"]=5 ["M1"]=10 ["M2"]=15 ["M3"]=15
-  ["M4"]=20 ["M5"]=15 ["M6"]=20
+  ["M0"]=5 ["M1"]=10 ["M2"]=10 ["M3"]=10
+  ["M4"]=15 ["M5"]=15 ["M6"]=20 ["M7"]=15
 )
 
 # Create directory structure
@@ -110,7 +112,7 @@ EOF
 
 echo ""
 echo "═══════════════════════════════════════════════════════════════"
-echo "  Chicago Pipeline — M0→M6 Assessment (8-Phase)"
+echo "  Chicago Pipeline — M0→M7 Unified Assessment (8-Phase)"
 echo "  Started: $TIMESTAMP"
 echo "  Mode: $MODE"
 echo "═══════════════════════════════════════════════════════════════"
@@ -275,6 +277,106 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "--e2e-only" ]; then
 fi
 
 # ══════════════════════════════════════════════════════════════════════
+# Phase 3b: Web-Specific Testing
+# ══════════════════════════════════════════════════════════════════════
+if [ "$MODE" = "--web-testing" ]; then
+  echo "── Web-Specific Testing ─────────────────────────────────────"
+  echo ""
+
+  WEB_DIR="$EVIDENCE_DIR/web-testing"
+  mkdir -p "$WEB_DIR"
+
+  # Check map components have styleLoaded ref (MISTAKE-004 fix)
+  for map_file in web/src/components/maps/ChoroplethMap.tsx web/src/components/maps/ClusterMap.tsx; do
+    if grep -q "styleLoaded" "$map_file" 2>/dev/null; then
+      gate_result "map styleLoaded: $(basename $map_file)" "PASS" "styleLoaded ref present"
+    else
+      gate_result "map styleLoaded: $(basename $map_file)" "FAIL" "missing styleLoaded ref (MISTAKE-004)" "S2"
+    fi
+  done
+
+  # Check filter date validation (inverted dates)
+  if grep -q "v > to\|v < from" web/src/stores/filters.ts 2>/dev/null; then
+    gate_result "filter: date validation" "PASS" "inverted date check present"
+  else
+    gate_result "filter: date validation" "FAIL" "no inverted date validation" "S2"
+  fi
+
+  # Check Dashboard has no maps (Option A: maps on Locations only)
+  if grep -q "ChoroplethMap\|ClusterMap" web/src/pages/DashboardPage.tsx 2>/dev/null; then
+    gate_result "dashboard: no maps" "FAIL" "Dashboard still has map components" "S3"
+  else
+    gate_result "dashboard: no maps" "PASS" "maps removed from Dashboard"
+  fi
+
+  # Check HourlyHeatmap color bar (not starting with background color)
+  if grep -q "#1a1a26.*#312e81" web/src/components/charts/HourlyHeatmap.tsx 2>/dev/null; then
+    gate_result "heatmap: color bar" "FAIL" "first color matches background" "S3"
+  else
+    gate_result "heatmap: color bar" "PASS" "color bar contrast fixed"
+  fi
+
+  # Check TypeScript compiles
+  if (cd web && npx tsc --noEmit > "$WEB_DIR/tsc.txt" 2>&1); then
+    gate_result "web: tsc --noEmit" "PASS" "TypeScript clean"
+  else
+    gate_result "web: tsc --noEmit" "FAIL" "see web-testing/tsc.txt" "S2"
+  fi
+
+  echo ""
+fi
+
+# ══════════════════════════════════════════════════════════════════════
+# Phase 3c: EDA-Specific Testing
+# ══════════════════════════════════════════════════════════════════════
+if [ "$MODE" = "--eda-testing" ]; then
+  echo "── EDA-Specific Testing ─────────────────────────────────────"
+  echo ""
+
+  EDA_DIR="$EVIDENCE_DIR/eda-testing"
+  mkdir -p "$EDA_DIR"
+
+  # Check notebook exists
+  if [ -f "scripts/notebooks/M7_EDA.ipynb" ]; then
+    gate_result "EDA: notebook exists" "PASS" "M7_EDA.ipynb found"
+  else
+    gate_result "EDA: notebook exists" "FAIL" "M7_EDA.ipynb missing" "S1"
+  fi
+
+  # Check notebook has code cells
+  code_cells=$(python3 -X utf8 -c "import json; nb=json.load(open('scripts/notebooks/M7_EDA.ipynb',encoding='utf-8')); print(len([c for c in nb['cells'] if c['cell_type']=='code']))" 2>/dev/null || python -X utf8 -c "import json; nb=json.load(open('scripts/notebooks/M7_EDA.ipynb',encoding='utf-8')); print(len([c for c in nb['cells'] if c['cell_type']=='code']))" 2>/dev/null || echo 0)
+  if [ "$code_cells" -gt 0 ]; then
+    gate_result "EDA: code cells" "PASS" "$code_cells code cells"
+  else
+    gate_result "EDA: code cells" "FAIL" "no code cells found" "S1"
+  fi
+
+  # Check report count
+  report_count=$(find reports/eda -name "*.md" 2>/dev/null | wc -l)
+  if [ "$report_count" -ge 39 ]; then
+    gate_result "EDA: report count" "PASS" "$report_count reports (≥39 required)"
+  else
+    gate_result "EDA: report count" "FAIL" "$report_count reports (≥39 required)" "S1"
+  fi
+
+  # Check insights.json exists and is valid
+  if python3 -X utf8 -c "import json; json.load(open('web/src/config/insights.json',encoding='utf-8'))" 2>/dev/null || python -X utf8 -c "import json; json.load(open('web/src/config/insights.json',encoding='utf-8'))" 2>/dev/null; then
+    gate_result "EDA: insights.json valid" "PASS" "valid JSON"
+  else
+    gate_result "EDA: insights.json valid" "FAIL" "invalid JSON" "S2"
+  fi
+
+  # Check TypeScript compiles
+  if (cd web && npx tsc --noEmit > "$EDA_DIR/tsc.txt" 2>&1); then
+    gate_result "EDA: tsc --noEmit" "PASS" "TypeScript clean"
+  else
+    gate_result "EDA: tsc --noEmit" "FAIL" "see eda-testing/tsc.txt" "S2"
+  fi
+
+  echo ""
+fi
+
+# ══════════════════════════════════════════════════════════════════════
 # Phase 4: Critic Evaluations (placeholder — semi-automated)
 # ══════════════════════════════════════════════════════════════════════
 if [ "$MODE" = "full" ] || [ "$MODE" = "--critic" ]; then
@@ -285,7 +387,7 @@ if [ "$MODE" = "full" ] || [ "$MODE" = "--critic" ]; then
   mkdir -p "$CRITIC_DIR"
 
   # Generate placeholder templates for each persona
-  personas=("data-analyst" "citizen" "executive" "journalist" "first-timer" "policy-maker" "community-organizer" "news-editor")
+  personas=("data-analyst" "citizen" "executive" "data-scientist" "journalist" "first-timer" "policy-maker" "visualization-expert")
   for persona in "${personas[@]}"; do
     if [ ! -f "$CRITIC_DIR/$persona.md" ]; then
       cat > "$CRITIC_DIR/$persona.md" <<CRITIC_EOF

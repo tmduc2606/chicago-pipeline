@@ -8,7 +8,7 @@ test.describe("Dashboard page", () => {
 
   test("KPI cards display formatted values", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("57,931").first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("61,316").first()).toBeVisible({ timeout: 15000 });
     await expect(page.getByText("Total Crimes").first()).toBeVisible();
   });
 

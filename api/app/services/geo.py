@@ -1,5 +1,7 @@
 from datetime import date
+from typing import Any
 
+from redis.asyncio import Redis
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,17 +10,17 @@ from app.services.cache import cached
 
 SCHEMA = "warehouse"
 
+
 ALLOWED_GROUP_COLS = {"district", "community_area"}
 ALLOWED_METRICS = {"count", "arrest_rate"}
-
 
 def _build_filter(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-) -> tuple[str, dict]:
+) -> tuple[str, dict[str, Any]]:
     conditions = []
-    params: dict = {}
+    params: dict[str, Any] = {}
     if from_date:
         try:
             params["from_date"] = date.fromisoformat(from_date)
@@ -49,7 +51,7 @@ async def get_geo_clusters(
     to_date: str | None = None,
     types: str | None = None,
     zoom: int = 8,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[GeoCluster]:
     grid_size = max(0.001, 0.05 / (2 ** max(0, zoom - 8)))
     where, params = _build_filter(from_date, to_date, types)
@@ -91,7 +93,7 @@ async def get_choropleth(
     from_date: str | None = None,
     to_date: str | None = None,
     types: str | None = None,
-    redis=None,
+    redis: Redis | None = None,
 ) -> list[ChoroplethBucket]:
     if level not in ALLOWED_GROUP_COLS:
         raise ValueError(f"Invalid level: {level!r}")

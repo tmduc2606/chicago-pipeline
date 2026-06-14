@@ -5,6 +5,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { CrimeTypesPage } from "@/pages/CrimeTypesPage";
 import { LocationsPage } from "@/pages/LocationsPage";
 import { AnalysisPage } from "@/pages/AnalysisPage";
+import { InsightsPage } from "@/pages/InsightsPage";
 import { useUrlSync } from "@/hooks/useUrlSync";
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/crime-types" element={<CrimeTypesPage />} />
           <Route path="/locations" element={<LocationsPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </ErrorBoundary>

@@ -7,5 +7,5 @@ router = APIRouter()
 
 
 @router.get("/quality/summary", response_model=QualitySummary)
-async def quality_summary():
+async def quality_summary() -> QualitySummary:
     return await get_quality_summary()
