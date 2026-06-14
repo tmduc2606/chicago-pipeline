@@ -26,7 +26,6 @@ pipeline/build/
 AGENTS.md
 /agents/
 scripts/validate_agents.sh
-CODEOWNERS
 
 # Documentation (generated / agent-authored, keep locally only)
 lineage/
