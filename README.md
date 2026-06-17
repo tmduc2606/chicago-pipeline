@@ -116,7 +116,6 @@ Kaggle CSV  ─►  Bronze (MinIO)  ─GE─►  Silver (MinIO)  ─GE─►  Go
 
 ```
 chicago-pipeline/
-├── AGENTS.md                      # multi-agent charter (root)
 ├── Makefile                       # make up / down / test / pipeline / ...
 ├── docker-compose.yaml            # 13 services, all with healthchecks
 ├── docs/                          # architecture, plan, ADRs, runbook
@@ -145,7 +144,6 @@ make web-test   # vitest (web)
 make web-e2e    # playwright
 make lint       # ruff + mypy + eslint + tsc
 make contracts-validate  # gate: contracts bus consistent
-make agents-lint         # gate: every agent has 3 files
 ```
 
 ### Windows (PowerShell)
@@ -179,9 +177,8 @@ docker compose --profile test run --rm playwright                           # e2
 docker compose exec -T web pnpm lint                                        # web lint
 docker compose exec -T web pnpm typecheck                                   # web typecheck
 
-# Contracts & agents
+# Contracts
 bash scripts/validate_contracts.sh                                          # validate contracts
-bash scripts/validate_agents.sh                                             # validate agent files
 
 # Code quality
 docker compose exec -T api ruff format app                                  # format api code
