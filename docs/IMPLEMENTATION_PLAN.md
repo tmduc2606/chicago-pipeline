@@ -613,7 +613,7 @@ Breaking contract change = ADR + both producer & consumer sign-off + migration n
 
 ## 8. Section V — Implementation Milestones
 
-Every milestone (M0–M9) follows the same four-phase cycle. **No milestone is considered complete until all four phases pass.**
+Every milestone (M0–M8) follows the same four-phase cycle. **No milestone is considered complete until all four phases pass.**
 
 | Phase | Duration (suggested) | Deliverables |
 |---|---|---|
@@ -625,11 +625,10 @@ Every milestone (M0–M9) follows the same four-phase cycle. **No milestone is c
 | **M5. API (FastAPI)** | 1.5 d | All 22 endpoints, schemas, services, Redis cache, health checks, tests, OpenAPI. |
 | **M6. Web (React)** | 2.5 d | AppShell, dark theme, 9 pages + About + 404, all charts, skeleton loaders, filters (URL-synced), responsive layout, tests, Lighthouse pass. |
 | **Phase 2: EDA** | | |
-| **M7. EDA Layer** | 2 d | Single notebook with 5 topic sections, 10 EDA analyses (temporal, spatial, categorical, relational), insight reports, `/insights` web page with filterable cards, visualization catalog. New agents: EDA Lead, EDA Researcher. Topic × Tag taxonomy replaces 3-layer hierarchy. |
-| **M8. Agentic AI** | 2 d | Natural language query interface, insight synthesis, LLM integration (open-source API agents, local lightweight LLMs). New agent: LLM Integration. |
-| **Phase 3: Production** | | |
-| **M9. Production Hardening** | 1.5 d | Auth (optional JWT/API key for admin), Prometheus + Grafana dashboards, light mode toggle, production Docker Compose, README rewrite, GIF/screenshots, demo script, final review pass. |
-| **Total** | **~14 working days** | |
+|| **M7. EDA Layer** | 2 d | Single notebook with 5 topic sections, 10 EDA analyses (temporal, spatial, categorical, relational), insight reports, `/insights` web page with filterable cards, visualization catalog. New agents: EDA Lead, EDA Researcher. Topic × Tag taxonomy replaces 3-layer hierarchy. |
+|| **Phase 3: Production** | | |
+|| **M8. Production Hardening** | 1.5 d | Prometheus + Grafana dashboards, light mode toggle, production Docker Compose, README rewrite, GIF/screenshots, demo script, final review pass. |
+|| **Total** | **~12 working days** | |
 
 ### UI/UX decisions (locked)
 
@@ -638,7 +637,7 @@ Every milestone (M0–M9) follows the same four-phase cycle. **No milestone is c
 | Landing page | Separate (`/`) | Hero moment + navigation hub; avoids redundancy |
 | Pipeline/Quality routes | Behind `/admin` | Operational concerns, cleaner IA |
 | 9th page | About/Data Sources/Methodology | Trust signal for crime data |
-| Theme (M6) | Dark-only | Modern dashboard standard; light mode toggle deferred to M9 |
+|| Theme (M6) | Dark-only | Modern dashboard standard; light mode toggle deferred to M8 |
 | Filter URLs | Shareable (Zustand → URL params) | Enables bookmarkable insights, portfolio showcase |
 | Mobile strategy | Responsive-first (shadcn Sheet) | 90% coverage; dedicated layout deferred to P2 |
 | Prefetch | Hover-based only | Preserves code-splitting, respects performance budget |
@@ -664,7 +663,7 @@ Each milestone completes when:
 1. **Implement** — owning agent(s) produce the deliverables.
 2. **Evaluate & debug** — QA agent runs all checks (lint, tests, contract validation, structural checks, agent spec, security scan). Bug-fix PR if needed.
 3. **User test** — QA agent publishes `docs/milestones/MN-test.md` with numbered commands, expected output, and pass/fail criteria. User verifies before proceeding.
-4. **Improvements** — Architect and QA propose improvements (label `improvement/milestone-N`); documented for later milestones or M9 polish.
+4. **Improvements** — documented improvements (label `improvement/milestone-N`); tackled opportunistically in later milestones or M8 polish.
 
 ### Gate rule
 **M(N+1) does not start until M(N) user test instructions have been executed and the user has confirmed the milestone.**
@@ -707,7 +706,7 @@ Locked-in by stakeholder:
 - Great Expectations as data quality framework
 - Docker Compose only (no K8s)
 - No auth (public dashboard) — admin routes behind `/admin` (no auth for M5/M6)
-- Dark-only theme for M6; light mode toggle deferred to M9
+- Dark-only theme for M6; light mode toggle deferred to M8
 - Shareable filter URLs (Zustand → URL params)
 - Responsive-first mobile strategy
 
