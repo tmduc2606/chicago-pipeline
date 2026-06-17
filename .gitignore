@@ -36,6 +36,11 @@ references/
 # GitHub config (agent-authored)
 .github/dependabot.yml
 
+# Temporary / scratch
+tmp/
+scripts/notebooks/
+scripts/validate_data.py
+
 # Node
 node_modules/
 .pnpm-store/
@@ -43,6 +48,12 @@ node_modules/
 out/
 .vite/
 *.tsbuildinfo
+
+# Web build output (generated)
+web/dist/
+web/public/*.png
+web/public/*.svg
+web/public/*.ico
 
 # DBT
 dbt/target/
