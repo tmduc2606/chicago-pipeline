@@ -5,6 +5,53 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.7.0] - 2026-06-17
+
+### Final Improvements & Scope Adjustments
+
+This release finalises the project scope for a portfolio-grade data platform,
+removing planned features that add complexity without proportional value on
+a 16 GB RAM development machine.
+
+---
+
+### Removed
+
+- **M8 Agentic AI** — Natural language query interface and LLM integration
+  removed from the implementation plan. Rationale: redundant with the existing
+  dashboard analytics, and local LLM inference would strain 16 GB RAM.
+  (`docs/IMPLEMENTATION_PLAN.md`)
+- **Auth (JWT/API key)** — Removed from M9 (now M8) Production Hardening scope.
+  The dashboard remains a public-read portfolio piece; auth can be added later
+  via a reverse proxy if needed. (`docs/IMPLEMENTATION_PLAN.md`)
+- **Multi-agent framework from README** — Removed the agent team table, agent
+  charter references, and `agents/` tree from the public README. The internal
+  `agents/` directory is retained locally but removed from git tracking.
+  (`README.md`, `.gitignore`)
+
+### Changed
+
+- **Milestones renumbered** — M9 (Production Hardening) → M8; total estimated
+  effort reduced from ~14 to ~12 working days. (`docs/IMPLEMENTATION_PLAN.md`)
+- **`.gitignore` hardened** — Added `tmp/`, `scripts/notebooks/`,
+  `scripts/validate_data.py`, `web/dist/`, `web/public/*.png`,
+  `web/public/*.svg`, `web/public/*.ico` to prevent accidental commits of
+  generated files.
+- **`agents/` removed from git tracking** — All 31 files under `agents/`
+  (agent specs, prompts, contracts, critic personas) are no longer tracked.
+  They remain available locally for internal workflow use.
+
+### Assessment Status
+
+| Metric | Value |
+|--------|-------|
+| Automated Gates | 100% (32/32) — Grade A |
+| Composite Critic Score | 8.39 / 10 — PASS |
+| All Personas | ≥ 7.0 (no hard failures) |
+| Findings | 0 open (all resolved) |
+
+---
+
 ## [0.6.1] - 2026-06-09
 
 ### M0–M6 Assessment & Remediation
