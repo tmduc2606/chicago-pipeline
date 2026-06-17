@@ -1,8 +1,8 @@
-# Chicago Pipeline — Unified Assessment Framework (M0–M7)
+# Chicago Pipeline — Unified Assessment Framework (M0–M8)
 
-**Date:** 2026-06-14
+**Date:** 2026-06-17
 **Status:** ACTIVE
-**Version:** 3.0
+**Version:** 3.1
 **Authority:** Root AGENTS.md §Milestone evaluation protocol
 **Replaces:** `docs/assessment/protocol.md` v2.0 + `docs/eda-assessment/protocol.md` v1.1
 
@@ -12,7 +12,7 @@
 
 ### 1.1 Philosophy
 
-A **single assessment system** evaluates all milestones (M0–M7) using one unified protocol with milestone-specific persona weights. This replaces the previous dual-system approach (M0-M6 production + M7 EDA).
+A **single assessment system** evaluates all milestones (M0–M8) using one unified protocol with milestone-specific persona weights. This replaces the previous dual-system approach (M0-M6 production + M7 EDA).
 
 | Principle | Implementation |
 |-----------|---------------|
@@ -194,7 +194,8 @@ Weights:
   M4: 15%  (warehouse)
   M5: 15%  (API)
   M6: 20%  (Frontend + UI/UX)
-  M7: 15%  (EDA)
+  M7: 10%  (EDA)
+  M8: 5%   (Production hardening)
 ```
 
 ### 7.3 Grade Boundaries
@@ -346,6 +347,20 @@ For every modified function or endpoint:
 | S3 | Methodology section documents all methods | |
 | S3 | Colorblind-safe palette used | |
 
+### M8 (Production Hardening)
+| Gate | Check | Pass/Fail |
+|------|-------|-----------|
+| S1 | All 13 services healthy (`make health`) | |
+| S1 | `make lint` green | |
+| S1 | `make test` green | |
+| S1 | `gitleaks` clean | |
+| S2 | Light mode toggle works, no contrast violations | |
+| S2 | About page renders at `/about` | |
+| S2 | Grafana dashboards render with data | |
+| S2 | Critic composite ≥ 8.0 | |
+| S3 | README updated with screenshots | |
+| S3 | CHANGELOG updated | |
+
 ---
 
 ## 11. Agent Responsibilities During Assessment
@@ -390,6 +405,7 @@ The assessment runs on every PR via `.github/workflows/ci.yml`:
 
 | Date | Entry | Author |
 |------|-------|--------|
+| 2026-06-17 | v3.1 — Added M8 Production Hardening gates, updated weights (M7: 10%, M8: 5%), removed agents-lint from regression gate | Architect + QA |
 | 2026-06-14 | v3.0 — Unified framework: single protocol for M0-M7, 8 personas, milestone-specific weights | QA Agent |
 | 2026-06-06 | v2.0 — 8-phase pipeline, severity system, critic rubrics | Assessment Framework |
 | 2026-06-06 | v1.0 — Initial framework | Assessment Framework |
