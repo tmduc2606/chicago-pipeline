@@ -1,7 +1,7 @@
 # Chicago Pipeline
 
 > End-to-end data platform for the Chicago Crime Database Management System (2024–2026).
-> Built and maintained by a multi-agent LLM team — see [`AGENTS.md`](./AGENTS.md) and the [implementation plan](./docs/IMPLEMENTATION_PLAN.md).
+> See the [implementation plan](./docs/IMPLEMENTATION_PLAN.md) for the full architecture and design rationale.
 
 [![Stack](https://img.shields.io/badge/stack-Spark%20%7C%20dbt%20%7C%20FastAPI%20%7C%20React-blue)](./docs/IMPLEMENTATION_PLAN.md)
 [![Compose](https://img.shields.io/badge/docker-compose-13%20services-2496ED)](./docker-compose.yaml)
@@ -19,7 +19,7 @@ A portfolio-grade, portfolio-bright data platform that:
 6. **Visualises** the data in a polished React SPA (Vite + TS + Tailwind + Recharts + MapLibre). 4 pages: Dashboard, Analysis, Crime Types, Locations.
 7. **Observes** itself via Prometheus + Grafana + OpenLineage/Marquez.
 
-> **Detailed plan:** [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md) · **Multi-agent charter:** [`AGENTS.md`](./AGENTS.md)
+> **Detailed plan:** [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md)
 
 ### Assessment Status
 
@@ -120,15 +120,6 @@ chicago-pipeline/
 ├── Makefile                       # make up / down / test / pipeline / ...
 ├── docker-compose.yaml            # 13 services, all with healthchecks
 ├── docs/                          # architecture, plan, ADRs, runbook
-├── agents/                        # 8 specialised LLM agents
-│   ├── architect/
-│   ├── data-engineer/
-│   ├── backend/
-│   ├── frontend/
-│   ├── qa/
-│   ├── sre/
-│   ├── docs/
-│   └── security/
 ├── contracts/                     # shared, versioned artefacts (the wires)
 ├── pipeline/                      # PySpark jobs (Bronze/Silver/Gold)
 ├── dbt/                           # dbt project (warehouse + marts)
@@ -139,21 +130,6 @@ chicago-pipeline/
 ├── lineage/                       # OpenLineage + Marquez config
 └── scripts/                       # healthcheck, validate, seed
 ```
-
-## Multi-agent team
-
-This repo is built by a team of eight specialised LLM agents. Each one owns a sub-tree, has its own rules of engagement, and hands off work through the [`contracts/`](./contracts/README.md) bus. See [`AGENTS.md`](./AGENTS.md) for the full charter.
-
-| Agent | Role | Owns |
-|---|---|---|
-| **Architect** | Coordinator | `docs/adr/`, `contracts/` orchestration, conflict resolution |
-| **Data Engineer** | Pipeline | `pipeline/`, `dbt/`, `airflow/`, `great_expectations/`, `lineage/` |
-| **Backend** | API | `api/`, `contracts/openapi.yaml`, `contracts/api-types.ts` |
-| **Frontend** | UI | `web/`, `contracts/design-tokens.json` |
-| **QA** | Quality | all `tests/`, CI test stages, release sign-off |
-| **SRE** | Operations | `docker-compose.yaml` healthchecks, `observability/`, `docs/runbook.md` |
-| **Docs** | Storyteller | `README.md`, `docs/`, `CHANGELOG.md`, demo GIF |
-| **Security** | Compliance | `.env.example`, `SECURITY.md`, `CODEOWNERS`, dep scanning |
 
 ## Development
 
