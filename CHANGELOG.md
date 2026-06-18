@@ -5,6 +5,58 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.8.0] - 2026-06-18
+
+### M8 Production Hardening
+
+This release delivers the final production hardening milestone, adding light mode, About page, Grafana dashboards, and completing M7 EDA verification.
+
+---
+
+### Added
+
+#### Frontend
+- **Light mode toggle** — `ThemeProvider` context with `<ThemeProvider>` wrapper in `App.tsx`; dark/light CSS custom properties; sun/moon toggle button in `Header.tsx`; preference persisted to `localStorage` (`web/src/context/ThemeContext.tsx`)
+- **About page** — New route `/about` with Data Sources, Methodology, Technology Stack, Known Limitations, and License sections (`web/src/pages/AboutPage.tsx`)
+- **Insights page** — 14 EDA insight cards with topic/tag/difficulty filters, expandable "More" detail, and Data Notes section (`web/src/pages/InsightsPage.tsx` — M7 integration verified)
+
+#### Observability
+- **Pipeline Health dashboard** — Grafana dashboard JSON with service health timeseries and overall health gauge (`observability/grafana/dashboards/pipeline-health.json`)
+- **API Latency dashboard** — Grafana dashboard JSON with p50/p95 latency, error rate gauge, and requests/sec by route (`observability/grafana/dashboards/api-latency.json`)
+- **Dashboard provisioning** — Grafana auto-provisioning config for dashboard JSON files (`observability/grafana/provisioning/dashboards/default.yml`)
+
+#### Testing
+- **Insights E2E test** — Playwright test with 8 test cases: page load, card count, topic filter, tag dropdown, difficulty range, "More" button, Data Notes section (`web/e2e/insights.spec.ts`)
+
+#### Documentation
+- **M7-test.md** — User test instructions with 7 test cases (`docs/milestones/M7-test.md`)
+- **M7-signoff.md** — Architect M7 gate sign-off (`docs/milestones/M7-signoff.md`)
+- **phase3-integration-plan.md** — Master Phase 3 integration plan (`docs/phase3-integration-plan.md`)
+- **M8-plan.md** — Detailed M8 production hardening plan (`docs/milestones/M8-plan.md`)
+- **FAQ section** — Added to README with 5 common questions
+
+### Changed
+
+- **README.md** — Updated page count (4→6), added dark/light theme feature, added FAQ section
+- **Assessment protocol v3.1** — Added M8 Production Hardening gate criteria, updated milestone weights (M7: 10%, M8: 5%) (`docs/assessment/protocol.md`)
+- **Agent files** — Updated Architect and QA agent specs to remove M8 Agentic AI, update milestone references (`agents/architect/AGENTS.md`, `agents/qa/AGENTS.md`)
+
+### Fixed
+
+- **Map infinite loading** — Resolved chicken-and-egg rendering in ChoroplethMap and ClusterMap by always rendering map container div with absolute-positioned loading/error overlays; added 10-second hard timeout (`web/src/components/maps/ChoroplethMap.tsx`, `web/src/components/maps/ClusterMap.tsx`, `web/src/config/map.ts`)
+
+### Assessment Status
+
+| Metric | Value |
+|--------|-------|
+| Automated Gates | 100% (32/32) — Grade A |
+| Composite Critic Score | 8.39 / 10 — PASS |
+| All Personas | ≥ 7.0 (no hard failures) |
+| Findings | 0 open (all resolved) |
+| gitleaks scan | Clean (0 leaks) |
+
+---
+
 ## [0.7.0] - 2026-06-17
 
 ### Final Improvements & Scope Adjustments

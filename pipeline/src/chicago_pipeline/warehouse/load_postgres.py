@@ -169,9 +169,14 @@ def load_gold_to_postgres(engine, s3_client, bucket: str, prefix: str) -> dict[s
 
     # Phase 2b: add UNIQUE on fact_crime.crime_id to prevent accidental duplicates
     with engine.begin() as conn:
-        conn.execute(text(
-            "ALTER TABLE warehouse.fact_crime ADD CONSTRAINT IF NOT EXISTS uq_fact_crime_crime_id UNIQUE (crime_id)"
+        result = conn.execute(text(
+            "SELECT 1 FROM pg_constraint WHERE conrelid = 'warehouse.fact_crime'::regclass "
+            "AND contype = 'u' AND conname = 'uq_fact_crime_crime_id'"
         ))
+        if not result.fetchone():
+            conn.execute(text(
+                "ALTER TABLE warehouse.fact_crime ADD CONSTRAINT uq_fact_crime_crime_id UNIQUE (crime_id)"
+            ))
     log.info("warehouse_fact_unique_added")
 
     # Phase 3: add FK constraints to fact table (dimensions now have PKs)

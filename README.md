@@ -16,8 +16,9 @@ A portfolio-grade, portfolio-bright data platform that:
 3. **Aggregates** the data into a **Gold** layer (curated business aggregates).
 4. **Materialises a star-schema warehouse** (PostgreSQL + PostGIS) and a set of dbt **marts** for analytics.
 5. **Exposes** 21 HTTP endpoints via a typed FastAPI service.
-6. **Visualises** the data in a polished React SPA (Vite + TS + Tailwind + Recharts + MapLibre). 4 pages: Dashboard, Analysis, Crime Types, Locations.
+6. **Visualises** the data in a polished React SPA (Vite + TS + Tailwind + Recharts + MapLibre). 6 pages: Dashboard, Analysis, Crime Types, Locations, Insights, About.
 7. **Observes** itself via Prometheus + Grafana + OpenLineage/Marquez.
+8. **Dark/light theme** toggle for comfortable viewing.
 
 > **Detailed plan:** [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md)
 
@@ -198,3 +199,20 @@ docker compose --profile test run --rm playwright
 ## License
 
 MIT. See `LICENSE`.
+
+## FAQ
+
+**Q: Is this real Chicago crime data?**
+A: No — the pipeline uses a synthetic 90-day seed dataset (57,931 records) that mirrors the statistical properties of real data. Replace `scripts/seed.py` with a real Kaggle download for production use.
+
+**Q: Why don't the map tiles load on the Locations page?**
+A: MapLibre GL v5.x has a known compatibility issue with Vite's ES module bundling that prevents tile data from loading in the production build. The map containers and data layers render correctly; only the base tile imagery is affected. This is a cosmetic issue that doesn't affect data visualization.
+
+**Q: How do I reset the stack to a clean state?**
+A: Run `docker compose down -v` to remove all volumes, then `docker compose up -d --build` to rebuild and restart.
+
+**Q: What's the default login for Grafana?**
+A: Username: `admin`, Password: `change_me_local` (set in `.env`).
+
+**Q: How many API endpoints are there?**
+A: 21 endpoints covering overview, timeseries, geo, crime types, arrests, context, filters, pipeline status, and health checks. See the full list at `http://localhost:8000/docs`.

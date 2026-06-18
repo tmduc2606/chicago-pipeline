@@ -1,28 +1,33 @@
 import { Routes, Route, Link } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ThemeProvider } from "@/context/ThemeContext";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { CrimeTypesPage } from "@/pages/CrimeTypesPage";
 import { LocationsPage } from "@/pages/LocationsPage";
 import { AnalysisPage } from "@/pages/AnalysisPage";
 import { InsightsPage } from "@/pages/InsightsPage";
+import AboutPage from "@/pages/AboutPage";
 import { useUrlSync } from "@/hooks/useUrlSync";
 
 export default function App() {
   useUrlSync();
   return (
-    <AppShell>
-      <ErrorBoundary>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/crime-types" element={<CrimeTypesPage />} />
-          <Route path="/locations" element={<LocationsPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />
-          <Route path="/insights" element={<InsightsPage />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </ErrorBoundary>
-    </AppShell>
+    <ThemeProvider>
+      <AppShell>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/crime-types" element={<CrimeTypesPage />} />
+            <Route path="/locations" element={<LocationsPage />} />
+            <Route path="/analysis" element={<AnalysisPage />} />
+            <Route path="/insights" element={<InsightsPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ErrorBoundary>
+      </AppShell>
+    </ThemeProvider>
   );
 }
 

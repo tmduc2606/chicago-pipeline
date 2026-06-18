@@ -310,13 +310,8 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    environment:
-      VITE_API_BASE_URL: http://localhost:8000
     ports:
       - "5173:5173"
-    volumes:
-      - ./web/src:/opt/web/src
-      - ./web/public:/opt/web/public
     deploy:
       resources:
         limits:
