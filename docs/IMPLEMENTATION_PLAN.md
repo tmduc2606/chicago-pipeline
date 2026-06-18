@@ -630,6 +630,19 @@ Every milestone (M0–M8) follows the same four-phase cycle. **No milestone is c
 || **M8. Production Hardening** | 1.5 d | Prometheus + Grafana dashboards, light mode toggle, production Docker Compose, README rewrite, GIF/screenshots, demo script, final review pass. |
 || **Total** | **~12 working days** | |
 
+### Phase C: Final Polish & Benchmark
+
+After M8 completion, a final polish pass ensures portfolio-grade quality:
+
+1. **Cleanup** — Remove all stale M9 references from docs and agent files
+2. **End-to-end benchmark** — Full 8-phase QA critic assessment against all 6 pages
+3. **Bug-fixes** — Fix any S1/S2 findings from benchmark
+4. **Minor improvements** — Theme toggle polish, responsive verification, console error check
+5. **Pipeline test** — Clean-slate `make demo` run to verify full data flow
+6. **Final sign-off** — Architect sign-off, Grade A confirmation
+
+See `docs/phase-c-plan.md` for the detailed Phase C execution plan.
+
 ### UI/UX decisions (locked)
 
 | Decision | Choice | Rationale |
