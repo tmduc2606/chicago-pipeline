@@ -6,3 +6,6 @@ export const MAP_DEFAULTS = {
   cluster: { zoom: 11 },
   choropleth: { zoom: 10 },
 } as const;
+
+/** Max ms to wait for map tiles before showing an error */
+export const MAP_TILE_TIMEOUT = 10000;
