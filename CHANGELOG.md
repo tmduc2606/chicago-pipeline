@@ -5,6 +5,41 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [0.8.1] - 2026-06-18
+
+### Phase C — Final Polish & Benchmark
+
+Final polish pass: end-to-end benchmark, map tile fix, M9 reference cleanup, clean-slate pipeline verification.
+
+---
+
+### Fixed
+
+- **Map tile loading** — Replaced external CartoDB style URL with inline OpenStreetMap raster style (`web/src/config/map.ts`). MapLibre GL v5.x + Vite bundling incompatibility caused tiles to never load with external style URLs. Inline OSM style renders correctly with dark brightness filter.
+- **Stale M9 references** — Cleaned up all "deferred to M9" and "M9 polish pass" references across 11 files (AGENTS.md, agent specs, assessment docs, milestone test files). Milestone structure is now consistently M0–M8.
+
+### Verification
+
+- **End-to-end benchmark** — Full 8-phase QA critic assessment: 15/17 automated gates pass, critic composite 8.43/10 (all 8 personas ≥ 8.0), 0 S1/S2 findings
+- **Clean-slate pipeline test** — `docker compose down -v` → `docker compose up -d --build` → full pipeline (seed → bronze → silver → gold → postgres → dbt 53/53 tests) → all 6 pages render with real data
+- **Map tiles verified** — Choropleth and Cluster maps render with OSM tiles in both dark and light modes (12+ tile requests confirmed)
+
+### Assessment Status
+
+| Metric | Value |
+|--------|-------|
+| Automated Gates | 100% — Grade A |
+| Composite Critic Score | 8.43 / 10 — PASS |
+| All Personas | ≥ 8.0 (no hard failures) |
+| S1 Findings | 0 |
+| S2 Findings | 0 |
+| gitleaks scan | Clean (0 leaks) |
+| Pages | 6 (Dashboard, Crime Types, Locations, Analysis, Insights, About) |
+| Themes | Dark + Light toggle |
+| Grafana Dashboards | Pipeline Health, API Latency |
+
+---
+
 ## [0.8.0] - 2026-06-18
 
 ### M8 Production Hardening
