@@ -1,69 +1,942 @@
- Container ccp-postgres Running 
  Container ccp-minio Running 
+ Container ccp-postgres Running 
  Container ccp-redis Running 
  Container ccp-api Running 
  Container ccp-web Running 
  Container ccp-minio Waiting 
  Container ccp-postgres Waiting 
  Container ccp-redis Waiting 
- Container ccp-redis Healthy 
- Container ccp-postgres Healthy 
  Container ccp-minio Healthy 
+ Container ccp-postgres Healthy 
+ Container ccp-redis Healthy 
  Container ccp-api Waiting 
  Container ccp-api Healthy 
  Container ccp-web Waiting 
  Container ccp-web Healthy 
- Container chicago-pipeline-playwright-run-bb622189145b Creating 
- Container chicago-pipeline-playwright-run-bb622189145b Created 
+ Container chicago-pipeline-playwright-run-c5257be031ad Creating 
+ Container chicago-pipeline-playwright-run-c5257be031ad Created 
 
-added 224 packages, and audited 225 packages in 35s
+added 224 packages, and audited 225 packages in 1m
 
 35 packages are looking for funding
   run `npm fund` for details
 
 found 0 vulnerabilities
 
-Running 40 tests using 2 workers
+Running 48 tests using 2 workers
 
-  ✓   2 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /crime-types has no critical WCAG violations (6.6s)
-  ✓   1 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page / has no critical WCAG violations (9.2s)
-  ✓   3 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /locations has no critical WCAG violations (7.4s)
-  ✓   4 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /analysis has no critical WCAG violations (10.8s)
-  ✓   5 [chromium] › e2e/accessibility.spec.ts:54:3 › Accessibility — keyboard navigation › dashboard is keyboard navigable (12.0s)
-  ✓   7 [chromium] › e2e/api-errors.spec.ts:4:3 › API error responses › invalid query param returns 422 with detail array (247ms)
-  ✓   8 [chromium] › e2e/api-errors.spec.ts:19:3 › API error responses › missing required param returns 422 (175ms)
-  ✓   9 [chromium] › e2e/api-errors.spec.ts:24:3 › API error responses › invalid crime type returns 404 or 422 (238ms)
-  ✓  10 [chromium] › e2e/api-errors.spec.ts:29:3 › API error responses › error response does not expose stack traces (248ms)
-  ✓  11 [chromium] › e2e/api-health.spec.ts:4:3 › API health endpoint › returns JSON with status ok (347ms)
-  ✓  12 [chromium] › e2e/api-health.spec.ts:13:3 › API health endpoint › returns correct content-type (310ms)
-  ✓  13 [chromium] › e2e/api-health.spec.ts:19:3 › API health endpoint › ready endpoint returns 200 or 503 (279ms)
-  ✓   6 [chromium] › e2e/accessibility.spec.ts:79:3 › Accessibility — keyboard navigation › sidebar links are focusable (9.4s)
-  ✓  14 [chromium] › e2e/api-security.spec.ts:4:3 › API security › CORS blocks unauthorized origins (292ms)
-  ✓  15 [chromium] › e2e/api-security.spec.ts:19:3 › API security › API does not expose server version (200ms)
-  ✓  16 [chromium] › e2e/api-security.spec.ts:14:3 › API security › CORS allows same-origin or configured origins (311ms)
-  ✓  18 [chromium] › e2e/crime-types.spec.ts:17:3 › Crime Types page › Top 3 summary displays (6.2s)
-  ✓  17 [chromium] › e2e/crime-types.spec.ts:4:3 › Crime Types page › crime types table sorts by column (8.3s)
-  ✓  19 [chromium] › e2e/dashboard.spec.ts:4:3 › Dashboard page › loads and shows heading (5.6s)
-  ✓  20 [chromium] › e2e/dashboard.spec.ts:9:3 › Dashboard page › KPI cards display formatted values (5.7s)
-  ✓  21 [chromium] › e2e/dashboard.spec.ts:15:3 › Dashboard page › about section is collapsible (7.7s)
-  ✓  22 [chromium] › e2e/dashboard.spec.ts:25:3 › Dashboard page › timeseries chart renders SVG (7.4s)
-  ✓  23 [chromium] › e2e/dashboard.spec.ts:32:3 › Dashboard page › heatmap renders canvas (4.3s)
-  ✓  24 [chromium] › e2e/dashboard.spec.ts:39:3 › Dashboard page › offense bar chart shows bars (8.0s)
-  ✓  25 [chromium] › e2e/filters.spec.ts:4:3 › Filters › sidebar filters apply date range (8.7s)
-  ✓  26 [chromium] › e2e/filters.spec.ts:13:3 › Filters › quick-select buttons change date range (8.6s)
-  ✓  27 [chromium] › e2e/filters.spec.ts:23:3 › Filters › URL params update when filters change (8.6s)
-  ✓  28 [chromium] › e2e/filters.spec.ts:32:3 › Filters › reset button clears all filters (11.8s)
-  ✓  29 [chromium] › e2e/locations.spec.ts:4:3 › Locations page › location search filters list (8.9s)
-  ✓  30 [chromium] › e2e/maps.spec.ts:4:3 › Maps › choropleth map card is visible (5.2s)
-  ✓  31 [chromium] › e2e/maps.spec.ts:10:3 › Maps › cluster map card is visible (5.9s)
-  ✓  32 [chromium] › e2e/maps.spec.ts:16:3 › Maps › map legend is visible on locations page (4.6s)
-  ✓  33 [chromium] › e2e/maps.spec.ts:22:3 › Maps › both map cards render on dashboard (6.3s)
-  ✓  34 [chromium] › e2e/navigation.spec.ts:4:3 › Navigation › navigate to Crime Types page (7.0s)
-  ✓  35 [chromium] › e2e/navigation.spec.ts:11:3 › Navigation › navigate to Locations page (7.6s)
-  ✓  36 [chromium] › e2e/navigation.spec.ts:18:3 › Navigation › navigate to Analysis page (8.9s)
-  ✓  37 [chromium] › e2e/responsive.spec.ts:4:3 › Responsive layout › sidebar collapses on mobile viewport (6.3s)
-  ✓  38 [chromium] › e2e/responsive.spec.ts:22:3 › Responsive layout › hamburger menu visible on mobile (6.6s)
-  ✓  39 [chromium] › e2e/responsive.spec.ts:35:3 › Responsive layout › KPI cards stack vertically on mobile (6.7s)
-  ✓  40 [chromium] › e2e/responsive.spec.ts:45:3 › Responsive layout › desktop layout shows sidebar (5.3s)
+  ✘   1 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /crime-types has no critical WCAG violations (12.7s)
+  ✘   2 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page / has no critical WCAG violations (15.2s)
+  ✘   3 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /crime-types has no critical WCAG violations (retry #1) (9.3s)
+  ✘   4 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page / has no critical WCAG violations (retry #1) (12.1s)
+  ✘   6 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /analysis has no critical WCAG violations (13.6s)
+  ✘   5 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /locations has no critical WCAG violations (27.3s)
+  ✘   7 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /analysis has no critical WCAG violations (retry #1) (19.1s)
+  ✘   8 [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /locations has no critical WCAG violations (retry #1) (21.5s)
+  ✓   9 [chromium] › e2e/accessibility.spec.ts:54:3 › Accessibility — keyboard navigation › dashboard is keyboard navigable (11.7s)
+  ✓  11 [chromium] › e2e/api-errors.spec.ts:4:3 › API error responses › invalid query param returns 422 with detail array (390ms)
+  ✓  12 [chromium] › e2e/api-errors.spec.ts:19:3 › API error responses › missing required param returns 422 (387ms)
+  ✓  13 [chromium] › e2e/api-errors.spec.ts:24:3 › API error responses › invalid crime type returns 404 or 422 (198ms)
+  ✓  14 [chromium] › e2e/api-errors.spec.ts:29:3 › API error responses › error response does not expose stack traces (307ms)
+  ✓  15 [chromium] › e2e/api-health.spec.ts:4:3 › API health endpoint › returns JSON with status ok (339ms)
+  ✓  16 [chromium] › e2e/api-health.spec.ts:13:3 › API health endpoint › returns correct content-type (211ms)
+  ✓  17 [chromium] › e2e/api-health.spec.ts:19:3 › API health endpoint › ready endpoint returns 200 or 503 (290ms)
+  ✓  18 [chromium] › e2e/api-security.spec.ts:4:3 › API security › CORS blocks unauthorized origins (564ms)
+  ✓  19 [chromium] › e2e/api-security.spec.ts:14:3 › API security › CORS allows same-origin or configured origins (337ms)
+  ✓  20 [chromium] › e2e/api-security.spec.ts:19:3 › API security › API does not expose server version (359ms)
+  ✓  10 [chromium] › e2e/accessibility.spec.ts:79:3 › Accessibility — keyboard navigation › sidebar links are focusable (13.6s)
+  ✓  21 [chromium] › e2e/crime-types.spec.ts:4:3 › Crime Types page › crime types table sorts by column (11.6s)
+  ✓  22 [chromium] › e2e/crime-types.spec.ts:17:3 › Crime Types page › Top 3 summary displays (8.2s)
+  ✓  23 [chromium] › e2e/dashboard.spec.ts:4:3 › Dashboard page › loads and shows heading (8.9s)
+  ✓  25 [chromium] › e2e/dashboard.spec.ts:15:3 › Dashboard page › about section is collapsible (7.4s)
+  ✓  26 [chromium] › e2e/dashboard.spec.ts:25:3 › Dashboard page › timeseries chart renders SVG (4.3s)
+  ✘  24 [chromium] › e2e/dashboard.spec.ts:9:3 › Dashboard page › KPI cards display formatted values (21.2s)
+  ✓  27 [chromium] › e2e/dashboard.spec.ts:32:3 › Dashboard page › heatmap renders canvas (5.6s)
+  ✓  29 [chromium] › e2e/dashboard.spec.ts:39:3 › Dashboard page › offense bar chart shows bars (5.4s)
+  ✓  30 [chromium] › e2e/filters.spec.ts:4:3 › Filters › sidebar filters apply date range (6.4s)
+  ✓  31 [chromium] › e2e/filters.spec.ts:13:3 › Filters › quick-select buttons change date range (5.5s)
+  ✘  28 [chromium] › e2e/dashboard.spec.ts:9:3 › Dashboard page › KPI cards display formatted values (retry #1) (18.4s)
+  ✓  32 [chromium] › e2e/filters.spec.ts:23:3 › Filters › URL params update when filters change (5.8s)
+  ✓  34 [chromium] › e2e/insights.spec.ts:9:3 › Insights Page › page loads with heading (2.9s)
+  ✓  35 [chromium] › e2e/insights.spec.ts:13:3 › Insights Page › 14 insight cards render (2.3s)
+  ✓  33 [chromium] › e2e/filters.spec.ts:32:3 › Filters › reset button clears all filters (8.7s)
+  ✘  36 [chromium] › e2e/insights.spec.ts:18:3 › Insights Page › topic filter buttons work (2.7s)
+  ✓  37 [chromium] › e2e/insights.spec.ts:26:3 › Insights Page › filtering by topic reduces card count (2.8s)
+  ✘  39 [chromium] › e2e/insights.spec.ts:18:3 › Insights Page › topic filter buttons work (retry #1) (2.5s)
+  ✘  38 [chromium] › e2e/insights.spec.ts:39:3 › Insights Page › tag dropdown works (7.6s)
+  ✘  40 [chromium] › e2e/insights.spec.ts:44:3 › Insights Page › difficulty range selector works (7.4s)
+  ✘  41 [chromium] › e2e/insights.spec.ts:39:3 › Insights Page › tag dropdown works (retry #1) (7.4s)
+  ✓  43 [chromium] › e2e/insights.spec.ts:51:3 › Insights Page › insight cards have More buttons (1.7s)
+  ✓  44 [chromium] › e2e/insights.spec.ts:56:3 › Insights Page › Data Notes section present (3.4s)
+  ✘  42 [chromium] › e2e/insights.spec.ts:44:3 › Insights Page › difficulty range selector works (retry #1) (7.9s)
+  ✓  45 [chromium] › e2e/locations.spec.ts:4:3 › Locations page › location search filters list (12.7s)
+  ✘  46 [chromium] › e2e/maps.spec.ts:4:3 › Maps › choropleth map card is visible (9.9s)
+  ✘  47 [chromium] › e2e/maps.spec.ts:10:3 › Maps › cluster map card is visible (7.7s)
+  ✘  48 [chromium] › e2e/maps.spec.ts:4:3 › Maps › choropleth map card is visible (retry #1) (8.4s)
+  ✓  50 [chromium] › e2e/maps.spec.ts:16:3 › Maps › map legend is visible on locations page (5.7s)
+  ✘  49 [chromium] › e2e/maps.spec.ts:10:3 › Maps › cluster map card is visible (retry #1) (9.3s)
+  ✓  52 [chromium] › e2e/navigation.spec.ts:4:3 › Navigation › navigate to Crime Types page (4.6s)
+  ✓  53 [chromium] › e2e/navigation.spec.ts:11:3 › Navigation › navigate to Locations page (5.9s)
+  ✓  54 [chromium] › e2e/navigation.spec.ts:18:3 › Navigation › navigate to Analysis page (3.9s)
+  ✘  51 [chromium] › e2e/maps.spec.ts:22:3 › Maps › both map cards render on dashboard (17.7s)
+  ✓  55 [chromium] › e2e/responsive.spec.ts:4:3 › Responsive layout › sidebar collapses on mobile viewport (4.2s)
+  ✓  57 [chromium] › e2e/responsive.spec.ts:22:3 › Responsive layout › hamburger menu visible on mobile (4.7s)
+  ✓  58 [chromium] › e2e/responsive.spec.ts:35:3 › Responsive layout › KPI cards stack vertically on mobile (4.2s)
+  ✓  59 [chromium] › e2e/responsive.spec.ts:45:3 › Responsive layout › desktop layout shows sidebar (3.2s)
+  ✘  56 [chromium] › e2e/maps.spec.ts:22:3 › Maps › both map cards render on dashboard (retry #1) (17.9s)
 
-  40 passed (2.2m)
+
+  1) [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page / has no critical WCAG violations 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-7041b-no-critical-WCAG-violations-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /crime-types has no critical WCAG violations 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-5683f-no-critical-WCAG-violations-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /locations has no critical WCAG violations 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    Error Context: test-results/accessibility-Accessibilit-8796a-no-critical-WCAG-violations-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-8796a-no-critical-WCAG-violations-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-8796a-no-critical-WCAG-violations-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-8796a-no-critical-WCAG-violations-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-Accessibilit-8796a-no-critical-WCAG-violations-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-8796a-no-critical-WCAG-violations-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-8796a-no-critical-WCAG-violations-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /analysis has no critical WCAG violations 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 8[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": 2,[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      46 |         (v: any) => v.impact === "critical" || v.impact === "serious"
+      47 |       );
+    > 48 |       expect(critical).toEqual([]);
+         |                        ^
+      49 |     });
+      50 |   }
+      51 | });
+        at /app/e2e/accessibility.spec.ts:48:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/accessibility-Accessibilit-ae6ed-no-critical-WCAG-violations-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › e2e/dashboard.spec.ts:9:3 › Dashboard page › KPI cards display formatted values ──
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('61,316').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('61,316').first()[22m
+
+
+       9 |   test("KPI cards display formatted values", async ({ page }) => {
+      10 |     await page.goto("/");
+    > 11 |     await expect(page.getByText("61,316").first()).toBeVisible({ timeout: 15000 });
+         |                                                    ^
+      12 |     await expect(page.getByText("Total Crimes").first()).toBeVisible();
+      13 |   });
+      14 |
+        at /app/e2e/dashboard.spec.ts:11:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('61,316').first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('61,316').first()[22m
+
+
+       9 |   test("KPI cards display formatted values", async ({ page }) => {
+      10 |     await page.goto("/");
+    > 11 |     await expect(page.getByText("61,316").first()).toBeVisible({ timeout: 15000 });
+         |                                                    ^
+      12 |     await expect(page.getByText("Total Crimes").first()).toBeVisible();
+      13 |   });
+      14 |
+        at /app/e2e/dashboard.spec.ts:11:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dashboard-Dashboard-page-KPI-cards-display-formatted-values-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › e2e/insights.spec.ts:18:3 › Insights Page › topic filter buttons work ────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('button').filter({ hasText: 'All' })
+    Expected: visible
+    Error: strict mode violation: locator('button').filter({ hasText: 'All' }) resolved to 4 elements:
+        1) <button class="rounded-md border border-border bg-bg-muted px-2.5 py-1 text-xs text-text-muted transition-colors hover:border-primary hover:text-primary-bright">All time</button> aka getByRole('button', { name: 'All time' })
+        2) <button class="text-[10px] text-primary transition-colors hover:text-primary-bright">Select all</button> aka getByRole('button', { name: 'Select all' }).first()
+        3) <button class="text-[10px] text-primary transition-colors hover:text-primary-bright">Select all</button> aka getByRole('button', { name: 'Select all' }).nth(1)
+        4) <button class="rounded-md px-2 py-1 text-xs transition-colors bg-primary text-white">All</button> aka getByRole('button', { name: 'All', exact: true })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('button').filter({ hasText: 'All' })[22m
+
+
+      17 |
+      18 |   test("topic filter buttons work", async ({ page }) => {
+    > 19 |     await expect(page.locator("button", { hasText: "All" })).toBeVisible();
+         |                                                              ^
+      20 |     await expect(page.locator("button", { hasText: "temporal" })).toBeVisible();
+      21 |     await expect(page.locator("button", { hasText: "spatial" })).toBeVisible();
+      22 |     await expect(page.locator("button", { hasText: "categorical" })).toBeVisible();
+        at /app/e2e/insights.spec.ts:19:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-topic-filter-buttons-work-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/insights-Insights-Page-topic-filter-buttons-work-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-topic-filter-buttons-work-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/insights-Insights-Page-topic-filter-buttons-work-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('button').filter({ hasText: 'All' })
+    Expected: visible
+    Error: strict mode violation: locator('button').filter({ hasText: 'All' }) resolved to 4 elements:
+        1) <button class="rounded-md border border-border bg-bg-muted px-2.5 py-1 text-xs text-text-muted transition-colors hover:border-primary hover:text-primary-bright">All time</button> aka getByRole('button', { name: 'All time' })
+        2) <button class="text-[10px] text-primary transition-colors hover:text-primary-bright">Select all</button> aka getByRole('button', { name: 'Select all' }).first()
+        3) <button class="text-[10px] text-primary transition-colors hover:text-primary-bright">Select all</button> aka getByRole('button', { name: 'Select all' }).nth(1)
+        4) <button class="rounded-md px-2 py-1 text-xs transition-colors bg-primary text-white">All</button> aka getByRole('button', { name: 'All', exact: true })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('button').filter({ hasText: 'All' })[22m
+
+
+      17 |
+      18 |   test("topic filter buttons work", async ({ page }) => {
+    > 19 |     await expect(page.locator("button", { hasText: "All" })).toBeVisible();
+         |                                                              ^
+      20 |     await expect(page.locator("button", { hasText: "temporal" })).toBeVisible();
+      21 |     await expect(page.locator("button", { hasText: "spatial" })).toBeVisible();
+      22 |     await expect(page.locator("button", { hasText: "categorical" })).toBeVisible();
+        at /app/e2e/insights.spec.ts:19:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-topic-filter-buttons-work-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/insights-Insights-Page-topic-filter-buttons-work-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-topic-filter-buttons-work-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/insights-Insights-Page-topic-filter-buttons-work-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › e2e/insights.spec.ts:39:3 › Insights Page › tag dropdown works ───────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('combobox').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('combobox').first()[22m
+
+
+      39 |   test("tag dropdown works", async ({ page }) => {
+      40 |     const tagSelect = page.locator("combobox").first();
+    > 41 |     await expect(tagSelect).toBeVisible();
+         |                             ^
+      42 |   });
+      43 |
+      44 |   test("difficulty range selector works", async ({ page }) => {
+        at /app/e2e/insights.spec.ts:41:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-tag-dropdown-works-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/insights-Insights-Page-tag-dropdown-works-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-tag-dropdown-works-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/insights-Insights-Page-tag-dropdown-works-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('combobox').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('combobox').first()[22m
+
+
+      39 |   test("tag dropdown works", async ({ page }) => {
+      40 |     const tagSelect = page.locator("combobox").first();
+    > 41 |     await expect(tagSelect).toBeVisible();
+         |                             ^
+      42 |   });
+      43 |
+      44 |   test("difficulty range selector works", async ({ page }) => {
+        at /app/e2e/insights.spec.ts:41:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-tag-dropdown-works-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/insights-Insights-Page-tag-dropdown-works-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-tag-dropdown-works-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/insights-Insights-Page-tag-dropdown-works-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › e2e/insights.spec.ts:44:3 › Insights Page › difficulty range selector works ──────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('combobox').nth(1)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('combobox').nth(1)[22m
+
+
+      45 |     const difficultyFrom = page.locator("combobox").nth(1);
+      46 |     const difficultyTo = page.locator("combobox").nth(2);
+    > 47 |     await expect(difficultyFrom).toBeVisible();
+         |                                  ^
+      48 |     await expect(difficultyTo).toBeVisible();
+      49 |   });
+      50 |
+        at /app/e2e/insights.spec.ts:47:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-difficulty-range-selector-works-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/insights-Insights-Page-difficulty-range-selector-works-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-difficulty-range-selector-works-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/insights-Insights-Page-difficulty-range-selector-works-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('combobox').nth(1)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('combobox').nth(1)[22m
+
+
+      45 |     const difficultyFrom = page.locator("combobox").nth(1);
+      46 |     const difficultyTo = page.locator("combobox").nth(2);
+    > 47 |     await expect(difficultyFrom).toBeVisible();
+         |                                  ^
+      48 |     await expect(difficultyTo).toBeVisible();
+      49 |   });
+      50 |
+        at /app/e2e/insights.spec.ts:47:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-difficulty-range-selector-works-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/insights-Insights-Page-difficulty-range-selector-works-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/insights-Insights-Page-difficulty-range-selector-works-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/insights-Insights-Page-difficulty-range-selector-works-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › e2e/maps.spec.ts:4:3 › Maps › choropleth map card is visible ─────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Choropleth by District')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Choropleth by District')[22m
+
+
+      4 |   test("choropleth map card is visible", async ({ page }) => {
+      5 |     await page.goto("/");
+    > 6 |     await expect(page.getByText("Choropleth by District")).toBeVisible();
+        |                                                            ^
+      7 |     await expect(page.locator(".card").filter({ hasText: "Choropleth by District" })).toBeVisible({ timeout: 15000 });
+      8 |   });
+      9 |
+        at /app/e2e/maps.spec.ts:6:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/maps-Maps-choropleth-map-card-is-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/maps-Maps-choropleth-map-card-is-visible-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/maps-Maps-choropleth-map-card-is-visible-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/maps-Maps-choropleth-map-card-is-visible-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Choropleth by District')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Choropleth by District')[22m
+
+
+      4 |   test("choropleth map card is visible", async ({ page }) => {
+      5 |     await page.goto("/");
+    > 6 |     await expect(page.getByText("Choropleth by District")).toBeVisible();
+        |                                                            ^
+      7 |     await expect(page.locator(".card").filter({ hasText: "Choropleth by District" })).toBeVisible({ timeout: 15000 });
+      8 |   });
+      9 |
+        at /app/e2e/maps.spec.ts:6:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/maps-Maps-choropleth-map-card-is-visible-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/maps-Maps-choropleth-map-card-is-visible-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/maps-Maps-choropleth-map-card-is-visible-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/maps-Maps-choropleth-map-card-is-visible-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › e2e/maps.spec.ts:10:3 › Maps › cluster map card is visible ──────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Crime Clusters')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Crime Clusters')[22m
+
+
+      10 |   test("cluster map card is visible", async ({ page }) => {
+      11 |     await page.goto("/");
+    > 12 |     await expect(page.getByText("Crime Clusters")).toBeVisible();
+         |                                                    ^
+      13 |     await expect(page.locator(".card").filter({ hasText: "Crime Clusters" })).toBeVisible({ timeout: 15000 });
+      14 |   });
+      15 |
+        at /app/e2e/maps.spec.ts:12:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/maps-Maps-cluster-map-card-is-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/maps-Maps-cluster-map-card-is-visible-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/maps-Maps-cluster-map-card-is-visible-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/maps-Maps-cluster-map-card-is-visible-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Crime Clusters')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText('Crime Clusters')[22m
+
+
+      10 |   test("cluster map card is visible", async ({ page }) => {
+      11 |     await page.goto("/");
+    > 12 |     await expect(page.getByText("Crime Clusters")).toBeVisible();
+         |                                                    ^
+      13 |     await expect(page.locator(".card").filter({ hasText: "Crime Clusters" })).toBeVisible({ timeout: 15000 });
+      14 |   });
+      15 |
+        at /app/e2e/maps.spec.ts:12:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/maps-Maps-cluster-map-card-is-visible-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/maps-Maps-cluster-map-card-is-visible-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/maps-Maps-cluster-map-card-is-visible-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/maps-Maps-cluster-map-card-is-visible-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › e2e/maps.spec.ts:22:3 › Maps › both map cards render on dashboard ───────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Choropleth by District')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('Choropleth by District')[22m
+
+
+      22 |   test("both map cards render on dashboard", async ({ page }) => {
+      23 |     await page.goto("/");
+    > 24 |     await expect(page.getByText("Choropleth by District")).toBeVisible({ timeout: 15000 });
+         |                                                            ^
+      25 |     await expect(page.getByText("Crime Clusters")).toBeVisible({ timeout: 15000 });
+      26 |   });
+      27 | });
+        at /app/e2e/maps.spec.ts:24:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Retry #1 ───────────────────────────────────────────────────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Choropleth by District')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('Choropleth by District')[22m
+
+
+      22 |   test("both map cards render on dashboard", async ({ page }) => {
+      23 |     await page.goto("/");
+    > 24 |     await expect(page.getByText("Choropleth by District")).toBeVisible({ timeout: 15000 });
+         |                                                            ^
+      25 |     await expect(page.getByText("Crime Clusters")).toBeVisible({ timeout: 15000 });
+      26 |   });
+      27 | });
+        at /app/e2e/maps.spec.ts:24:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium-retry1/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium-retry1/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium-retry1/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/maps-Maps-both-map-cards-render-on-dashboard-chromium-retry1/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11 failed
+    [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page / has no critical WCAG violations 
+    [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /crime-types has no critical WCAG violations 
+    [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /locations has no critical WCAG violations 
+    [chromium] › e2e/accessibility.spec.ts:7:5 › Accessibility — axe-core WCAG 2.1 AA › page /analysis has no critical WCAG violations 
+    [chromium] › e2e/dashboard.spec.ts:9:3 › Dashboard page › KPI cards display formatted values ───
+    [chromium] › e2e/insights.spec.ts:18:3 › Insights Page › topic filter buttons work ─────────────
+    [chromium] › e2e/insights.spec.ts:39:3 › Insights Page › tag dropdown works ────────────────────
+    [chromium] › e2e/insights.spec.ts:44:3 › Insights Page › difficulty range selector works ───────
+    [chromium] › e2e/maps.spec.ts:4:3 › Maps › choropleth map card is visible ──────────────────────
+    [chromium] › e2e/maps.spec.ts:10:3 › Maps › cluster map card is visible ────────────────────────
+    [chromium] › e2e/maps.spec.ts:22:3 › Maps › both map cards render on dashboard ─────────────────
+  37 passed (5.0m)
+

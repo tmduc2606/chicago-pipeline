@@ -1,10 +1,10 @@
-# Code Inspections — 2026-06-09T02:34:38Z
+# Code Inspections — 2026-06-18T03:24:19Z
 
 ## Automated Pattern Checks
 
 - **MISTAKE-001:** PASS — no `::date` casts found
 - **MISTAKE-002:** PASS — no hardcoded coordinates
-- **MISTAKE-005:** PASS — all pages have ErrorBoundary
+- **MISTAKE-005:** 2 pages without ErrorBoundary wrapper
 - **MISTAKE-008:** PASS — param names consistent (converted in filters.ts)
 
 ## Pattern Sweep Results
@@ -22,4 +22,4 @@
 - dbt mart models: 5
 - Chart components: 9
 - Map components: 2
-- Page components: 4
+- Page components: 6
