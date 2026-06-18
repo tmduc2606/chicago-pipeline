@@ -218,12 +218,10 @@ docker compose up -d api
 ```
 
 ---
-
 ## Known Limitations
-- No JWT auth (public dashboard, auth deferred to M9)
-- No dark/light mode toggle (dark only, toggle deferred to M9)
-- No forecast/anomaly charts (API endpoints exist but not yet visualized)
-- Choropleth map uses random points (real district boundaries deferred to M9)
-- Chunk size warning on build (ECharts+MapLibre bundle ~2.8MB, code splitting deferred to M9)
+
+- No JWT auth (public dashboard, auth out of scope)
+- Choropleth map uses simplified district positions (real GeoJSON deferred)
+- Chunk size warning on build (ECharts+MapLibre bundle ~2.8MB, code splitting deferred)
 - Pipeline init runs on every `docker compose up -d` (~2-3 min for full rebuild)
 - Airflow scheduler shows `unhealthy` briefly after startup (takes ~90s to register the SchedulerJob)

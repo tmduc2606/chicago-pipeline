@@ -208,7 +208,7 @@ However, a comprehensive code review uncovered **4 critical**, **11 high**, and 
 | CRITICAL | 4 | ✅ H1–H4 DONE |
 | HIGH | 11 | ✅ H5–H15 DONE |
 | MEDIUM | 15 | Q1–Q15 deferred to M7 |
-| QoL | 15 | Deferred to M9 |
+| QoL | 15 | Deferred |
 | **Total** | **45** | **15/15 critical+high DONE** |
 
 **Recommendation:** H1–H15 all complete. 42/42 tests pass. Ruff clean. Ready to begin M6.

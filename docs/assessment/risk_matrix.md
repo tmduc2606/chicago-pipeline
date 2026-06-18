@@ -166,7 +166,7 @@ Weights:
 ```
 S1 found → STOP assessment → Create bug-fix PR → Block milestone
 S2 found → Log in overhaul → Architect review → Decide: fix now or override
-S3 found → Log in overhaul → Schedule for next sprint or M9 polish
+S3 found → Log in overhaul → Schedule for next sprint or M8 polish
 S4 found → Log in overhaul → Address opportunistically
 ```
 

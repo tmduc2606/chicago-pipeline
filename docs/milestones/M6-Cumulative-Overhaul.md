@@ -53,7 +53,7 @@ M5 (FastAPI) is complete with 42/42 tests passing and all 19 data endpoints retu
 | M6 | FAQ missing in README | Docs | Add 8+ anticipated questions |
 | M7 | No `docs/milestones/M6-test.md` | QA | Create before M6 closure |
 | M8 | No `docs/milestones/M6-improvements.md` | QA + Architect | Create before M6 closure |
-| M9 | CHANGELOG M6 section missing | Docs | Add comprehensive entry |
+| M8 | CHANGELOG M6 section missing | Docs | Add comprehensive entry |
 | M10 | `docs/architecture.md` says "8 pages" | Docs | Update to 11 |
 | M11 | Source maps in production bundle | Security | Disable via env var |
 | M12 | Secret-leak CI check missing | Security | Add grep step to CI |

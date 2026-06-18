@@ -221,7 +221,7 @@
 
 - [x] **Test categorical palette against colorblind simulators** — verify all 10 colors
 - [x] **Add patterns (hatching, dots)** to charts for colorblind users
-- [x] **Dark-only theme for M6** — dark is modern dashboard standard; light mode toggle deferred to M9
+- [x] **Dark-only theme for M6** — dark is modern dashboard standard; light mode toggle implemented in M8 ✅
 
 ---
 
@@ -242,7 +242,7 @@
 | 11 | Mobile strategy | Responsive-first (dedicated layout P2) |
 | 12 | Accessibility level | WCAG AA |
 | 13 | Screen reader KPIs | `aria-live="polite"` |
-| 14 | Dark/Light mode | Dark-only (M6); toggle deferred to M9 |
+| 14 | Dark/Light mode | Dark + light toggle (M8) |
 | 15 | Prefetch strategy | Hover only |
 | 16 | Bundle analysis | Yes (rollup-plugin-visualizer) |
 | 17 | Performance monitoring | Yes (web-vitals) |
@@ -258,4 +258,4 @@
 
 - All decisions finalized after Senior DE review on 2026-06-05.
 - EDA department (new agents) deferred to M7; LLM integration deferred to M8.
-- Phased plan: M5 (FastAPI) → M6 (React) → M7 (EDA) → M8 (LLM) → M9 (Production).
+- Phased plan: M5 (FastAPI) → M6 (React) → M7 (EDA) → M8 (Production Hardening). Original M8 (LLM) and M9 (Production) were merged/renumbered per stakeholder decision (16 GB RAM constraint, public dashboard scope).

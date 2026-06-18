@@ -143,7 +143,7 @@ docker exec ccp-api ruff check app
 
 - Pipeline/Quality services return placeholder data (stubs, not connected to Airflow/GE)
 - No authentication (ADR 0004 — public dashboard)
-- CORS configured for localhost only (production origins deferred to M9)
+- CORS configured for localhost only (production origins out of scope)
 
 ---
 

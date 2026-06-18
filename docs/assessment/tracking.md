@@ -318,7 +318,7 @@ Each finding follows this format:
 
 ## Improvement Backlog
 
-*Non-blocking improvements proposed by Architect and QA agents. Addressed opportunistically or in M9 polish pass.*
+*Non-blocking improvements proposed by Architect and QA agents. Addressed in M8 polish pass.*
 
 | ID | Improvement | Priority | Milestone | Owner | Status |
 |----|-------------|----------|-----------|-------|--------|
@@ -406,6 +406,20 @@ Each finding follows this format:
 | Grade | A |
 | S1 | 0 |
 | S2 | 0 |
+| S3 | 0 |
+| S4 | 0 |
+
+
+---
+
+## Assessment Run — 2026-06-18T03:24:19Z
+
+| Metric | Value |
+|--------|-------|
+| Score | 0% |
+| Grade | F |
+| S1 | 1 |
+| S2 | 1 |
 | S3 | 0 |
 | S4 | 0 |
 

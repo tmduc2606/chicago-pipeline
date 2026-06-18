@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-07
 **Status:** READY — Assessment complete, remediation plan defined
-**Next Milestone:** M7 (or M9 polish pass)
+**Next Milestone:** M8 (production hardening, final)
 
 ---
 

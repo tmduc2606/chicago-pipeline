@@ -65,7 +65,7 @@ QA owns the unified assessment pipeline covering M0–M7.
 ### Severity Handling
 - **S1 (Critical):** Hard block — assessment fails automatically. Must create bug-fix PR immediately.
 - **S2 (High):** Log in tracking document. Escalate to Architect for override decision.
-- **S3 (Medium):** Log in tracking document. Schedule for next sprint or M9 polish.
+- **S3 (Medium):** Log in tracking document. Schedule for next sprint or M8 polish.
 - **S4 (Low):** Log in tracking document. Address opportunistically.
 
 ### Cross-Cutting Analysis
