@@ -19,6 +19,8 @@ htmlcov/
 
 # Pipeline (generated data, editable installs)
 data/*.csv
+data/dim_*.csv
+data/fact_*.csv
 pipeline/src/*.egg-info/
 pipeline/build/
 
@@ -40,6 +42,15 @@ references/
 tmp/
 scripts/notebooks/
 scripts/validate_data.py
+scripts/explore/
+scripts/spike/
+
+# Internal assessment & EDA artifacts
+reports/archive/
+reports/eda/
+reports/dashboard/
+reports/assessment/evidence/
+docs/eda-assessment/
 
 # Node
 node_modules/
