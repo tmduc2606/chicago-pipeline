@@ -62,6 +62,10 @@ def download_kaggle_dataset(
 ) -> Path:
     """Download a Kaggle dataset and return the path to the CSV file.
 
+    Supports two token formats:
+    - ``~/.kaggle/kaggle.json`` (standard JSON format)
+    - ``~/.kaggle/access_token`` (KGAT token format)
+
     Parameters
     ----------
     dataset_slug:
@@ -73,7 +77,21 @@ def download_kaggle_dataset(
     -------
     Path to the downloaded CSV file.
     """
+    import os
+
     import kagglehub  # type: ignore[import-untyped]
+
+    # Handle KGAT token format (access_token file)
+    kaggle_dir = Path.home() / ".kaggle"
+    access_token = kaggle_dir / "access_token"
+    kaggle_json = kaggle_dir / "kaggle.json"
+
+    if access_token.exists() and not kaggle_json.exists():
+        token = access_token.read_text().strip()
+        os.environ["KAGGLE_TOKEN"] = token
+        log.info("kaggle_token_loaded", source="access_token")
+    elif kaggle_json.exists():
+        log.info("kaggle_token_loaded", source="kaggle.json")
 
     download_dir = Path(download_dir)
     download_dir.mkdir(parents=True, exist_ok=True)
