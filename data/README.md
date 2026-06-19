@@ -7,19 +7,21 @@ The pipeline uses real Chicago crime data from Kaggle, stratified-sampled to ~50
 ### Setup
 
 1. **Configure Kaggle API token:**
-   ```bash
-   # Linux/macOS
-   bash scripts/setup_kaggle.sh
-   
-   # Windows (PowerShell)
-   powershell -ExecutionPolicy Bypass -File scripts/setup_kaggle.ps1
-   ```
+
+   | Platform | Command |
+   |----------|---------|
+   | Linux/macOS | `bash scripts/setup_kaggle.sh` |
+   | Windows | `powershell -ExecutionPolicy Bypass -File scripts/setup_kaggle.ps1` |
+
    This checks for `~/.kaggle/kaggle.json` and guides setup if missing.
 
 2. **Download and prepare data:**
-   ```bash
-   make seed
-   ```
+
+   | Platform | Command |
+   |----------|---------|
+   | Linux/macOS | `make seed` |
+   | Windows | `python scripts/seed.py` |
+
    Downloads from Kaggle, cleans, and writes `data/chicago_crime.csv`.
 
 ### Source
@@ -70,9 +72,10 @@ The dataset is stratified-sampled to ensure equal representation across years:
 
 If Kaggle is unavailable (no network / no API token), the seed script falls back to synthetic data:
 
-```bash
-python scripts/seed.py synthetic  # force synthetic generation
-```
+| Platform | Command |
+|----------|---------|
+| Linux/macOS | `python scripts/seed.py synthetic` |
+| Windows | `python scripts/seed.py synthetic` |
 
 This generates `data/chicago_crime_synthetic.csv` (~60K rows, 2024–2026) with realistic statistical properties.
 
