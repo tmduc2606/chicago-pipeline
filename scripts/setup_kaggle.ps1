@@ -18,8 +18,8 @@ if (Test-Path $kaggleJson) {
             kaggle datasets list -s "chicago-crime" --max-size 1 2>$null | Select-Object -First 1
             Write-Host "[OK] Kaggle API connection verified" -ForegroundColor Green
         } catch {
-            Write-Host "[WARN] Token exists but API call failed — check kaggle.json contents" -ForegroundColor Yellow
-            Write-Host "       Expected format: {`"username`": `"...`", `"key`": `"...`"}" -ForegroundColor Yellow
+            Write-Host "[WARN] Token exists but API call failed - check kaggle.json contents" -ForegroundColor Yellow
+            Write-Host '       Expected format: {"username": "...", "key": "..."}' -ForegroundColor Yellow
         }
     } else {
         Write-Host ""
@@ -31,13 +31,13 @@ if (Test-Path $kaggleJson) {
     Write-Host ""
     Write-Host "Setup instructions:" -ForegroundColor White
     Write-Host "  1. Go to https://www.kaggle.com/settings" -ForegroundColor White
-    Write-Host "  2. Under 'API' section, click 'Create New Token'" -ForegroundColor White
+    Write-Host "  2. Under API section, click Create New Token" -ForegroundColor White
     Write-Host "  3. Save the downloaded kaggle.json to:" -ForegroundColor White
     Write-Host "       $kaggleJson" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  Or run in PowerShell:" -ForegroundColor White
     Write-Host "       mkdir -Force `"$kaggleDir`"" -ForegroundColor Yellow
-    Write-Host "       '{`"username`": `"YOUR_USERNAME`", `"key`": `"YOUR_KEY`"}' | Set-Content `"$kaggleJson`" -Encoding UTF8" -ForegroundColor Yellow
+    Write-Host "       '{\"username\": \"YOUR_USERNAME\", \"key\": \"YOUR_KEY\"}' | Set-Content `"$kaggleJson`" -Encoding UTF8" -ForegroundColor Yellow
     Write-Host ""
     exit 1
 }
