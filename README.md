@@ -60,12 +60,12 @@ Copy-Item .env.example .env
 # 2. Bring up the full stack
 docker compose up -d --build
 
-# 3. (Optional) Seed 90 days of synthetic data + run the full pipeline
-# Generate synthetic CSV on the host (writes to data/chicago_crime_synthetic_90d.csv)
+# 3. (Optional) Seed data + run the full pipeline
+# Download Kaggle data (or generate synthetic fallback)
 python scripts/seed.py
 
 # Run pipeline stages inside the container
-docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime_synthetic_90d.csv
+docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime.csv
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/silver/to_silver.py
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/gold/to_gold.py
 docker compose exec -T spark-master bash -c "PYTHONPATH=/opt/pipeline/src ENV=local python3 /opt/pipeline/src/chicago_pipeline/warehouse/load_postgres.py"
@@ -159,9 +159,9 @@ docker compose down -v                # destroy volumes and restart fresh
 # Health check
 bash scripts/healthcheck.sh
 
-# Pipeline (run from host — seed.py generates CSV on host, pipeline runs in container)
-python scripts/seed.py                                                            # generate synthetic CSV
-docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime_synthetic_90d.csv
+# Pipeline (run from host — seed.py downloads Kaggle data, pipeline runs in container)
+python scripts/seed.py                                                            # download Kaggle data (or synthetic fallback)
+docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime.csv
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/silver/to_silver.py
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/gold/to_gold.py
 docker compose exec -T spark-master bash -c "PYTHONPATH=/opt/pipeline/src ENV=local python3 /opt/pipeline/src/chicago_pipeline/warehouse/load_postgres.py"

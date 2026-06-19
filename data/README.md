@@ -1,50 +1,89 @@
 # Chicago Crime Dataset — Local Data
 
-## `chicago_crime_synthetic.csv`
+## Kaggle Data (Primary)
 
-The primary dataset used by the pipeline. Contains **61,316 rows** of synthetic Chicago crime records spanning **2024-01-01 to 2026-06-19** (2.5 years).
+The pipeline uses real Chicago crime data from Kaggle, stratified-sampled to ~500K rows across 2017–2023.
+
+### Setup
+
+1. **Configure Kaggle API token:**
+   ```bash
+   bash scripts/setup_kaggle.sh
+   ```
+   This checks for `~/.kaggle/kaggle.json` and guides setup if missing.
+
+2. **Download and prepare data:**
+   ```bash
+   make seed
+   ```
+   Downloads from Kaggle, cleans, and writes `data/chicago_crime.csv`.
+
+### Source
+
+- **Dataset:** [Chicago Crime 2024–2026 (Kaggle)](https://www.kaggle.com/datasets/aliafzal9323/chicago-crime-dataset-2024-2026)
+- **Slug:** `chicago/chicago-crime-2024-2026`
+- **License:** City of Chicago Open Data Terms of Use
 
 ### Schema
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `id` | int | Unique row identifier |
-| `case_number` | string | PD case number (e.g. `HX100001`) |
-| `date` | datetime | Incident timestamp (ISO 8601) |
-| `block` | string | Partial address (block-level) |
+| `id` | int | Unique record identifier |
+| `case_number` | string | PD case number (e.g. `JG503434`) |
+| `date` | string | Incident timestamp (ISO 8601) |
+| `block` | string | Partially redacted street address |
 | `iucr` | string | Illinois Uniform Crime Reporting code |
 | `primary_type` | string | Crime category (THEFT, BATTERY, ASSAULT, etc.) |
 | `description` | string | Detailed offense description |
 | `location_description` | string | Type of location (SIDEWALK, RESIDENCE, etc.) |
-| `arrest` | bool | Whether an arrest was made (0/1) |
-| `domestic` | bool | Domestic-related incident (0/1) |
-| `beat` | int | Police beat |
+| `arrest` | int | Whether an arrest was made (1/0) |
+| `domestic` | int | Domestic-related incident (1/0) |
+| `beat` | string | Police beat |
 | `district` | int | Police district (1–25) |
 | `ward` | int | City ward (1–50) |
 | `community_area` | int | Community area (1–77) |
 | `fbi_code` | string | FBI offense classification code |
 | `latitude` | float | Latitude (Chicago bounding box) |
 | `longitude` | float | Longitude (Chicago bounding box) |
-| `updated_on` | datetime | Last updated timestamp |
+| `updated_on` | string | Last updated timestamp (ISO 8601) |
 
-### Generating the seed
+### Sampling
+
+The dataset is stratified-sampled to ensure equal representation across years:
+
+| Year | Target Rows |
+|------|-------------|
+| 2017 | ~71,428 |
+| 2018 | ~71,428 |
+| 2019 | ~71,428 |
+| 2020 | ~71,428 |
+| 2021 | ~71,428 |
+| 2022 | ~71,428 |
+| 2023 | ~71,428 |
+| **Total** | **~500,000** |
+
+## Synthetic Fallback
+
+If Kaggle is unavailable (no network / no API token), the seed script falls back to synthetic data:
 
 ```bash
-make seed
+python scripts/seed.py synthetic  # force synthetic generation
 ```
 
-This overwrites `chicago_crime_synthetic.csv` with fresh synthetic data. A 90-day subset is also available as `chicago_crime_synthetic_90d.csv`.
+This generates `data/chicago_crime_synthetic.csv` (~60K rows, 2024–2026) with realistic statistical properties.
 
-## Dimension & fact tables
+### 90-Day Subset
 
-Pipeline output tables (also CSV, git-ignored):
+A 90-day synthetic subset is always generated for quick local dev:
+
+- `data/chicago_crime_synthetic_90d.csv` (~54K rows, 2024-01-01 to 2024-03-31)
+
+## Dimension & Fact Tables
+
+Pipeline output tables (CSV, git-ignored):
 
 - `dim_case.csv` — Case type lookups
 - `dim_location.csv` — Location dimension
 - `dim_offense.csv` — Offense/IUCR dimension
 - `dim_time.csv` — Time dimension
 - `fact_crime.csv` — Star-schema fact table
-
-## Real data (Kaggle)
-
-The full pipeline expects a Kaggle CSV. See [Kaggle: Chicago Crime 2024–2026](https://www.kaggle.com/datasets/aliafzal9323/chicago-crime-dataset-2024-2026). Set `KAGGLE_CSV_PATH` in your environment or place the CSV in `data/`.

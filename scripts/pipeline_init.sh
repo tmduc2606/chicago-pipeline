@@ -12,7 +12,7 @@ export PYTHONPATH=src
 echo ""
 echo "[1/7] Copying source CSV..."
 mkdir -p /tmp/chicago_crime
-cp /data/chicago_crime_synthetic.csv /tmp/chicago_crime/source.csv
+cp /data/chicago_crime.csv /tmp/chicago_crime/source.csv
 echo "  Done: $(wc -l < /tmp/chicago_crime/source.csv) lines"
 
 echo ""

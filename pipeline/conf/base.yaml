@@ -14,6 +14,8 @@ bronze:
 raw_data:
   download_dir: /tmp/chicago_crime
   kaggle_dataset: chicago/chicago-crime-2024-2026
+  target_rows: 500000
+  seed: 42
   synthetic_seed: 42
   synthetic_days: 90
   synthetic_start: "2024-01-01"

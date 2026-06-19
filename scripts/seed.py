@@ -1,30 +1,32 @@
-"""Generate synthetic Chicago crime data for the pipeline.
+"""Seed the pipeline with Chicago crime data.
 
-Fixes applied (M7 Bugs & Quirks Phase 1):
-- D1: Extended date range to 2024-2026 (3 years, 36 months)
-- D2: Year column derived from actual date (not hardcoded)
-- D3: Conditional arrest rates by crime type (NARCOTICS ~45%, THEFT ~12%, etc.)
-- D4: Expanded location descriptions to 12 values
-- V1-V8: Type-specific temporal + spatial patterns for meaningful visualizations
+Primary: downloads from Kaggle (chicago/chicago-crime-2024-2026),
+stratified-sampled to ~500K rows across 2017–2023.
+
+Fallback: generates synthetic data locally when Kaggle is unavailable.
+
+Usage:
+    make seed                         # Kaggle download (or synthetic fallback)
+    python scripts/seed.py            # same as above
+    python scripts/seed.py synthetic  # force synthetic generation
 """
-
 from __future__ import annotations
 
 import csv
 import math
 import random
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
 random.seed(42)
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Synthetic fallback constants (used when Kaggle is unavailable)
+# ═══════════════════════════════════════════════════════════════════════════════
+
 DISTRICTS = list(range(1, 26))
 
-# ---------------------------------------------------------------------------
-# Crime type definitions: (type, base_description, fbi_code, arrest_rate, weight)
-# Arrest rates based on real CPD clearance rates (2022-2023)
-# Weights control relative frequency in the dataset
-# ---------------------------------------------------------------------------
 CRIME_TYPES = [
     ("THEFT",               "OVER $500",                    "06",  0.12, 25),
     ("BATTERY",             "DOMESTIC BATTERY SIMPLE",      "08B", 0.30, 18),
@@ -38,17 +40,12 @@ CRIME_TYPES = [
     ("WEAPONS VIOLATION",   "UNLAWFUL USE - OTHER THAN FIREARM", "15", 0.35,  4),
 ]
 
-# ---------------------------------------------------------------------------
-# Location descriptions (12 locations, weighted by crime type affinity)
-# ---------------------------------------------------------------------------
 LOCATIONS = [
     "STREET", "RESIDENCE", "APARTMENT", "SIDEWALK", "PARKING LOT",
     "SCHOOL", "BAR OR TAVERN", "GAS STATION", "RESTAURANT",
     "HOTEL/MOTEL", "PARK PROPERTY", "VEHICLE",
 ]
 
-# Type → location affinity map (probability weights for each location)
-# Some types are more likely at certain locations
 TYPE_LOC_WEIGHTS = {
     "THEFT":               [25, 5, 5, 15, 15, 5, 5, 10, 5, 3, 3, 4],
     "BATTERY":             [15, 25, 20, 5, 3, 5, 15, 1, 5, 3, 2, 1],
@@ -62,10 +59,6 @@ TYPE_LOC_WEIGHTS = {
     "WEAPONS VIOLATION":   [30, 10, 8, 10, 8, 5, 10, 3, 5, 3, 5, 3],
 }
 
-# ---------------------------------------------------------------------------
-# District affinity by crime type (some districts have more of certain crimes)
-# Districts 1-25, weights per type
-# ---------------------------------------------------------------------------
 TYPE_DIST_WEIGHTS = {
     "THEFT":               [3, 4, 5, 6, 5, 8, 7, 4, 3, 3, 2, 3, 4, 5, 3, 2, 2, 3, 4, 3, 2, 2, 3, 2, 2],
     "BATTERY":             [4, 5, 4, 3, 4, 6, 5, 6, 5, 4, 3, 5, 6, 5, 4, 3, 3, 4, 3, 3, 2, 2, 2, 2, 1],
@@ -75,53 +68,31 @@ TYPE_DIST_WEIGHTS = {
     "BURGLARY":            [3, 3, 4, 3, 3, 5, 5, 5, 5, 5, 4, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2],
     "ROBBERY":             [4, 5, 5, 4, 4, 7, 6, 5, 4, 3, 3, 4, 5, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
     "MOTOR VEHICLE THEFT": [3, 3, 4, 3, 3, 6, 6, 5, 5, 4, 4, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2],
-    "DECEPTIVE PRACTICE":  [4, 5, 6, 5, 5, 7, 5, 4, 3, 3, 2, 3, 4, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
+    "DECEPTIVE_PRACTICE":  [4, 5, 6, 5, 5, 7, 5, 4, 3, 3, 2, 3, 4, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
     "WEAPONS VIOLATION":   [4, 5, 4, 3, 4, 6, 7, 6, 4, 3, 3, 5, 6, 5, 3, 3, 3, 4, 3, 2, 2, 2, 2, 1, 1],
 }
 
-# ---------------------------------------------------------------------------
-# Temporal patterns: hour weights by crime type
-# Different crime types peak at different hours
-# ---------------------------------------------------------------------------
 HOURS = list(range(24))
 
-def _hour_weights(crime_type: str) -> list[float]:
-    """Return 24-element weight list for hour-of-day distribution by crime type."""
-    # Base pattern: more crime in afternoon/evening
-    base = [1, 1, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 7, 8, 9, 10, 9, 7, 5, 3]
-    if crime_type == "THEFT":
-        # THEFT peaks during daytime (shopping hours)
-        return [1, 1, 1, 1, 1, 1, 2, 3, 5, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 3, 2, 2, 1]
-    elif crime_type == "BATTERY":
-        # BATTERY peaks at night (10pm-3am)
-        return [6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 10, 9, 7]
-    elif crime_type == "ASSAULT":
-        # ASSAULT peaks late night
-        return [7, 6, 5, 4, 2, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4, 5, 6, 7, 8, 9, 10, 10, 9, 8]
-    elif crime_type == "NARCOTICS":
-        # NARCOTICS fairly uniform with evening peak
-        return [2, 2, 1, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 9, 7, 4]
-    elif crime_type == "ROBBERY":
-        # ROBBERY peaks evening/night
-        return [3, 2, 2, 1, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 9, 8, 5]
-    elif crime_type == "BURGLARY":
-        # BURGLARY peaks midday (when homes are empty)
-        return [1, 1, 1, 1, 1, 1, 2, 3, 5, 8, 9, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 2, 1, 1]
-    elif crime_type == "MOTOR VEHICLE THEFT":
-        # MV THEFT peaks late night/early morning
-        return [5, 5, 4, 4, 3, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9, 8, 6]
-    elif crime_type == "WEAPONS VIOLATION":
-        # Weapons peak night
-        return [5, 4, 3, 3, 2, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9, 10, 9, 7]
-    else:
-        return base
 
-# ---------------------------------------------------------------------------
-# Seasonal weights by crime type (month 1-12)
-# ---------------------------------------------------------------------------
+def _hour_weights(crime_type: str) -> list[float]:
+    """Return 24-element weight list for hour-of-day distribution."""
+    base = [1, 1, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 7, 8, 9, 10, 9, 7, 5, 3]
+    weights: dict[str, list[float]] = {
+        "THEFT":               [1, 1, 1, 1, 1, 1, 2, 3, 5, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 3, 2, 2, 1],
+        "BATTERY":             [6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 10, 9, 7],
+        "ASSAULT":             [7, 6, 5, 4, 2, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4, 5, 6, 7, 8, 9, 10, 10, 9, 8],
+        "NARCOTICS":           [2, 2, 1, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 9, 7, 4],
+        "ROBBERY":             [3, 2, 2, 1, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 9, 8, 5],
+        "BURGLARY":            [1, 1, 1, 1, 1, 1, 2, 3, 5, 8, 9, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 2, 1, 1],
+        "MOTOR VEHICLE THEFT": [5, 5, 4, 4, 3, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9, 8, 6],
+        "WEAPONS VIOLATION":   [5, 4, 3, 3, 2, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9, 10, 9, 7],
+    }
+    return weights.get(crime_type, base)
+
+
 def _seasonal_weight(crime_type: str, month: int) -> float:
     """Return a multiplier for crime volume based on month and type."""
-    # Summer months (Jun-Aug) generally have more crime
     summer = {6: 1.15, 7: 1.25, 8: 1.20}
     winter = {12: 0.85, 1: 0.80, 2: 0.85}
     spring = {3: 0.95, 4: 1.00, 5: 1.05}
@@ -130,33 +101,26 @@ def _seasonal_weight(crime_type: str, month: int) -> float:
     base = summer.get(month, winter.get(month, spring.get(month, fall.get(month, 1.0))))
 
     if crime_type == "BATTERY":
-        # Battery increases more in summer (heat → aggression)
         return base * 1.15 if month in summer else base * 0.95
     elif crime_type == "BURGLARY":
-        # Burglary higher in summer (vacations) and December (holidays)
         if month in summer:
             return base * 1.10
         elif month == 12:
             return base * 1.20
         return base * 0.95
     elif crime_type == "THEFT":
-        # Theft peaks in summer (outdoor activity) and holiday season
         if month in summer:
             return base * 1.10
         elif month in (11, 12):
             return base * 1.15
         return base
     elif crime_type == "NARCOTICS":
-        # Narcotics relatively uniform
         return base * 1.0
     elif crime_type == "WEAPONS VIOLATION":
-        # Weapons spike in summer
         return base * 1.20 if month in summer else base * 0.90
     return base
 
-# ---------------------------------------------------------------------------
-# Geographic coordinates by district (approximate centers)
-# ---------------------------------------------------------------------------
+
 DISTRICT_CENTERS = {
     1: (41.880, -87.630), 2: (41.890, -87.610), 3: (41.850, -87.600),
     4: (41.830, -87.590), 5: (41.810, -87.580), 6: (41.800, -87.630),
@@ -174,125 +138,177 @@ LNG_MIN, LNG_MAX = -87.940, -87.524
 WARD_MIN, WARD_MAX = 1, 50
 COMM_MIN, COMM_MAX = 1, 77
 
-# ---------------------------------------------------------------------------
-# Main generation
-# ---------------------------------------------------------------------------
-start = datetime(2024, 1, 1)
-end = datetime(2026, 12, 31, 23, 59, 59)
-total_days = (end - start).days + 1
+OUTPUT_COLUMNS = [
+    "id", "case_number", "date", "block", "iucr", "primary_type",
+    "description", "location_description", "arrest", "domestic",
+    "beat", "district", "ward", "community_area", "fbi_code",
+    "latitude", "longitude", "updated_on",
+]
 
-out_dir = Path(__file__).resolve().parent.parent / "data"
-out_dir.mkdir(parents=True, exist_ok=True)
-out_file = out_dir / "chicago_crime_synthetic.csv"
 
-# Build cumulative weights for crime type selection
-type_names = [t[0] for t in CRIME_TYPES]
-type_weights = [t[4] for t in CRIME_TYPES]
-type_arrest_rates = {t[0]: t[3] for t in CRIME_TYPES}
+# ═══════════════════════════════════════════════════════════════════════════════
+# Synthetic generation (fallback when Kaggle is unavailable)
+# ═══════════════════════════════════════════════════════════════════════════════
 
-with open(out_file, "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
-    w.writerow([
-        "id", "case_number", "date", "block", "iucr", "primary_type",
-        "description", "location_description", "arrest", "domestic",
-        "beat", "district", "ward", "community_area", "fbi_code",
-        "latitude", "longitude", "updated_on",
-    ])
+def _generate_fallback(
+    output_path: str | Path,
+    days: int = 90,
+    start_date: str = "2024-01-01",
+    seed: int = 42,
+) -> int:
+    """Generate synthetic Chicago crime data (local fallback).
+
+    Returns the number of rows written.
+    """
+    random.seed(seed)
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    out = Path(output_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+
+    type_names = [t[0] for t in CRIME_TYPES]
+    type_weights = [t[4] for t in CRIME_TYPES]
+    type_arrest_rates = {t[0]: t[3] for t in CRIME_TYPES}
+
+    rows = 0
     cid = 0
     cur = start
-    while cur <= end:
-        month = cur.month
-        weekday = cur.weekday()
-        is_weekend = weekday >= 5
+    end = start + timedelta(days=days)
 
-        # Daily volume: base + weekend boost + seasonal adjustment
-        day_of_year = cur.timetuple().tm_yday
-        # Sinusoidal seasonal pattern: peak in July (day 196), trough in January
-        seasonal_factor = 1.0 + 0.15 * math.sin(2 * math.pi * (day_of_year - 80) / 365)
-        weekend_factor = 1.10 if is_weekend else 1.0
-        base_daily = 55  # ~55 crimes/day → ~20k/year → ~60k over 3 years
-        n = int(random.gauss(base_daily * seasonal_factor * weekend_factor, 12))
-        n = max(20, n)  # minimum 20 crimes per day
+    with open(out, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(OUTPUT_COLUMNS)
 
-        for _ in range(n):
-            cid += 1
-            # Select crime type
-            primary = random.choices(type_names, weights=type_weights, k=1)[0]
-            # Find type metadata
-            for t in CRIME_TYPES:
-                if t[0] == primary:
-                    _, desc_base, fbi, _, _ = t
-                    break
+        while cur < end:
+            weekday = cur.weekday()
+            is_weekend = weekday >= 5
 
-            # Hour: type-specific temporal pattern
-            hour_weights = _hour_weights(primary)
-            hh = random.choices(HOURS, weights=hour_weights, k=1)[0]
-            minute = random.randint(0, 59)
-            ts = cur.replace(hour=hh, minute=minute, second=random.randint(0, 59))
+            day_of_year = cur.timetuple().tm_yday
+            seasonal_factor = 1.0 + 0.15 * math.sin(2 * math.pi * (day_of_year - 80) / 365)
+            weekend_factor = 1.10 if is_weekend else 1.0
+            base_daily = 55
+            n = int(random.gauss(base_daily * seasonal_factor * weekend_factor, 12))
+            n = max(20, n)
 
-            # Location: type-specific affinity
-            loc_weights = TYPE_LOC_WEIGHTS.get(primary, [1] * len(LOCATIONS))
-            loc_desc = random.choices(LOCATIONS, weights=loc_weights, k=1)[0]
+            for _ in range(n):
+                cid += 1
+                primary = random.choices(type_names, weights=type_weights, k=1)[0]
+                for t in CRIME_TYPES:
+                    if t[0] == primary:
+                        _, desc_base, fbi, _, _ = t
+                        break
 
-            # District: type-specific affinity
-            dist_weights = TYPE_DIST_WEIGHTS.get(primary, [1] * 25)
-            district = random.choices(DISTRICTS, weights=dist_weights, k=1)[0]
+                hour_weights = _hour_weights(primary)
+                hh = random.choices(HOURS, weights=hour_weights, k=1)[0]
+                ts = cur.replace(hour=hh, minute=random.randint(0, 59), second=random.randint(0, 59))
 
-            # Ward: correlated with district (approximate)
-            ward = random.randint(max(WARD_MIN, district * 2 - 3),
-                                  min(WARD_MAX, district * 2 + 3))
+                loc_weights = TYPE_LOC_WEIGHTS.get(primary, [1] * len(LOCATIONS))
+                loc_desc = random.choices(LOCATIONS, weights=loc_weights, k=1)[0]
 
-            # Community area: random but biased toward district
-            ca = random.randint(max(COMM_MIN, district * 3 - 5),
-                                min(COMM_MAX, district * 3 + 5))
+                dist_weights = TYPE_DIST_WEIGHTS.get(primary, [1] * 25)
+                district = random.choices(DISTRICTS, weights=dist_weights, k=1)[0]
 
-            # Arrest: conditional on crime type
-            arrest_rate = type_arrest_rates.get(primary, 0.18)
-            arrest = 1 if random.random() < arrest_rate else 0
+                ward = random.randint(max(WARD_MIN, district * 2 - 3), min(WARD_MAX, district * 2 + 3))
+                ca = random.randint(max(COMM_MIN, district * 3 - 5), min(COMM_MAX, district * 3 + 5))
 
-            # Domestic: higher for BATTERY, lower for others
-            if primary == "BATTERY":
-                domestic = 1 if random.random() < 0.40 else 0
-            elif primary == "ASSAULT":
-                domestic = 1 if random.random() < 0.20 else 0
-            else:
-                domestic = 1 if random.random() < 0.08 else 0
+                arrest_rate = type_arrest_rates.get(primary, 0.18)
+                arrest = 1 if random.random() < arrest_rate else 0
 
-            # Latitude/longitude: near district center with jitter
-            lat_center, lng_center = DISTRICT_CENTERS.get(district, (41.88, -87.63))
-            lat = round(lat_center + random.gauss(0, 0.015), 6)
-            lng = round(lng_center + random.gauss(0, 0.015), 6)
-            lat = max(LAT_MIN, min(LAT_MAX, lat))
-            lng = max(LNG_MIN, min(LNG_MAX, lng))
+                if primary == "BATTERY":
+                    domestic = 1 if random.random() < 0.40 else 0
+                elif primary == "ASSAULT":
+                    domestic = 1 if random.random() < 0.20 else 0
+                else:
+                    domestic = 1 if random.random() < 0.08 else 0
 
-            # IUCR code
-            iucr = fbi + str(random.randint(10, 99))
+                lat_center, lng_center = DISTRICT_CENTERS.get(district, (41.88, -87.63))
+                lat = round(max(LAT_MIN, min(LAT_MAX, lat_center + random.gauss(0, 0.015))), 6)
+                lng = round(max(LNG_MIN, min(LNG_MAX, lng_center + random.gauss(0, 0.015))), 6)
 
-            # Beat (derived from district)
-            beat = district * 100 + random.randint(1, 99)
+                iucr = fbi + str(random.randint(10, 99))
+                beat = district * 100 + random.randint(1, 99)
+                date_str = ts.isoformat(timespec="seconds")
 
-            w.writerow([
-                cid,
-                f"HX{100000 + cid}",
-                ts.isoformat(timespec="seconds"),
-                f"{random.randint(0, 9999)} N EXAMPLE ST",
-                iucr,
-                primary,
-                desc_base,
-                loc_desc,
-                arrest,
-                domestic,
-                beat,
-                district,
-                ward,
-                ca,
-                fbi,
-                lat,
-                lng,
-                ts.isoformat(timespec="seconds"),
-            ])
+                w.writerow([
+                    cid, f"HX{100000 + cid}", date_str,
+                    f"{random.randint(0, 9999)} N EXAMPLE ST",
+                    iucr, primary, desc_base, loc_desc,
+                    arrest, domestic, beat, district, ward, ca, fbi,
+                    lat, lng, date_str,
+                ])
+                rows += 1
 
-        cur += timedelta(days=1)
+            cur += timedelta(days=1)
 
-print(f"Wrote {cid} rows to {out_file}")
-print(f"Date range: {start.date()} to {end.date()} ({total_days} days)")
+    print(f"Wrote {rows} synthetic rows to {out}")
+    return rows
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kaggle download (primary path)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _download_from_kaggle(output_path: str | Path) -> int | None:
+    """Try to download from Kaggle and prepare a clean CSV.
+
+    Returns row count on success, None on failure.
+    """
+    try:
+        from chicago_pipeline.common.settings import settings
+        from chicago_pipeline.ingest.download_kaggle import (
+            download_kaggle_dataset,
+            prepare_kaggle_csv,
+        )
+
+        cfg = settings.raw_data
+        slug = cfg.get("kaggle_dataset", "chicago/chicago-crime-2024-2026")
+        dl_dir = cfg.get("download_dir", "/tmp/chicago_crime")
+        target = cfg.get("target_rows", 500_000)
+        seed_val = cfg.get("seed", 42)
+
+        raw_path = download_kaggle_dataset(slug, dl_dir)
+        rows = prepare_kaggle_csv(raw_path, output_path, target_rows=target, seed=seed_val)
+        return rows
+    except Exception as exc:
+        print(f"Kaggle download failed: {exc}")
+        print("Falling back to synthetic data generation...")
+        return None
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLI entry point
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def main() -> None:
+    """Main entry point for the seed script."""
+    out_dir = Path(__file__).resolve().parent.parent / "data"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    primary_output = out_dir / "chicago_crime.csv"
+    fallback_output = out_dir / "chicago_crime_synthetic.csv"
+    subset_output = out_dir / "chicago_crime_synthetic_90d.csv"
+
+    force_synthetic = len(sys.argv) > 1 and sys.argv[1] == "synthetic"
+
+    if force_synthetic:
+        print("Forced synthetic mode — generating local data...")
+        rows = _generate_fallback(fallback_output, days=1096, start_date="2024-01-01", seed=42)
+        print(f"Synthetic data written: {rows} rows → {fallback_output}")
+    else:
+        # Try Kaggle first
+        print("Attempting Kaggle download...")
+        kaggle_rows = _download_from_kaggle(primary_output)
+
+        if kaggle_rows is not None:
+            print(f"Kaggle data ready: {kaggle_rows} rows → {primary_output}")
+        else:
+            # Fallback to synthetic
+            rows = _generate_fallback(fallback_output, days=1096, start_date="2024-01-01", seed=42)
+            print(f"Synthetic fallback ready: {rows} rows → {fallback_output}")
+
+    # Always generate 90-day subset for quick local dev
+    print("Generating 90-day synthetic subset...")
+    subset_rows = _generate_fallback(subset_output, days=90, start_date="2024-01-01", seed=42)
+    print(f"90-day subset ready: {subset_rows} rows → {subset_output}")
+
+
+if __name__ == "__main__":
+    main()

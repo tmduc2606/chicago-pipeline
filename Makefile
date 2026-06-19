@@ -48,14 +48,17 @@ pipeline: ## Ingest -> Silver -> Gold -> Postgres -> dbt (one-shot end-to-end)
 	@$(MAKE) dbt-test
 	@$(MAKE) quality
 
-seed: ## Generate synthetic data for a fresh pipeline run
+seed: ## Download Kaggle data (or generate synthetic fallback)
 	python scripts/seed.py
+
+setup-kaggle: ## Verify Kaggle API token setup
+	bash scripts/setup_kaggle.sh
 
 spark-bronze: seed ## Run Bronze ingestion
 	docker compose exec -T spark-master \
 	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \
 	    --py-files /opt/pipeline/src \
-	  /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime_synthetic.csv
+	  /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime.csv
 
 spark-silver: ## Run Silver transformation
 	docker compose exec -T spark-master \
