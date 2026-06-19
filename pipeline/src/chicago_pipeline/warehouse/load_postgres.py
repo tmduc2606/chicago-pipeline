@@ -167,8 +167,19 @@ def load_gold_to_postgres(engine, s3_client, bucket: str, prefix: str) -> dict[s
             _add_pk(engine, table)
             log.info("warehouse_pk_added", table=table)
 
-    # Phase 2b: add UNIQUE on fact_crime.crime_id to prevent accidental duplicates
+    # Phase 2b: deduplicate fact_crime by crime_id, then add UNIQUE constraint
     with engine.begin() as conn:
+        dup_check = conn.execute(text(
+            "SELECT crime_id, COUNT(*) AS n FROM warehouse.fact_crime GROUP BY crime_id HAVING COUNT(*) > 1 LIMIT 1"
+        ))
+        if dup_check.fetchone():
+            log.warning("warehouse_fact_duplicates_found", msg="deduplicating fact_crime by crime_id")
+            conn.execute(text("""
+                DELETE FROM warehouse.fact_crime
+                WHERE ctid NOT IN (
+                    SELECT MIN(ctid) FROM warehouse.fact_crime GROUP BY crime_id
+                )
+            """))
         result = conn.execute(text(
             "SELECT 1 FROM pg_constraint WHERE conrelid = 'warehouse.fact_crime'::regclass "
             "AND contype = 'u' AND conname = 'uq_fact_crime_crime_id'"
