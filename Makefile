@@ -54,6 +54,9 @@ seed: ## Download Kaggle data (or generate synthetic fallback)
 setup-kaggle: ## Verify Kaggle API token setup
 	bash scripts/setup_kaggle.sh
 
+setup-kaggle-win: ## Verify Kaggle API token setup (Windows)
+	powershell -ExecutionPolicy Bypass -File scripts/setup_kaggle.ps1
+
 spark-bronze: seed ## Run Bronze ingestion
 	docker compose exec -T spark-master \
 	  /opt/spark/bin/spark-submit --master spark://spark-master:7077 \

@@ -8,7 +8,11 @@ The pipeline uses real Chicago crime data from Kaggle, stratified-sampled to ~50
 
 1. **Configure Kaggle API token:**
    ```bash
+   # Linux/macOS
    bash scripts/setup_kaggle.sh
+   
+   # Windows (PowerShell)
+   powershell -ExecutionPolicy Bypass -File scripts/setup_kaggle.ps1
    ```
    This checks for `~/.kaggle/kaggle.json` and guides setup if missing.
 
