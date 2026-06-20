@@ -5,20 +5,17 @@ Schedule: @daily
 SLA: 30 minutes
 On-call: data-engineer
 
-Downloads source CSV (Kaggle or synthetic fallback), verifies integrity,
-and uploads as Bronze Parquet to MinIO.
+Generates synthetic source CSV and uploads as Bronze Parquet to MinIO.
 """
 
 from __future__ import annotations
 
-import csv
 import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from airflow.decorators import dag, task
-from airflow.operators.python import PythonOperator
 
 sys.path.insert(0, "/opt/pipeline/src")
 
@@ -44,7 +41,7 @@ def _get_s3a_conf() -> dict:
     from airflow.models.variable import Variable
     return {
         "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-        "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
+        "spark.hadoop.fs3a.endpoint": "http://minio:9000",
         "spark.hadoop.fs.s3a.access.key": Variable.get("MINIO_ROOT_USER"),
         "spark.hadoop.fs.s3a.secret.key": Variable.get("MINIO_ROOT_PASSWORD"),
         "spark.hadoop.fs.s3a.path.style.access": "true",
@@ -59,38 +56,26 @@ def _get_s3a_conf() -> dict:
     catchup=False,
     default_args=DEFAULT_ARGS,
     tags=["bronze", "ingest"],
-    description="Download source CSV and upload to Bronze on MinIO",
+    description="Generate synthetic source CSV and upload to Bronze on MinIO",
     doc_md=__doc__,
 )
 def ingest_dag() -> None:
 
-    @task(task_id="kaggle_download")
-    def kaggle_download() -> int:
-        try:
-            import kagglehub
-            dataset = os.getenv("KAGGLE_DATASET", "chicago/chicago-crime-2024-2026")
-            path = kagglehub.dataset_download(dataset)
-            csv_files = list(Path(path).glob("*.csv"))
-            if not csv_files:
-                raise FileNotFoundError(f"No CSV found in {path}")
-            import shutil
-            shutil.copy(csv_files[0], SOURCE_CSV)
-            count = verify_csv(SOURCE_CSV)
-            log.info("kaggle_download_success", path=str(csv_files[0]), rows=count)
-            return count
-        except Exception as exc:
-            log.warning("kaggle_fallback_to_synthetic", error=str(exc))
-            return generate_synthetic(
-                SOURCE_CSV,
-                days=SYNTHETIC_DAYS,
-                start_date=SYNTHETIC_START,
-                seed=SYNTHETIC_SEED,
-            )
+    @task(task_id="generate_data")
+    def generate_data() -> int:
+        rows = generate_synthetic(
+            SOURCE_CSV,
+            days=SYNTHETIC_DAYS,
+            start_date=SYNTHETIC_START,
+            seed=SYNTHETIC_SEED,
+        )
+        log.info("synthetic_data_generated", path=SOURCE_CSV, rows=rows)
+        return rows
 
     @task(task_id="verify_checksum")
     def verify_checksum(**kwargs) -> int:
         ti = kwargs["ti"]
-        row_count = ti.xcom_pull(task_ids="kaggle_download")
+        row_count = ti.xcom_pull(task_ids="generate_data")
         count = verify_csv(SOURCE_CSV)
         if count < 1000:
             raise ValueError(
@@ -111,7 +96,7 @@ def ingest_dag() -> None:
         conf_func=_get_s3a_conf,
     )
 
-    dl = kaggle_download()
+    dl = generate_data()
     vc = verify_checksum()
     dl >> vc >> upload_bronze
 

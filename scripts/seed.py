@@ -1,14 +1,11 @@
 """Seed the pipeline with Chicago crime data.
 
-Primary: downloads from Kaggle (chicago/chicago-crime-2024-2026),
-stratified-sampled to ~500K rows across 2017–2023.
-
-Fallback: generates synthetic data locally when Kaggle is unavailable.
+Generates synthetic data locally for development and testing.
 
 Usage:
-    make seed                         # Kaggle download (or synthetic fallback)
-    python scripts/seed.py            # same as above
-    python scripts/seed.py synthetic  # force synthetic generation
+    python scripts/seed.py                    # generate full synthetic dataset
+    python scripts/seed.py --days 90          # generate 90-day subset only
+    python scripts/seed.py --subset           # generate only the 90-day subset
 """
 from __future__ import annotations
 
@@ -22,7 +19,7 @@ from pathlib import Path
 random.seed(42)
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Synthetic fallback constants (used when Kaggle is unavailable)
+# Synthetic data constants
 # ═══════════════════════════════════════════════════════════════════════════════
 
 DISTRICTS = list(range(1, 26))
@@ -68,7 +65,7 @@ TYPE_DIST_WEIGHTS = {
     "BURGLARY":            [3, 3, 4, 3, 3, 5, 5, 5, 5, 5, 4, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2],
     "ROBBERY":             [4, 5, 5, 4, 4, 7, 6, 5, 4, 3, 3, 4, 5, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
     "MOTOR VEHICLE THEFT": [3, 3, 4, 3, 3, 6, 6, 5, 5, 4, 4, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2],
-    "DECEPTIVE_PRACTICE":  [4, 5, 6, 5, 5, 7, 5, 4, 3, 3, 2, 3, 4, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
+    "DECEPTIVE PRACTICE":  [4, 5, 6, 5, 5, 7, 5, 4, 3, 3, 2, 3, 4, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
     "WEAPONS VIOLATION":   [4, 5, 4, 3, 4, 6, 7, 6, 4, 3, 3, 5, 6, 5, 3, 3, 3, 4, 3, 2, 2, 2, 2, 1, 1],
 }
 
@@ -146,17 +143,13 @@ OUTPUT_COLUMNS = [
 ]
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Synthetic generation (fallback when Kaggle is unavailable)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _generate_fallback(
+def generate_synthetic(
     output_path: str | Path,
     days: int = 90,
     start_date: str = "2024-01-01",
     seed: int = 42,
 ) -> int:
-    """Generate synthetic Chicago crime data (local fallback).
+    """Generate synthetic Chicago crime data.
 
     Returns the number of rows written.
     """
@@ -243,71 +236,37 @@ def _generate_fallback(
     return rows
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Kaggle download (primary path)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _download_from_kaggle(output_path: str | Path) -> int | None:
-    """Try to download from Kaggle and prepare a clean CSV.
-
-    Returns row count on success, None on failure.
-    """
-    try:
-        from chicago_pipeline.common.settings import settings
-        from chicago_pipeline.ingest.download_kaggle import (
-            download_kaggle_dataset,
-            prepare_kaggle_csv,
-        )
-
-        cfg = settings.raw_data
-        slug = cfg.get("kaggle_dataset", "chicago/chicago-crime-2024-2026")
-        dl_dir = cfg.get("download_dir", "/tmp/chicago_crime")
-        target = cfg.get("target_rows", 500_000)
-        seed_val = cfg.get("seed", 42)
-
-        raw_path = download_kaggle_dataset(slug, dl_dir)
-        rows = prepare_kaggle_csv(raw_path, output_path, target_rows=target, seed=seed_val)
-        return rows
-    except Exception as exc:
-        print(f"Kaggle download failed: {exc}")
-        print("Falling back to synthetic data generation...")
-        return None
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# CLI entry point
-# ═══════════════════════════════════════════════════════════════════════════════
-
 def main() -> None:
     """Main entry point for the seed script."""
     out_dir = Path(__file__).resolve().parent.parent / "data"
     out_dir.mkdir(parents=True, exist_ok=True)
-    primary_output = out_dir / "chicago_crime.csv"
-    fallback_output = out_dir / "chicago_crime_synthetic.csv"
-    subset_output = out_dir / "chicago_crime_synthetic_90d.csv"
 
-    force_synthetic = len(sys.argv) > 1 and sys.argv[1] == "synthetic"
-
-    if force_synthetic:
-        print("Forced synthetic mode — generating local data...")
-        rows = _generate_fallback(fallback_output, days=1096, start_date="2024-01-01", seed=42)
-        print(f"Synthetic data written: {rows} rows → {fallback_output}")
+    if "--subset" in sys.argv:
+        # Only generate 90-day subset
+        subset_output = out_dir / "chicago_crime_synthetic_90d.csv"
+        print("Generating 90-day synthetic subset...")
+        subset_rows = generate_synthetic(subset_output, days=90, start_date="2024-01-01", seed=42)
+        print(f"90-day subset ready: {subset_rows} rows → {subset_output}")
+    elif "--days" in sys.argv:
+        # Custom days
+        idx = sys.argv.index("--days")
+        days = int(sys.argv[idx + 1]) if idx + 1 < len(sys.argv) else 90
+        output = out_dir / "chicago_crime_synthetic.csv"
+        print(f"Generating {days}-day synthetic dataset...")
+        rows = generate_synthetic(output, days=days, start_date="2024-01-01", seed=42)
+        print(f"Synthetic data written: {rows} rows → {output}")
     else:
-        # Try Kaggle first
-        print("Attempting Kaggle download...")
-        kaggle_rows = _download_from_kaggle(primary_output)
+        # Default: generate full synthetic + 90-day subset
+        fallback_output = out_dir / "chicago_crime_synthetic.csv"
+        subset_output = out_dir / "chicago_crime_synthetic_90d.csv"
 
-        if kaggle_rows is not None:
-            print(f"Kaggle data ready: {kaggle_rows} rows → {primary_output}")
-        else:
-            # Fallback to synthetic
-            rows = _generate_fallback(fallback_output, days=1096, start_date="2024-01-01", seed=42)
-            print(f"Synthetic fallback ready: {rows} rows → {fallback_output}")
+        print("Generating full synthetic dataset (1096 days)...")
+        rows = generate_synthetic(fallback_output, days=1096, start_date="2024-01-01", seed=42)
+        print(f"Synthetic data written: {rows} rows → {fallback_output}")
 
-    # Always generate 90-day subset for quick local dev
-    print("Generating 90-day synthetic subset...")
-    subset_rows = _generate_fallback(subset_output, days=90, start_date="2024-01-01", seed=42)
-    print(f"90-day subset ready: {subset_rows} rows → {subset_output}")
+        print("Generating 90-day synthetic subset...")
+        subset_rows = generate_synthetic(subset_output, days=90, start_date="2024-01-01", seed=42)
+        print(f"90-day subset ready: {subset_rows} rows → {subset_output}")
 
 
 if __name__ == "__main__":

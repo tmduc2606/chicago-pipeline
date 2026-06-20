@@ -2,7 +2,7 @@
 
 ## Kaggle Data (Primary)
 
-The pipeline uses real Chicago crime data from Kaggle, stratified-sampled to ~500K rows across 2017–2023.
+The pipeline uses real Chicago crime data from Kaggle, stratified-sampled to 51,996 rows across 2019–2025.
 
 ### Setup
 
@@ -13,7 +13,7 @@ The pipeline uses real Chicago crime data from Kaggle, stratified-sampled to ~50
    | Linux/macOS | `bash scripts/setup_kaggle.sh` |
    | Windows | `powershell -ExecutionPolicy Bypass -File scripts/setup_kaggle.ps1` |
 
-   This checks for `~/.kaggle/kaggle.json` and guides setup if missing.
+   This checks for `~/.kaggle/kaggle.json` or `~/.kaggle/access_token` and guides setup if missing.
 
 2. **Download and prepare data:**
 
@@ -26,47 +26,45 @@ The pipeline uses real Chicago crime data from Kaggle, stratified-sampled to ~50
 
 ### Source
 
-- **Dataset:** [Chicago Crime 2024–2026 (Kaggle)](https://www.kaggle.com/datasets/aliafzal9323/chicago-crime-dataset-2024-2026)
+- **Dataset:** [Chicago Crime Dataset (Kaggle)](https://www.kaggle.com/datasets/aliafzal9323/chicago-crime-dataset-2024-2026)
 - **Slug:** `chicago/chicago-crime-2024-2026`
 - **License:** City of Chicago Open Data Terms of Use
+
+### Dataset Overview
+
+| Property | Value |
+|----------|-------|
+| Total rows | 51,996 |
+| Date range | 2019-01-01 to 2025-12-31 |
+| Years covered | 2019, 2020, 2021, 2022, 2023, 2024, 2025 |
+| Rows per year | ~7,428 (equal stratified sample) |
+| Crime types | 30 unique primary types |
+| Police districts | 25 districts |
 
 ### Schema
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `id` | int | Unique record identifier |
-| `case_number` | string | PD case number (e.g. `JG503434`) |
-| `date` | string | Incident timestamp (ISO 8601) |
-| `block` | string | Partially redacted street address |
-| `iucr` | string | Illinois Uniform Crime Reporting code |
-| `primary_type` | string | Crime category (THEFT, BATTERY, ASSAULT, etc.) |
-| `description` | string | Detailed offense description |
-| `location_description` | string | Type of location (SIDEWALK, RESIDENCE, etc.) |
-| `arrest` | int | Whether an arrest was made (1/0) |
-| `domestic` | int | Domestic-related incident (1/0) |
-| `beat` | string | Police beat |
-| `district` | int | Police district (1–25) |
-| `ward` | int | City ward (1–50) |
-| `community_area` | int | Community area (1–77) |
-| `fbi_code` | string | FBI offense classification code |
-| `latitude` | float | Latitude (Chicago bounding box) |
-| `longitude` | float | Longitude (Chicago bounding box) |
-| `updated_on` | string | Last updated timestamp (ISO 8601) |
+| `ID` | int | Unique record identifier |
+| `Case Number` | string | PD case number (e.g. `JH152793`) |
+| `Date` | string | Incident timestamp |
+| `Block` | string | Partially redacted street address |
+| `IUCR` | string | Illinois Uniform Crime Reporting code |
+| `Primary Type` | string | Crime category (THEFT, BATTERY, ASSAULT, etc.) |
+| `Description` | string | Detailed offense description |
+| `Location Description` | string | Type of location (STREET, RESIDENCE, etc.) |
+| `Arrest` | bool | Whether an arrest was made |
+| `Domestic` | bool | Domestic-related incident |
+| `Beat` | string | Police beat |
+| `District` | int | Police district (1–25) |
+| `Ward` | int | City ward (1–50) |
+| `Community Area` | int | Community area (1–77) |
+| `FBI Code` | string | FBI offense classification code |
+| `Latitude` | float | Latitude (Chicago bounding box) |
+| `Longitude` | float | Longitude (Chicago bounding box) |
+| `Updated On` | string | Last updated timestamp |
 
-### Sampling
-
-The dataset is stratified-sampled to ensure equal representation across years:
-
-| Year | Target Rows |
-|------|-------------|
-| 2017 | ~71,428 |
-| 2018 | ~71,428 |
-| 2019 | ~71,428 |
-| 2020 | ~71,428 |
-| 2021 | ~71,428 |
-| 2022 | ~71,428 |
-| 2023 | ~71,428 |
-| **Total** | **~500,000** |
+**Note:** The bronze layer normalizes column names to snake_case automatically.
 
 ## Synthetic Fallback
 

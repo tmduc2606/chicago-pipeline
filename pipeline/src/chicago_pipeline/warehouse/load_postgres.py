@@ -157,7 +157,15 @@ def load_gold_to_postgres(engine, s3_client, bucket: str, prefix: str) -> dict[s
     # Phase 1: load all tables via to_sql (sequential — parallel DDL causes race conditions)
     for table in GOLD_TABLES:
         df = _read_gold_parquet(s3_client, bucket, prefix, table)
-        df.to_sql(table, engine, schema="warehouse", if_exists="append", index=False, method="multi")
+        # Ensure bigint columns are written as BIGINT (not double precision) for FK compatibility
+        from sqlalchemy import BigInteger, Integer
+        dtype_map = {}
+        for col in df.columns:
+            if col.endswith("_id") and df[col].dtype in ("float64", "int64"):
+                dtype_map[col] = BigInteger()
+            elif df[col].dtype == "int64":
+                dtype_map[col] = Integer()
+        df.to_sql(table, engine, schema="warehouse", if_exists="append", index=False, method="multi", dtype=dtype_map)
         results[f"postgres_{table}"] = len(df)
         log.info("warehouse_load_complete", table=table, row_count=len(df))
 

@@ -114,8 +114,8 @@ export function InsightsPage() {
         <h2 className="text-2xl font-bold tracking-tight text-text">Insights</h2>
         <p className="mt-1 text-sm text-text-muted">Exploratory Data Analysis findings from the crime warehouse</p>
         <p className="mt-2 rounded-lg bg-bg-muted p-3 text-xs text-text-dim">
-          14 extended analyses (Sections 5–7) from the EDA notebook
-          (<code className="text-primary-bright">scripts/notebooks/M7_EDA.ipynb</code>).
+          16 insights from real Chicago crime data (2019–2025, 51,996 records)
+          across temporal, spatial, categorical, and relational analyses.
           Use filters to narrow by topic, tag, or difficulty.
         </p>
       </div>
@@ -207,16 +207,16 @@ export function InsightsPage() {
         <h3 className="mb-3 text-sm font-semibold text-text">Data Notes</h3>
         <div className="space-y-2 text-xs text-text-dim">
           <p>
-            <strong className="text-text-muted">Source:</strong> All insights are derived from the Chicago Crime Data Warehouse
-            (61,316 synthetic crime incidents, 2024-2026).
+            <strong className="text-text-muted">Source:</strong> All insights are derived from the Chicago Crime Dataset
+            (51,996 real reported incidents, 2019–2025) sourced from Kaggle.
           </p>
           <p>
             <strong className="text-text-muted">Methodology:</strong> Analyses follow a Topic × Tag taxonomy with difficulty ratings.
-            Each insight includes a chart, finding, and caveat section.
+            Each insight includes a chart type, data point count, and notebook section reference.
           </p>
           <p>
-            <strong className="text-text-muted">Limitations:</strong> This is synthetic data. Insights should not be used for
-            real-world policy decisions without validation against actual crime data.
+            <strong className="text-text-muted">Coverage:</strong> 30 crime types across 7 years, 25 police districts,
+            and hundreds of location types. Analyses include arrest rates, temporal patterns, spatial distributions, and cross-dimensional correlations.
           </p>
         </div>
       </div>

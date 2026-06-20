@@ -18,11 +18,11 @@ export default function AboutPage() {
             rel="noopener noreferrer"
             className="text-primary-bright underline hover:text-primary"
           >
-            Chicago Crime Dataset 2024–2026
+            Chicago Crime Dataset
           </a>{" "}
-          from Kaggle. The dataset contains reported crime incidents from the Chicago Police Department.
-          For demonstration purposes, the pipeline uses a synthetic 90-day seed dataset (57,931 records)
-          that mirrors the statistical properties of the real data.
+          from Kaggle. The dataset contains 51,996 real reported crime incidents from the Chicago Police Department
+          spanning 2019–2025, stratified-sampled across 7 years with 30 crime types, 25 police districts, and
+          hundreds of location categories.
         </p>
       </section>
 
@@ -61,7 +61,7 @@ export default function AboutPage() {
       <section className="space-y-4">
         <h3 className="text-xl font-semibold text-text">Known Limitations</h3>
         <ul className="list-disc pl-6 space-y-2 text-sm text-text-muted">
-          <li>Synthetic data — not real Chicago crime records.</li>
+          <li>Real data — 51,996 reported incidents from Kaggle (2019–2025), not the full population.</li>
           <li>Choropleth map uses simplified district boundaries (real GeoJSON deferred).</li>
           <li>No real-time streaming — batch-only pipeline.</li>
           <li>No authentication — public read-only dashboard.</li>

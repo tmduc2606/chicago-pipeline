@@ -13,7 +13,7 @@ bronze:
 
 raw_data:
   download_dir: /tmp/chicago_crime
-  kaggle_dataset: chicago/chicago-crime-2024-2026
+  kaggle_dataset: aliafzal9323/chicago-crime-dataset-2024-2026
   target_rows: 500000
   seed: 42
   synthetic_seed: 42
@@ -37,8 +37,8 @@ silver:
     min_lon: -87.940
     max_lon: -87.524
   date_range:
-    start: "2024-01-01"
-    end: "2026-12-31"
+    start: "2019-01-01"
+    end: "2025-12-31"
 
 database:
   host: ${POSTGRES_HOST:-postgres}
@@ -56,8 +56,8 @@ gold:
   format: parquet
   partition_by: year
   date_range:
-    start: "2024-01-01"
-    end: "2026-12-31"
+    start: "2019-01-01"
+    end: "2025-12-31"
   downtown_bbox:
     min_lat: 41.880
     max_lat: 41.895

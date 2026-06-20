@@ -1,215 +1,244 @@
-"""Download and prepare the Kaggle Chicago Crime dataset (2017–2023).
+"""Chicago Crime data utilities.
 
-Downloads the raw CSV from Kaggle, renames columns to snake_case,
-drops unnecessary columns, and stratified-samples to ~500K rows.
+Provides synthetic data generation and CSV verification for the pipeline.
+The Kaggle dataset is downloaded manually — see data/README.md.
 """
 from __future__ import annotations
 
+import csv
+import math
+import random
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
 _src = Path(__file__).resolve().parents[2]
 if str(_src) not in sys.path:
     sys.path.insert(0, str(_src))
 
-import pandas as pd  # noqa: E402
-
 from chicago_pipeline.common.logger import get_logger  # noqa: E402
 
 log = get_logger(__name__)
 
-# ── Kaggle column (Title Case) → pipeline column (snake_case) ──────────────
-COLUMN_MAP: dict[str, str] = {
-    "ID": "id",
-    "Case Number": "case_number",
-    "Date": "date",
-    "Block": "block",
-    "IUCR": "iucr",
-    "Primary Type": "primary_type",
-    "Description": "description",
-    "Location Description": "location_description",
-    "Arrest": "arrest",
-    "Domestic": "domestic",
-    "Beat": "beat",
-    "District": "district",
-    "Ward": "ward",
-    "Community Area": "community_area",
-    "FBI Code": "fbi_code",
-    "Latitude": "latitude",
-    "Longitude": "longitude",
-    "Updated On": "updated_on",
+# ═══════════════════════════════════════════════════════════════════════════════
+# Synthetic data constants
+# ═══════════════════════════════════════════════════════════════════════════════
+
+DISTRICTS = list(range(1, 26))
+
+CRIME_TYPES = [
+    ("THEFT",               "OVER $500",                    "06",  0.12, 25),
+    ("BATTERY",             "DOMESTIC BATTERY SIMPLE",      "08B", 0.30, 18),
+    ("ASSAULT",             "SIMPLE",                       "08A", 0.22, 13),
+    ("CRIMINAL DAMAGE",     "TO VEHICLE",                   "14",  0.15, 10),
+    ("NARCOTICS",           "POSSESS CANNABIS 30G OR LESS","18",  0.45,  8),
+    ("BURGLARY",            "FORCIBLE ENTRY",               "05",  0.14,  7),
+    ("ROBBERY",             "STRONGARM - NO WEAPON",        "03",  0.20,  6),
+    ("MOTOR VEHICLE THEFT", "AUTO THEFT",                   "09",  0.10,  5),
+    ("DECEPTIVE PRACTICE",  "THEFT OF LOST PROPERTY",       "11",  0.25,  4),
+    ("WEAPONS VIOLATION",   "UNLAWFUL USE - OTHER THAN FIREARM", "15", 0.35,  4),
+]
+
+LOCATIONS = [
+    "STREET", "RESIDENCE", "APARTMENT", "SIDEWALK", "PARKING LOT",
+    "SCHOOL", "BAR OR TAVERN", "GAS STATION", "RESTAURANT",
+    "HOTEL/MOTEL", "PARK PROPERTY", "VEHICLE",
+]
+
+TYPE_LOC_WEIGHTS = {
+    "THEFT":               [25, 5, 5, 15, 15, 5, 5, 10, 5, 3, 3, 4],
+    "BATTERY":             [15, 25, 20, 5, 3, 5, 15, 1, 5, 3, 2, 1],
+    "ASSAULT":             [20, 10, 8, 15, 5, 8, 20, 2, 7, 3, 1, 1],
+    "CRIMINAL DAMAGE":     [20, 15, 10, 5, 15, 5, 3, 10, 2, 5, 8, 2],
+    "NARCOTICS":           [30, 5, 5, 15, 10, 2, 10, 5, 3, 3, 5, 7],
+    "BURGLARY":            [5, 35, 30, 2, 5, 5, 1, 2, 1, 10, 2, 2],
+    "ROBBERY":             [25, 8, 5, 20, 10, 3, 10, 5, 7, 2, 2, 3],
+    "MOTOR VEHICLE THEFT": [35, 2, 2, 3, 25, 1, 1, 10, 1, 1, 5, 14],
+    "DECEPTIVE PRACTICE":  [10, 20, 15, 3, 5, 3, 3, 2, 5, 15, 2, 17],
+    "WEAPONS VIOLATION":   [30, 10, 8, 10, 8, 5, 10, 3, 5, 3, 5, 3],
 }
 
-# Columns to drop (present in Kaggle but not needed by pipeline)
-DROP_COLS: list[str] = ["X Coordinate", "Y Coordinate", "Year", "Location"]
+TYPE_DIST_WEIGHTS = {
+    "THEFT":               [3, 4, 5, 6, 5, 8, 7, 4, 3, 3, 2, 3, 4, 5, 3, 2, 2, 3, 4, 3, 2, 2, 3, 2, 2],
+    "BATTERY":             [4, 5, 4, 3, 4, 6, 5, 6, 5, 4, 3, 5, 6, 5, 4, 3, 3, 4, 3, 3, 2, 2, 2, 2, 1],
+    "ASSAULT":             [3, 4, 5, 4, 4, 7, 6, 5, 4, 3, 3, 4, 5, 5, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1],
+    "CRIMINAL DAMAGE":     [3, 3, 4, 4, 4, 6, 5, 5, 5, 4, 4, 5, 5, 5, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2],
+    "NARCOTICS":           [4, 5, 3, 3, 3, 7, 8, 6, 4, 3, 3, 5, 6, 5, 3, 3, 3, 4, 3, 2, 2, 2, 2, 1, 1],
+    "BURGLARY":            [3, 3, 4, 3, 3, 5, 5, 5, 5, 5, 4, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2],
+    "ROBBERY":             [4, 5, 5, 4, 4, 7, 6, 5, 4, 3, 3, 4, 5, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
+    "MOTOR VEHICLE THEFT": [3, 3, 4, 3, 3, 6, 6, 5, 5, 4, 4, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2],
+    "DECEPTIVE PRACTICE":  [4, 5, 6, 5, 5, 7, 5, 4, 3, 3, 2, 3, 4, 4, 3, 3, 2, 3, 3, 2, 2, 2, 2, 2, 1],
+    "WEAPONS VIOLATION":   [4, 5, 4, 3, 4, 6, 7, 6, 4, 3, 3, 5, 6, 5, 3, 3, 3, 4, 3, 2, 2, 2, 2, 1, 1],
+}
 
-# Pipeline output columns (order matters for bronze schema)
-OUTPUT_COLS: list[str] = [
+HOURS = list(range(24))
+
+
+def _hour_weights(crime_type: str) -> list[float]:
+    base = [1, 1, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 8, 7, 6, 7, 8, 9, 10, 9, 7, 5, 3]
+    weights: dict[str, list[float]] = {
+        "THEFT":               [1, 1, 1, 1, 1, 1, 2, 3, 5, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 3, 2, 2, 1],
+        "BATTERY":             [6, 5, 4, 3, 2, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 10, 9, 7],
+        "ASSAULT":             [7, 6, 5, 4, 2, 1, 1, 1, 2, 3, 4, 4, 4, 4, 4, 5, 6, 7, 8, 9, 10, 10, 9, 8],
+        "NARCOTICS":           [2, 2, 1, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 9, 7, 4],
+        "ROBBERY":             [3, 2, 2, 1, 1, 1, 1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 10, 9, 8, 5],
+        "BURGLARY":            [1, 1, 1, 1, 1, 1, 2, 3, 5, 8, 9, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 2, 1, 1],
+        "MOTOR VEHICLE THEFT": [5, 5, 4, 4, 3, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9, 8, 6],
+        "WEAPONS VIOLATION":   [5, 4, 3, 3, 2, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 6, 7, 8, 9, 10, 9, 7],
+    }
+    return weights.get(crime_type, base)
+
+
+def _seasonal_weight(crime_type: str, month: int) -> float:
+    summer = {6: 1.15, 7: 1.25, 8: 1.20}
+    winter = {12: 0.85, 1: 0.80, 2: 0.85}
+    spring = {3: 0.95, 4: 1.00, 5: 1.05}
+    fall = {9: 1.05, 10: 1.00, 11: 0.90}
+    base = summer.get(month, winter.get(month, spring.get(month, fall.get(month, 1.0))))
+    if crime_type == "BATTERY":
+        return base * 1.15 if month in summer else base * 0.95
+    elif crime_type == "BURGLARY":
+        if month in summer:
+            return base * 1.10
+        elif month == 12:
+            return base * 1.20
+        return base * 0.95
+    elif crime_type == "THEFT":
+        if month in summer:
+            return base * 1.10
+        elif month in (11, 12):
+            return base * 1.15
+        return base
+    elif crime_type == "NARCOTICS":
+        return base * 1.0
+    elif crime_type == "WEAPONS VIOLATION":
+        return base * 1.20 if month in summer else base * 0.90
+    return base
+
+
+DISTRICT_CENTERS = {
+    1: (41.880, -87.630), 2: (41.890, -87.610), 3: (41.850, -87.600),
+    4: (41.830, -87.590), 5: (41.810, -87.580), 6: (41.800, -87.630),
+    7: (41.820, -87.660), 8: (41.850, -87.670), 9: (41.880, -87.660),
+    10: (41.900, -87.650), 11: (41.920, -87.630), 12: (41.930, -87.610),
+    13: (41.950, -87.600), 14: (41.960, -87.580), 15: (41.970, -87.560),
+    16: (41.980, -87.540), 17: (41.990, -87.520), 18: (41.910, -87.550),
+    19: (41.940, -87.520), 20: (41.960, -87.500), 21: (41.980, -87.480),
+    22: (41.870, -87.550), 23: (41.840, -87.520), 24: (41.810, -87.500),
+    25: (41.790, -87.480),
+}
+
+LAT_MIN, LAT_MAX = 41.644, 42.023
+LNG_MIN, LNG_MAX = -87.940, -87.524
+WARD_MIN, WARD_MAX = 1, 50
+COMM_MIN, COMM_MAX = 1, 77
+
+OUTPUT_COLUMNS = [
     "id", "case_number", "date", "block", "iucr", "primary_type",
     "description", "location_description", "arrest", "domestic",
     "beat", "district", "ward", "community_area", "fbi_code",
     "latitude", "longitude", "updated_on",
 ]
 
-# Chicago bounding box (same as silver layer filter)
-LAT_MIN, LAT_MAX = 41.644, 42.023
-LON_MIN, LON_MAX = -87.940, -87.524
+random.seed(42)
 
 
-def download_kaggle_dataset(
-    dataset_slug: str,
-    download_dir: str | Path,
-) -> Path:
-    """Download a Kaggle dataset and return the path to the CSV file.
-
-    Supports two token formats:
-    - ``~/.kaggle/kaggle.json`` (standard JSON format)
-    - ``~/.kaggle/access_token`` (KGAT token format)
-
-    Parameters
-    ----------
-    dataset_slug:
-        Kaggle dataset identifier (e.g. ``chicago/chicago-crime-2024-2026``).
-    download_dir:
-        Local directory to cache the download.
-
-    Returns
-    -------
-    Path to the downloaded CSV file.
-    """
-    import os
-
-    import kagglehub  # type: ignore[import-untyped]
-
-    # Handle KGAT token format (access_token file)
-    kaggle_dir = Path.home() / ".kaggle"
-    access_token = kaggle_dir / "access_token"
-    kaggle_json = kaggle_dir / "kaggle.json"
-
-    if access_token.exists() and not kaggle_json.exists():
-        token = access_token.read_text().strip()
-        os.environ["KAGGLE_TOKEN"] = token
-        log.info("kaggle_token_loaded", source="access_token")
-    elif kaggle_json.exists():
-        log.info("kaggle_token_loaded", source="kaggle.json")
-
-    download_dir = Path(download_dir)
-    download_dir.mkdir(parents=True, exist_ok=True)
-
-    log.info("kaggle_download_start", dataset=dataset_slug, dest=str(download_dir))
-    raw_path = kagglehub.dataset_download(dataset=dataset_slug, path=str(download_dir))
-    log.info("kaggle_download_complete", path=raw_path)
-
-    # kagglehub may return a directory or a file path
-    raw = Path(raw_path)
-    if raw.is_dir():
-        csv_files = list(raw.glob("*.csv"))
-        if not csv_files:
-            raise FileNotFoundError(f"No CSV files found in {raw}")
-        return csv_files[0]
-    return raw
-
-
-def prepare_kaggle_csv(
-    input_path: str | Path,
+def generate_synthetic(
     output_path: str | Path,
-    target_rows: int = 500_000,
+    days: int = 90,
+    start_date: str = "2024-01-01",
     seed: int = 42,
 ) -> int:
-    """Read raw Kaggle CSV, clean it, and write a pipeline-ready CSV.
-
-    Steps:
-    1. Rename columns (Title Case → snake_case)
-    2. Drop unnecessary columns
-    3. Parse dates and booleans
-    4. Filter to Chicago bounding box
-    5. Stratified sample across years 2017–2023
-    6. Write clean 18-column CSV
+    """Generate synthetic Chicago crime data.
 
     Returns the number of rows written.
     """
-    log.info("prepare_start", input=str(input_path), target_rows=target_rows)
-
-    df = pd.read_csv(input_path, dtype=str)
-
-    # ── rename ──
-    present_cols = [c for c in COLUMN_MAP if c in df.columns]
-    df = df.rename(columns={c: COLUMN_MAP[c] for c in present_cols})
-
-    # ── drop extras ──
-    drop_existing = [c for c in DROP_COLS if c in df.columns]
-    df = df.drop(columns=drop_existing, errors="ignore")
-
-    # ── parse arrest / domestic (True/False → 1/0) ──
-    for col in ("arrest", "domestic"):
-        if col in df.columns:
-            mapping = {"True": 1, "False": 0, "true": 1, "false": 0}
-            df[col] = df[col].map(mapping).fillna(0).astype(int)
-
-    # ── parse date ──
-    if "date" in df.columns:
-        df["date"] = pd.to_datetime(df["date"], format="mixed", errors="coerce")
-        df["date"] = df["date"].dt.strftime("%Y-%m-%dT%H:%M:%S")
-
-    # ── parse updated_on ──
-    if "updated_on" in df.columns:
-        df["updated_on"] = pd.to_datetime(df["updated_on"], format="mixed", errors="coerce")
-        df["updated_on"] = df["updated_on"].dt.strftime("%Y-%m-%dT%H:%M:%S")
-
-    # ── filter to Chicago bounding box ──
-    if "latitude" in df.columns and "longitude" in df.columns:
-        df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
-        df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
-        before = len(df)
-        df = df[
-            (df["latitude"] >= LAT_MIN) & (df["latitude"] <= LAT_MAX)
-            & (df["longitude"] >= LON_MIN) & (df["longitude"] <= LON_MAX)
-        ]
-        log.info("bbox_filter", before=before, after=len(df))
-
-    # ── drop rows with missing critical fields ──
-    df = df.dropna(subset=["id", "date"])
-
-    # ── extract year for stratified sampling ──
-    df["_year"] = pd.to_datetime(df["date"], errors="coerce").dt.year
-
-    # ── filter to 2017–2023 ──
-    df = df[(df["_year"] >= 2017) & (df["_year"] <= 2023)]
-    log.info("year_filter", rows=len(df))
-
-    # ── stratified sample: equal rows per year ──
-    years = sorted(df["_year"].unique())
-    per_year = target_rows // len(years) if len(years) > 0 else target_rows
-    sampled_parts: list[pd.DataFrame] = []
-    for year in years:
-        year_df = df[df["_year"] == year]
-        n = min(per_year, len(year_df))
-        sampled_parts.append(year_df.sample(n=n, random_state=seed))
-        log.info("sample_year", year=int(year), available=len(year_df), sampled=n)
-
-    df = pd.concat(sampled_parts, ignore_index=True)
-
-    # ── cleanup ──
-    df = df.drop(columns=["_year"], errors="ignore")
-    df = df.sort_values("date").reset_index(drop=True)
-    df["id"] = range(1, len(df) + 1)
-
-    # ── ensure output columns and order ──
-    for col in OUTPUT_COLS:
-        if col not in df.columns:
-            df[col] = ""
-    df = df[OUTPUT_COLS]
-
-    # ── write ──
+    random.seed(seed)
+    start = datetime.strptime(start_date, "%Y-%m-%d")
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(out, index=False)
-    log.info("prepare_complete", path=str(out), rows=len(df))
-    return len(df)
+
+    type_names = [t[0] for t in CRIME_TYPES]
+    type_weights = [t[4] for t in CRIME_TYPES]
+    type_arrest_rates = {t[0]: t[3] for t in CRIME_TYPES}
+
+    rows = 0
+    cid = 0
+    cur = start
+    end = start + timedelta(days=days)
+
+    with open(out, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(OUTPUT_COLUMNS)
+
+        while cur < end:
+            weekday = cur.weekday()
+            is_weekend = weekday >= 5
+
+            day_of_year = cur.timetuple().tm_yday
+            seasonal_factor = 1.0 + 0.15 * math.sin(2 * math.pi * (day_of_year - 80) / 365)
+            weekend_factor = 1.10 if is_weekend else 1.0
+            base_daily = 55
+            n = int(random.gauss(base_daily * seasonal_factor * weekend_factor, 12))
+            n = max(20, n)
+
+            for _ in range(n):
+                cid += 1
+                primary = random.choices(type_names, weights=type_weights, k=1)[0]
+                for t in CRIME_TYPES:
+                    if t[0] == primary:
+                        _, desc_base, fbi, _, _ = t
+                        break
+
+                hour_weights = _hour_weights(primary)
+                hh = random.choices(HOURS, weights=hour_weights, k=1)[0]
+                ts = cur.replace(hour=hh, minute=random.randint(0, 59), second=random.randint(0, 59))
+
+                loc_weights = TYPE_LOC_WEIGHTS.get(primary, [1] * len(LOCATIONS))
+                loc_desc = random.choices(LOCATIONS, weights=loc_weights, k=1)[0]
+
+                dist_weights = TYPE_DIST_WEIGHTS.get(primary, [1] * 25)
+                district = random.choices(DISTRICTS, weights=dist_weights, k=1)[0]
+
+                ward = random.randint(max(WARD_MIN, district * 2 - 3), min(WARD_MAX, district * 2 + 3))
+                ca = random.randint(max(COMM_MIN, district * 3 - 5), min(COMM_MAX, district * 3 + 5))
+
+                arrest_rate = type_arrest_rates.get(primary, 0.18)
+                arrest = 1 if random.random() < arrest_rate else 0
+
+                if primary == "BATTERY":
+                    domestic = 1 if random.random() < 0.40 else 0
+                elif primary == "ASSAULT":
+                    domestic = 1 if random.random() < 0.20 else 0
+                else:
+                    domestic = 1 if random.random() < 0.08 else 0
+
+                lat_center, lng_center = DISTRICT_CENTERS.get(district, (41.88, -87.63))
+                lat = round(max(LAT_MIN, min(LAT_MAX, lat_center + random.gauss(0, 0.015))), 6)
+                lng = round(max(LNG_MIN, min(LNG_MAX, lng_center + random.gauss(0, 0.015))), 6)
+
+                iucr = fbi + str(random.randint(10, 99))
+                beat = district * 100 + random.randint(1, 99)
+                date_str = ts.isoformat(timespec="seconds")
+
+                w.writerow([
+                    cid, f"HX{100000 + cid}", date_str,
+                    f"{random.randint(0, 9999)} N EXAMPLE ST",
+                    iucr, primary, desc_base, loc_desc,
+                    arrest, domestic, beat, district, ward, ca, fbi,
+                    lat, lng, date_str,
+                ])
+                rows += 1
+
+            cur += timedelta(days=1)
+
+    log.info("synthetic_generated", path=str(out), rows=rows)
+    return rows
 
 
 def verify_csv(path: str | Path) -> int:
     """Count rows in a CSV and log basic stats."""
+    import pandas as pd
     df = pd.read_csv(path, nrows=5)
     total = sum(1 for _ in open(path, encoding="utf-8")) - 1  # subtract header
     log.info("csv_verified", path=str(path), rows=total, columns=list(df.columns))
@@ -217,16 +246,7 @@ def verify_csv(path: str | Path) -> int:
 
 
 if __name__ == "__main__":
-    from chicago_pipeline.common.settings import settings as _st
-
-    cfg = _st.raw_data
-    slug = cfg.get("kaggle_dataset", "chicago/chicago-crime-2024-2026")
-    dl_dir = cfg.get("download_dir", "/tmp/chicago_crime")
-    target = cfg.get("target_rows", 500_000)
-    seed_val = cfg.get("seed", 42)
-
-    output = sys.argv[1] if len(sys.argv) > 1 else "/tmp/chicago_crime/source.csv"
-
-    raw_path = download_kaggle_dataset(slug, dl_dir)
-    rows = prepare_kaggle_csv(raw_path, output, target_rows=target, seed=seed_val)
-    print(f"Prepared {rows} rows -> {output}")
+    import pandas as pd  # noqa: F811
+    output = sys.argv[1] if len(sys.argv) > 1 else "/tmp/chicago_crime_synthetic.csv"
+    rows = generate_synthetic(output, days=90, seed=42)
+    print(f"Generated {rows} rows -> {output}")

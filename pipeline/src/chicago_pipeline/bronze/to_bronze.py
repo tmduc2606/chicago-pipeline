@@ -24,6 +24,30 @@ from chicago_pipeline.common.settings import settings
 
 log = get_logger(__name__)
 
+# ── Title Case (raw Kaggle) → snake_case column map ────────────────────────
+COLUMN_MAP: dict[str, str] = {
+    "ID": "id",
+    "Case Number": "case_number",
+    "Date": "date",
+    "Block": "block",
+    "IUCR": "iucr",
+    "Primary Type": "primary_type",
+    "Description": "description",
+    "Location Description": "location_description",
+    "Arrest": "arrest",
+    "Domestic": "domestic",
+    "Beat": "beat",
+    "District": "district",
+    "Ward": "ward",
+    "Community Area": "community_area",
+    "FBI Code": "fbi_code",
+    "Latitude": "latitude",
+    "Longitude": "longitude",
+    "Updated On": "updated_on",
+}
+# Extra columns present in raw Kaggle CSV that we don't need
+DROP_COLS: set[str] = {"X Coordinate", "Y Coordinate", "Year", "Location"}
+
 BRONZE_SCHEMA = StructType([
     StructField("id", IntegerType()),
     StructField("case_number", StringType()),
@@ -46,6 +70,25 @@ BRONZE_SCHEMA = StructType([
 ])
 
 
+def _rename_and_prune(df):
+    """If the CSV has Title Case columns (raw Kaggle), rename to snake_case
+    and drop extra columns.  If already snake_case, pass through unchanged."""
+    src_cols = df.columns
+    # Only rename columns that exist in the source
+    rename_map = {c: COLUMN_MAP[c] for c in src_cols if c in COLUMN_MAP}
+    if rename_map:
+        for old, new in rename_map.items():
+            df = df.withColumnRenamed(old, new)
+        log.info("bronze_renamed_columns", count=len(rename_map))
+    # Drop extra columns not in the target schema
+    target_names = {f.name for f in BRONZE_SCHEMA}
+    to_drop = [c for c in df.columns if c not in target_names]
+    if to_drop:
+        df = df.drop(*to_drop)
+        log.info("bronze_dropped_columns", columns=to_drop)
+    return df
+
+
 def bronze_writer(spark: SparkSession, source_csv: str, output_root: str | None = None) -> int:
     cfg = settings.bronze
     bucket = settings.storage.get("bucket", "lake")
@@ -57,10 +100,18 @@ def bronze_writer(spark: SparkSession, source_csv: str, output_root: str | None 
     now = datetime.now(timezone.utc)
     ingest_date_str = now.strftime("%Y-%m-%d")
 
+    # Read with header + inferSchema so we get the raw column names
+    raw_df = spark.read.option("header", True).option("inferSchema", True).csv(source_csv)
+
+    # Rename Title Case → snake_case if needed, drop extras
+    df = _rename_and_prune(raw_df)
+
+    # Cast to the expected bronze schema (coerce types)
+    for field in BRONZE_SCHEMA:
+        df = df.withColumn(field.name, df[field.name].cast(field.dataType))
+
     df = (
-        spark.read.schema(BRONZE_SCHEMA)
-        .option("header", True)
-        .csv(source_csv)
+        df
         .withColumn(ingest_ts_col, lit(now.isoformat()))
         .withColumn(partition_col, to_date(lit(ingest_date_str)))
     )

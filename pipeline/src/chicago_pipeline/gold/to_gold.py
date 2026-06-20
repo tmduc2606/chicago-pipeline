@@ -26,17 +26,6 @@ def _gold_path(output_root: str, table: str) -> str:
     return f"{output_root}/{table}"
 
 
-def _location_hash_expr() -> F.Column:
-    return F.xxhash64(
-        F.col("latitude"),
-        F.col("longitude"),
-        F.col("block"),
-        F.col("district"),
-        F.col("ward"),
-        F.col("community_area"),
-    )
-
-
 def _haversine_km(lat_col: str, lon_col: str) -> F.Column:
     lat1_r = F.radians(F.lit(DOWNTOWN_LAT))
     lon1_r = F.radians(F.lit(DOWNTOWN_LON))
@@ -120,7 +109,8 @@ def _build_dim_location(df: DataFrame, cfg: dict) -> DataFrame:
         ),
     )
 
-    dim = dim.withColumn("location_id", _location_hash_expr())
+    # Use monotonically_increasing_id for a guaranteed-unique surrogate key
+    dim = dim.withColumn("location_id", F.monotonically_increasing_id())
     return dim.select(
         "location_id", "block", "location_description", "district", "ward",
         "community_area", "latitude", "longitude", "is_downtown",
@@ -141,14 +131,18 @@ def _build_fact_crime(df: DataFrame, dim_time: DataFrame, dim_offense: DataFrame
         .agg(F.min("time_id").alias("time_id"))
     )
 
-    df = df.withColumn("_location_key", _location_hash_expr())
-
+    # Join fact to dim_location on the real location columns (not a hash)
     fact = (
         df
         .join(F.broadcast(dim_offense.select("iucr", "offense_id")), "iucr", "left")
-        .join(F.broadcast(dim_location.select("location_id", _location_hash_expr().alias("_loc_key"))),
-              F.col("_location_key") == F.col("_loc_key"), "left")
-        .drop("_location_key", "_loc_key")
+        .join(
+            F.broadcast(dim_location.select(
+                "location_id", "block", "location_description", "district",
+                "ward", "community_area", "latitude", "longitude",
+            )),
+            ["block", "location_description", "district", "ward", "community_area", "latitude", "longitude"],
+            "left",
+        )
         .withColumnRenamed("location_id", "location_id_fk")
         .join(F.broadcast(dim_case.select("case_number", "case_id")), "case_number", "left")
         .join(F.broadcast(dim_time_daily), "date", "left")

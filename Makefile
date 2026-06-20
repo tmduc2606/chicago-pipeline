@@ -48,14 +48,8 @@ pipeline: ## Ingest -> Silver -> Gold -> Postgres -> dbt (one-shot end-to-end)
 	@$(MAKE) dbt-test
 	@$(MAKE) quality
 
-seed: ## Download Kaggle data (or generate synthetic fallback)
+seed: ## Generate synthetic data for local dev
 	python scripts/seed.py
-
-setup-kaggle: ## Verify Kaggle API token setup
-	bash scripts/setup_kaggle.sh
-
-setup-kaggle-win: ## Verify Kaggle API token setup (Windows)
-	powershell -ExecutionPolicy Bypass -File scripts/setup_kaggle.ps1
 
 spark-bronze: seed ## Run Bronze ingestion
 	docker compose exec -T spark-master \

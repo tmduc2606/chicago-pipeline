@@ -11,7 +11,7 @@
 
 A portfolio-grade, portfolio-bright data platform that:
 
-1. **Ingests** the [Chicago Crime 2024–2026 Kaggle dataset](https://www.kaggle.com/datasets/aliafzal9323/chicago-crime-dataset-2024-2026) (or a 90-day synthetic seed) into a **Bronze** layer on MinIO.
+1. **Ingests** real Chicago crime data (~500K rows, 2019–2025) into a **Bronze** layer on MinIO.
 2. **Cleans and normalises** the data with PySpark + Great Expectations into a **Silver** layer.
 3. **Aggregates** the data into a **Gold** layer (curated business aggregates).
 4. **Materialises a star-schema warehouse** (PostgreSQL + PostGIS) and a set of dbt **marts** for analytics.
@@ -61,10 +61,8 @@ Copy-Item .env.example .env
 docker compose up -d --build
 
 # 3. (Optional) Seed data + run the full pipeline
-# Download Kaggle data (or generate synthetic fallback)
-python scripts/seed.py
-
-# Run pipeline stages inside the container
+# Place the downloaded CSV at data/chicago_crime.csv (see data/README.md)
+# Then run the pipeline stages inside the container:
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime.csv
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/silver/to_silver.py
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/gold/to_gold.py
@@ -159,8 +157,7 @@ docker compose down -v                # destroy volumes and restart fresh
 # Health check
 bash scripts/healthcheck.sh
 
-# Pipeline (run from host — seed.py downloads Kaggle data, pipeline runs in container)
-python scripts/seed.py                                                            # download Kaggle data (or synthetic fallback)
+# Pipeline (run from host — place data/chicago_crime.csv first, see data/README.md)
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime.csv
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/silver/to_silver.py
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/gold/to_gold.py
@@ -203,7 +200,7 @@ MIT. See `LICENSE`.
 ## FAQ
 
 **Q: Is this real Chicago crime data?**
-A: No — the pipeline uses a synthetic 90-day seed dataset (57,931 records) that mirrors the statistical properties of real data. Replace `scripts/seed.py` with a real Kaggle download for production use.
+A: Yes — the pipeline uses a real stratified sample of ~500K rows from the Chicago Crime dataset (2019–2025), sourced from Kaggle. A synthetic fallback is also available via `python scripts/seed.py synthetic`.
 
 **Q: Why don't the map tiles load on the Locations page?**
 A: MapLibre GL v5.x has a known compatibility issue with Vite's ES module bundling that prevents tile data from loading in the production build. The map containers and data layers render correctly; only the base tile imagery is affected. This is a cosmetic issue that doesn't affect data visualization.
