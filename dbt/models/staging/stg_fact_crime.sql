@@ -19,3 +19,4 @@ SELECT
     year,
     _gold_ingest_ts
 FROM warehouse.fact_crime
+WHERE location_id IS NOT NULL
