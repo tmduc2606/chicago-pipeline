@@ -1,4 +1,4 @@
-# Chicago Pipeline
+# Canyon - Chicago Crime Pipeline
 
 [![Stack](https://img.shields.io/badge/stack-Spark%20%7C%20dbt%20%7C%20FastAPI%20%7C%20React-blue)](./docs/IMPLEMENTATION_PLAN.md)
 [![Compose](https://img.shields.io/badge/docker-compose-13%20services-2496ED)](./docker-compose.yaml)
