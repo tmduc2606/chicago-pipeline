@@ -1,35 +1,21 @@
 # Chicago Pipeline
 
-> End-to-end data platform for the Chicago Crime Database Management System (2024–2026).
-> See the [implementation plan](./docs/IMPLEMENTATION_PLAN.md) for the full architecture and design rationale.
-
 [![Stack](https://img.shields.io/badge/stack-Spark%20%7C%20dbt%20%7C%20FastAPI%20%7C%20React-blue)](./docs/IMPLEMENTATION_PLAN.md)
 [![Compose](https://img.shields.io/badge/docker-compose-13%20services-2496ED)](./docker-compose.yaml)
 [![License](https://img.shields.io/badge/license-MIT-green)](#license)
 
-## What is this?
+## Project Overview
 
-A portfolio-grade, portfolio-bright data platform that:
+An end-to-end data pipeline for the Chicago Crime tracking system that:
 
-1. **Ingests** real Chicago crime data (~500K rows, 2019–2025) into a **Bronze** layer on MinIO.
+1. **Ingests** real Chicago crime data (~52K rows, 2019–2025) into a **Bronze** layer on MinIO.
 2. **Cleans and normalises** the data with PySpark + Great Expectations into a **Silver** layer.
 3. **Aggregates** the data into a **Gold** layer (curated business aggregates).
-4. **Materialises a star-schema warehouse** (PostgreSQL + PostGIS) and a set of dbt **marts** for analytics.
+4. **Composes into a star-schema warehouse** (PostgreSQL + PostGIS) and a set of dbt **marts** for analytics.
 5. **Exposes** 21 HTTP endpoints via a typed FastAPI service.
 6. **Visualises** the data in a polished React SPA (Vite + TS + Tailwind + Recharts + MapLibre). 6 pages: Dashboard, Analysis, Crime Types, Locations, Insights, About.
 7. **Observes** itself via Prometheus + Grafana + OpenLineage/Marquez.
 8. **Dark/light theme** toggle for comfortable viewing.
-
-> **Detailed plan:** [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md)
-
-### Assessment Status
-
-| Metric | Value |
-|--------|-------|
-| Automated Gates | 100% (32/32) — Grade A |
-| Composite Critic Score | 8.39 / 10 — PASS |
-| All Personas | ≥ 7.0 (no hard failures) |
-| Findings | 0 open (all resolved) |
 
 ## Quick start
 
@@ -109,16 +95,13 @@ Kaggle CSV  ─►  Bronze (MinIO)  ─GE─►  Silver (MinIO)  ─GE─►  Go
                                                            React SPA (4 pages)
 ```
 
-> Full diagram and per-layer ownership in [`docs/IMPLEMENTATION_PLAN.md`](./docs/IMPLEMENTATION_PLAN.md).
-
 ## Repository layout
 
 ```
 chicago-pipeline/
 ├── Makefile                       # make up / down / test / pipeline / ...
 ├── docker-compose.yaml            # 13 services, all with healthchecks
-├── docs/                          # architecture, plan, ADRs, runbook
-├── contracts/                     # shared, versioned artefacts (the wires)
+├── data/                          # stripped Chicago crime dataset (2019 - 2025)
 ├── pipeline/                      # PySpark jobs (Bronze/Silver/Gold)
 ├── dbt/                           # dbt project (warehouse + marts)
 ├── airflow/                       # 7 DAGs
@@ -200,10 +183,7 @@ MIT. See `LICENSE`.
 ## FAQ
 
 **Q: Is this real Chicago crime data?**
-A: Yes — the pipeline uses a real stratified sample of ~500K rows from the Chicago Crime dataset (2019–2025), sourced from Kaggle. A synthetic fallback is also available via `python scripts/seed.py synthetic`.
-
-**Q: Why don't the map tiles load on the Locations page?**
-A: MapLibre GL v5.x has a known compatibility issue with Vite's ES module bundling that prevents tile data from loading in the production build. The map containers and data layers render correctly; only the base tile imagery is affected. This is a cosmetic issue that doesn't affect data visualization.
+A: Yes — the pipeline uses a real stratified sample of ~52K rows from the Chicago Crime dataset (2019–2025), sourced from Kaggle. A synthetic fallback is also available via `python scripts/seed.py synthetic`.
 
 **Q: How do I reset the stack to a clean state?**
 A: Run `docker compose down -v` to remove all volumes, then `docker compose up -d --build` to rebuild and restart.
