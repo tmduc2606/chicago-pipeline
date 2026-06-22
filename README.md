@@ -1,7 +1,8 @@
 # Canyon - Chicago Crime Pipeline
 
-[![Stack](https://img.shields.io/badge/stack-Spark%20%7C%20dbt%20%7C%20FastAPI%20%7C%20React-blue)](./docs/IMPLEMENTATION_PLAN.md)
-[![Compose](https://img.shields.io/badge/docker-compose-13%20services-2496ED)](./docker-compose.yaml)
+[![Stack](https://img.shields.io/badge/stack-Spark%20%7C%20dbt%20%7C%20Airflow%20%7C%20MinIO%20%7C%20FastAPI%20%7C%20React-blue)](./docs/IMPLEMENTATION_PLAN.md)
+[![Docker Compose](https://img.shields.io/badge/docker--compose-14%20services-2496ED)](./docker-compose.yaml)
+[![Release](https://img.shields.io/badge/release-final-success)](./docker-compose.yaml)
 [![License](https://img.shields.io/badge/license-MIT-green)](#license)
 
 ## Project Overview
