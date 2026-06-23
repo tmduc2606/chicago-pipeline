@@ -47,9 +47,8 @@ Copy-Item .env.example .env
 # 2. Bring up the full stack
 docker compose up -d --build
 
-# 3. (Optional) Seed data + run the full pipeline
-# Place the downloaded CSV at data/chicago_crime.csv (see data/README.md)
-# Then run the pipeline stages inside the container:
+# 3. Seed data (already placed in) + run the full pipeline
+# Run the pipeline stages inside the container with the following commands:
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/bronze/to_bronze.py /data/chicago_crime.csv
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/silver/to_silver.py
 docker compose exec -T spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --py-files /opt/pipeline/src /opt/pipeline/src/chicago_pipeline/gold/to_gold.py
@@ -83,18 +82,7 @@ When the stack is up, these are the entry points (see `make urls`):
 
 ## Architecture
 
-```
-Kaggle CSV  ─►  Bronze (MinIO)  ─GE─►  Silver (MinIO)  ─GE─►  Gold (MinIO)
-                                                                  │
-                                                                  ▼
-                                                dbt marts ◄── Postgres (PostGIS)
-                                                                  │
-                                                                  ▼
-                                                           FastAPI (21 routes)
-                                                                   │
-                                                                   ▼
-                                                           React SPA (4 pages)
-```
+![alt text](https://github.com/tmduc2606/chicago-pipeline/blob/main/reports/DA%20-%20Canyon.drawio.png "DA - Canyon")
 
 ## Repository layout
 
